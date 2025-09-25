@@ -4,26 +4,10 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  type LinksFunction,
-} from "react-router";
+} from 'react-router'
 
-import "./app.css";
-
-export const links: LinksFunction = () => [
-  {
-    rel: "preconnect",
-    href: "https://fonts.googleapis.com",
-  },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap",
-  },
-];
+import '@mantine/core/styles.css'
+import './app.css'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -31,6 +15,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/images/favicon.png"></link>
         <Meta />
         <Links />
       </head>
@@ -40,17 +28,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }
 
 export default function App() {
-  return <Outlet />;
+  return <Outlet />
 }
 
 export function ErrorBoundary(error: Error) {
   console.error('ErrorBoundary', error)
-
-  return (
-    <div>Error Boundary, refer to console</div>
-  )
+  return null
 }

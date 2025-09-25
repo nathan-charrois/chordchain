@@ -1,7 +1,5 @@
 import type { MetaArgs } from 'react-router'
-
-import { Button } from '@/components/ui/8bit/button'
-import { Card, CardContent } from '@/components/ui/8bit/card'
+import { MantineProvider } from '@mantine/core'
 
 export function meta({}: MetaArgs) {
   return [
@@ -12,10 +10,6 @@ export function meta({}: MetaArgs) {
 
 export default function Home() {
   return (
-    <Card>
-      <CardContent>
-        <Button variant="outline">Button</Button>
-      </CardContent>
-    </Card>
+    <MantineProvider>Hey</MantineProvider>
   )
 }
