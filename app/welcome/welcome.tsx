@@ -1,5 +1,7 @@
 import logoDark from "./logo-dark.svg";
 import logoLight from "./logo-light.svg";
+import { Button } from "@/components/ui/8bit/button"
+import { Card, CardContent } from "@/components/ui/8bit/card"
 
 export function Welcome() {
   return (
@@ -18,6 +20,11 @@ export function Welcome() {
               className="hidden w-full dark:block"
             />
           </div>
+          <Card>
+            <CardContent>
+              <Button variant="outline">Button</Button>
+            </CardContent>
+          </Card>
         </header>
         <div className="max-w-[300px] w-full space-y-6 px-4">
           <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
