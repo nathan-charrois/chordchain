@@ -3,6 +3,9 @@ import { Grid, Text } from '@mantine/core'
 
 import AppLayout from '~/components/App/AppLayout'
 import AppProvider from '~/components/App/AppProvider'
+import GameBoard from '~/components/Game/GameBoard'
+import GameKeyboard from '~/components/Game/GameKeyboard'
+import GameTarget from '~/components/Game/GameTarget'
 import Header from '~/components/Header/Header'
 
 export function meta({}: MetaArgs) {
@@ -17,9 +20,9 @@ export default function Index() {
       <AppLayout header={<Header />}>
         <Grid>
           <Grid.Col span={8}>
-            <Text>Find the hidden calculation that equals 22</Text>
-            <Text>Gameboard</Text>
-            <Text>Keyboard</Text>
+            <GameTarget />
+            <GameBoard />
+            <GameKeyboard />
           </Grid.Col>
           <Grid.Col span={4}>
             <Text>Achievements</Text>

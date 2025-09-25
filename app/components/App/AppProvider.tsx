@@ -1,5 +1,7 @@
 import { MantineProvider } from '@mantine/core'
 
+import { GameProvider } from '~/components/Game/GameProvider'
+
 type Props = {
   children: React.ReactNode
 }
@@ -7,7 +9,9 @@ type Props = {
 export default function AppProvider({ children }: Props) {
   return (
     <MantineProvider>
-      {children}
+      <GameProvider>
+        {children}
+      </GameProvider>
     </MantineProvider>
   )
 }
