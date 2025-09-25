@@ -1,7 +1,9 @@
-import type { Route } from "./+types/home";
-import { Welcome } from "../welcome/welcome";
+import type { MetaArgs } from "react-router";
 
-export function meta({}: Route.MetaArgs) {
+import { Button } from "@/components/ui/8bit/button"
+import { Card, CardContent } from "@/components/ui/8bit/card"
+
+export function meta({}: MetaArgs) {
   return [
     { title: "New React Router App" },
     { name: "description", content: "Welcome to React Router!" },
@@ -9,5 +11,11 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <Welcome />;
+  return (
+    <Card>
+      <CardContent>
+        <Button variant="outline">Button</Button>
+      </CardContent>
+    </Card>
+  );
 }
