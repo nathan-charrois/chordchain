@@ -9,7 +9,7 @@ type Props = {
 }
 
 const target = 50
-const targetEquation = '100-48-2'
+const targetEquation = '25+25'
 
 export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')
@@ -21,11 +21,11 @@ export function GameProvider({ children }: Props) {
   }, [status])
 
   useEffect(() => {
-    if (guesses.length >= GAME_MAX_GUESSES) {
-      setStatus('loss')
-    }
-    else if (guesses.includes(targetEquation)) {
+    if (guesses.includes(targetEquation)) {
       setStatus('won')
+    }
+    else if (guesses.length >= GAME_MAX_GUESSES) {
+      setStatus('loss')
     }
     else if (guesses.length) {
       setStatus('started')
