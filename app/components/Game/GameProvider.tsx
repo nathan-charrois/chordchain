@@ -1,19 +1,36 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-import { GameContext } from './context/GameContext'
+import { GameContext, type GameStatus } from './context/GameContext'
+import isGuessValid from './logic/game'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
 type Props = {
   children: React.ReactNode
 }
 
+const target = 50
+const targetEquation = '100-48-2'
+
 export function GameProvider({ children }: Props) {
+  const [status, setStatus] = useState<GameStatus>('new')
   const [guess, setGuess] = useState('')
   const [guesses, setGuesses] = useState<string[]>([])
-  console.log({
-    guess,
-    guesses,
-  })
+
+  useEffect(() => {
+    console.log('Game status updated:', status)
+  }, [status])
+
+  useEffect(() => {
+    if (guesses.length >= GAME_MAX_GUESSES) {
+      setStatus('loss')
+    }
+    else if (guesses.includes(targetEquation)) {
+      setStatus('won')
+    }
+    else if (guesses.length) {
+      setStatus('started')
+    }
+  }, [guesses, setStatus])
 
   const handleSetGuess = useCallback((subString: string) => {
     setGuess((prev) => {
@@ -26,34 +43,23 @@ export function GameProvider({ children }: Props) {
   }, [setGuess])
 
   const handleDeleteGuess = useCallback(() => {
-    setGuess((prev) => {
-      if (prev.length < 1) {
-        return prev
-      }
-
-      return prev.slice(0, -1)
-    })
+    setGuess(prev => prev.slice(0, -1))
   }, [setGuess])
 
   const handleSubmitGuess = useCallback(() => {
-    if (guesses.length === GAME_MAX_GUESSES) {
-      console.log('Max guesses reached')
-      return
+    if (isGuessValid(guess, target)) {
+      setGuesses(prev => [...prev, guess])
+      setGuess('')
     }
-
-    if (guess.length !== GAME_MAX_CHARS) {
-      console.log('Insufficient characters')
-      return
+    else {
+      console.error(`Guess was not submitted`)
     }
-
-    setGuesses(prev => [...prev, guess])
-    setGuess('')
   }, [guess, setGuesses])
 
   return (
     <GameContext.Provider value={{
-      status: 'new',
-      target: 50,
+      status,
+      target,
       guess,
       guesses,
       maxCharacters: GAME_MAX_CHARS,

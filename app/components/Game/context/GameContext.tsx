@@ -1,8 +1,8 @@
 import { createContext } from 'react'
 
-type GameStatus = 'new' | 'started' | 'loss' | 'won'
+export type GameStatus = 'new' | 'started' | 'loss' | 'won'
 
-type Game = {
+export type Game = {
   status: GameStatus
   target: number
   guess: string

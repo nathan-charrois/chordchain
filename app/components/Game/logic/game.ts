@@ -2,13 +2,9 @@ import evaluate from './evaluate'
 
 function isGuessValid(guess: string, target: number): boolean {
   const value = evaluate(guess)
+  console.log('Guess evaluated to', value, 'and target is', target)
 
-  if (value === target) {
-    console.log('Guess evaluated to', value, 'and matches target', target)
-    return true
-  }
-
-  return false
+  return value === target
 }
 
 export default isGuessValid

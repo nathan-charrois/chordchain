@@ -1,5 +1,7 @@
 import { Parser } from 'expr-eval'
 
+import { GAME_MAX_CHARS } from '~/constant'
+
 const parser = new Parser({
   operators: {
     add: true,
@@ -14,6 +16,11 @@ function evaluate(input: string): number | null {
 
   if (sanitized === null) {
     console.error('Input could not be sanitized')
+    return null
+  }
+
+  if (sanitized.length !== GAME_MAX_CHARS) {
+    console.error('Input contains insufficient length')
     return null
   }
 
