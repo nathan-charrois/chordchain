@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { Stack } from '@mantine/core'
 
-import { useGame } from './GameProvider'
 import GameRow from './GameRow'
+import { useGame } from './hooks/useGame'
 
 export default function GameBoard() {
   const { maxGuesses } = useGame()

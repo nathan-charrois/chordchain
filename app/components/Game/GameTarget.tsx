@@ -1,6 +1,6 @@
 import { Text } from '@mantine/core'
 
-import { useGame } from './GameProvider'
+import { useGame } from './hooks/useGame'
 
 export default function GameTarget() {
   const { target } = useGame()
