@@ -2,17 +2,16 @@ import { useMemo } from 'react'
 import { Box, Group } from '@mantine/core'
 
 import { useGame } from './hooks/useGame'
-import { GAME_MAX_CHARS } from '~/constant'
 
 type Props = {
   rowIndex: number
 }
 
 export default function GameRow({ rowIndex }: Props) {
-  const { guess, guesses } = useGame()
+  const { maxCharacters, guess, guesses } = useGame()
 
   const cells = useMemo(() => {
-    return [...Array(GAME_MAX_CHARS).keys()].map((i) => {
+    return [...Array(maxCharacters).keys()].map((i) => {
       if (guesses[rowIndex]) {
         return (
           <Box key={i} bg="gray">
@@ -29,7 +28,7 @@ export default function GameRow({ rowIndex }: Props) {
         </Box>
       )
     })
-  }, [guess])
+  }, [maxCharacters, guess])
 
   return <Group>{cells}</Group>
 }

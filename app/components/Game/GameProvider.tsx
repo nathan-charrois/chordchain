@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 
 import { GameContext } from './context/GameContext'
-import { GAME_MAX_CHARS } from '~/constant'
+import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
 type Props = {
   children: React.ReactNode
@@ -17,7 +17,7 @@ export function GameProvider({ children }: Props) {
 
   const handleSetGuess = useCallback((subString: string) => {
     setGuess((prev) => {
-      if (prev.length >= GAME_MAX_CHARS) {
+      if (prev.length === GAME_MAX_CHARS) {
         return prev
       }
 
@@ -36,10 +36,18 @@ export function GameProvider({ children }: Props) {
   }, [setGuess])
 
   const handleSubmitGuess = useCallback(() => {
-    if (guess.length === GAME_MAX_CHARS) {
-      setGuesses(prev => [...prev, guess])
-      setGuess('')
+    if (guesses.length === GAME_MAX_GUESSES) {
+      console.log('Max guesses reached')
+      return
     }
+
+    if (guess.length !== GAME_MAX_CHARS) {
+      console.log('Insufficient characters')
+      return
+    }
+
+    setGuesses(prev => [...prev, guess])
+    setGuess('')
   }, [guess, setGuesses])
 
   return (
@@ -48,7 +56,8 @@ export function GameProvider({ children }: Props) {
       target: 50,
       guess,
       guesses,
-      maxGuesses: 6,
+      maxCharacters: GAME_MAX_CHARS,
+      maxGuesses: GAME_MAX_GUESSES,
       setGuess: handleSetGuess,
       deleteGuess: handleDeleteGuess,
       submitGuess: handleSubmitGuess,

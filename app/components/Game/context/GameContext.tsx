@@ -7,6 +7,7 @@ type Game = {
   target: number
   guess: string
   guesses: string[]
+  maxCharacters: number
   maxGuesses: number
   setGuess: (guess: string) => void
   deleteGuess: () => void
