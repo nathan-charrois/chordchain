@@ -13,11 +13,18 @@ export default function GameRow({ rowIndex }: Props) {
 
   const cells = useMemo(() => {
     return [...Array(GAME_MAX_CHARS).keys()].map((i) => {
-      const isCurrentRow = rowIndex === guesses.length
-      const ch = guess[i] && isCurrentRow ? guess[i] : 'x'
+      if (guesses[rowIndex]) {
+        return (
+          <Box key={i} bg="gray">
+            {`[ ${guesses[rowIndex][i]} ]`}
+          </Box>
+        )
+      }
 
+      const current = rowIndex === guesses.length
+      const ch = guess[i] && current ? guess[i] : 'x'
       return (
-        <Box key={i}>
+        <Box key={i} bg={current ? 'blue' : ''}>
           {`[ ${ch} ]`}
         </Box>
       )
