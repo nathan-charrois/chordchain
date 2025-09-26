@@ -7,7 +7,7 @@ type Props = {
 
 export default function AppLayout({ header, children }: Props) {
   return (
-    <AppShell withBorder={false} header={{ height: 60 }}>
+    <AppShell withBorder={false} header={{ height: 65 }} padding="lg">
       <AppShell.Header>
         {header}
       </AppShell.Header>

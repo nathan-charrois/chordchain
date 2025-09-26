@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Button, Group, Stack } from '@mantine/core'
+import { Button, Card, Group } from '@mantine/core'
 
 import { useGame } from './hooks/useGame'
 
@@ -22,12 +22,12 @@ export default function GameKeyboard() {
   ), [setGuess])
 
   return (
-    <Stack>
-      <Group>{numberRow}</Group>
-      <Group>
+    <Card mb="md" bg="gray.1">
+      <Group mb="md">{numberRow}</Group>
+      <Group grow>
         <Button onClick={submitGuess}>Enter</Button>
         <Button onClick={deleteGuess}>Delete</Button>
       </Group>
-    </Stack>
+    </Card>
   )
 }

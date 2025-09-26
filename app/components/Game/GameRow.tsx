@@ -14,21 +14,26 @@ export default function GameRow({ rowIndex }: Props) {
     return [...Array(maxCharacters).keys()].map((i) => {
       if (guesses[rowIndex]) {
         return (
-          <Box key={i} bg="gray">
-            {`[ ${guesses[rowIndex][i]} ]`}
+          <Box key={i} bg="indigo.2" c="gray.6" mb="sm" py="sm" ta="center">
+            {guesses[rowIndex][i]}
           </Box>
         )
       }
 
-      const current = rowIndex === guesses.length
-      const ch = guess[i] && current ? guess[i] : 'x'
+      const currentRow = rowIndex === guesses.length
+      const currentChar = guess[i] && currentRow
+
+      const ch = currentChar ? guess[i] : '-'
+      const bg = currentRow ? 'green.3' : 'indigo.2'
+      const color = currentChar ? 'green.9' : 'indigo.2'
+
       return (
-        <Box key={i} bg={current ? 'blue' : ''}>
-          {`[ ${ch} ]`}
+        <Box key={i} bg={bg} c={color} mb="sm" py="sm" ta="center">
+          {ch}
         </Box>
       )
     })
   }, [maxCharacters, guess])
 
-  return <Group>{cells}</Group>
+  return <Group grow gap="sm">{cells}</Group>
 }

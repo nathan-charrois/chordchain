@@ -1,10 +1,14 @@
-import { Text } from '@mantine/core'
+import { Card, Text } from '@mantine/core'
 
 import { useGame } from './hooks/useGame'
 
 export default function GameTarget() {
-  const { target } = useGame()
+  const { target, status } = useGame()
+
   return (
-    <Text>{`Find the hidden calculation that equals ${target}`}</Text>
+    <Card mb="md" bg="gray.1">
+      <Text>{`Game status: ${status}`}</Text>
+      <Text>{`Find the hidden calculation that equals ${target}`}</Text>
+    </Card>
   )
 }

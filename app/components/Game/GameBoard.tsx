@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Stack } from '@mantine/core'
+import { Card, Stack } from '@mantine/core'
 
 import GameRow from './GameRow'
 import { useGame } from './hooks/useGame'
@@ -15,5 +15,9 @@ export default function GameBoard() {
     ))
   ), [maxGuesses])
 
-  return rows
+  return (
+    <Card mb="md" bg="indigo.1">
+      {rows}
+    </Card>
+  )
 }
