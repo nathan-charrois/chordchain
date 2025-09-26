@@ -8,9 +8,9 @@ export default function GameBoard() {
   const { maxGuesses } = useGame()
 
   const rows = useMemo(() => (
-    [...Array(maxGuesses).keys()].map(key => (
-      <Stack key={key}>
-        <GameRow />
+    [...Array(maxGuesses).keys()].map(i => (
+      <Stack key={i}>
+        <GameRow rowIndex={i} />
       </Stack>
     ))
   ), [maxGuesses])

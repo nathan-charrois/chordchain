@@ -1,19 +1,16 @@
 import { createContext } from 'react'
 
-type GuessStatus = 'correct' | 'present' | 'absent'
-
-type Guess = {
-  text: string
-  status: GuessStatus[]
-}
-
 type GameStatus = 'new' | 'started' | 'loss' | 'won'
 
 type Game = {
   status: GameStatus
   target: number
-  guesses: Guess[]
+  guess: string
+  guesses: string[]
   maxGuesses: number
+  setGuess: (guess: string) => void
+  deleteGuess: () => void
+  submitGuess: () => void
 }
 
 export const GameContext = createContext<Game | undefined>(undefined)
