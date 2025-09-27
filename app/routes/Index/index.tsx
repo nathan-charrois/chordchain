@@ -19,12 +19,12 @@ export default function Index() {
     <AppProvider>
       <AppLayout header={<Header />}>
         <Grid>
-          <Grid.Col span={8}>
+          <Grid.Col span={9}>
             <GameTarget />
             <GameBoard />
             <GameKeyboard />
           </Grid.Col>
-          <Grid.Col span={4}>
+          <Grid.Col span={3}>
             <Card mb="md" bg="gray.1">
               <Text>Achievements</Text>
             </Card>

@@ -19,6 +19,7 @@ export type Game = {
   setGuess: (guess: string) => void
   deleteGuess: () => void
   submitGuess: () => void
+  resetGame: () => void
 }
 
 export const GameContext = createContext<Game | undefined>(undefined)

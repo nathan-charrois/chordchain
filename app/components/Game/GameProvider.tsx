@@ -11,6 +11,10 @@ type Props = {
 const target = 50
 const solution = '25+25'
 
+const isGameWon = (guesses: Guess[], solution: string) => {
+  return guesses.find(({ guess }) => guess === solution)
+}
+
 export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')
   const [guess, setGuess] = useState('')
@@ -21,7 +25,7 @@ export function GameProvider({ children }: Props) {
   }, [status])
 
   useEffect(() => {
-    if (guesses.find(({ guess }) => guess === solution)) {
+    if (isGameWon(guesses, solution)) {
       setStatus('won')
     }
     else if (guesses.length >= GAME_MAX_GUESSES) {
@@ -56,6 +60,12 @@ export function GameProvider({ children }: Props) {
     else {
       console.error(`Guess was not submitted`)
     }
+  }, [guess, setGuesses, setGuess])
+
+  const handleResetGame = useCallback(() => {
+    setStatus('new')
+    setGuess('')
+    setGuesses([])
   }, [guess, setGuesses])
 
   return (
@@ -69,6 +79,7 @@ export function GameProvider({ children }: Props) {
       setGuess: handleSetGuess,
       deleteGuess: handleDeleteGuess,
       submitGuess: handleSubmitGuess,
+      resetGame: handleResetGame,
     }}
     >
       {children}

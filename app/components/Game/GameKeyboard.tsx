@@ -12,7 +12,7 @@ const keys = [
 ]
 
 export default function GameKeyboard() {
-  const { setGuess, guesses, deleteGuess, submitGuess, status } = useGame()
+  const { setGuess, guesses, deleteGuess, submitGuess, status, resetGame } = useGame()
 
   const numberRow = useMemo(() => (
     keys.map((value) => {
@@ -36,7 +36,7 @@ export default function GameKeyboard() {
   if (status === 'won') {
     return (
       <Card bg="indigo.1">
-        <Button>Play Again</Button>
+        <Button onClick={resetGame}>Play Again</Button>
       </Card>
     )
   }
