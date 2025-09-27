@@ -61,6 +61,8 @@ export function getStatusBackgroundColor(status?: CellStatus) {
       return 'green.6'
     case 'present':
       return 'yellow.6'
+    case 'absent':
+      return 'gray.6'
     default:
       return 'indigo.2'
   }
@@ -71,6 +73,8 @@ export function getStatusTextColor(status?: CellStatus) {
     case 'correct':
       return 'white'
     case 'present':
+      return 'white'
+    case 'absent':
       return 'white'
     default:
       return 'indigo.6'

@@ -12,7 +12,13 @@ const keys = [
 ]
 
 export default function GameKeyboard() {
-  const { setGuess, guesses, deleteGuess, submitGuess, resetGame } = useGame()
+  const {
+    setGuess,
+    guesses,
+    deleteGuess,
+    submitGuess,
+    resetGame,
+  } = useGame()
 
   const numberRow = useMemo(() => (
     keys.map((value) => {
