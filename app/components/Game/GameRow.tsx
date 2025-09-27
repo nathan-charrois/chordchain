@@ -28,5 +28,9 @@ export default function GameRow({ rowIndex }: Props) {
     })
   }, [maxCharacters, guess])
 
-  return <Group grow gap="sm">{cells}</Group>
+  return (
+    <Group grow gap="sm" mb="sm">
+      {cells}
+    </Group>
+  )
 }

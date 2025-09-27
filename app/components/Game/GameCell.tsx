@@ -24,7 +24,7 @@ function GameCell({ isActiveRow, character, status }: Props) {
     : getTextColor(isActiveRow, character)
 
   return (
-    <Box bg={bg} c={color} mb="sm" py="sm" ta="center" mih={50}>
+    <Box bg={bg} c={color} py="sm" ta="center" mih={50}>
       {character}
     </Box>
   )

@@ -2,19 +2,23 @@ import { useMemo } from 'react'
 import { Button, Card, Group } from '@mantine/core'
 
 import { useGame } from './hooks/useGame'
-import { getCellStatus } from './logic/game'
+import { getCellStatus, getStatusBackgroundColor, getStatusTextColor } from './logic/game'
 
-const numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-const operations = ['+', '-', '*', '/', '(', ')']
+const keys = [
+  '0', '1', '2', '3',
+  '4', '5', '6', '7',
+  '8', '9', '+', '-',
+  '*', '/', '(', ')',
+]
 
 export default function GameKeyboard() {
-  const { setGuess, guesses, deleteGuess, submitGuess } = useGame()
+  const { setGuess, guesses, deleteGuess, submitGuess, status } = useGame()
 
   const numberRow = useMemo(() => (
-    [...numbers, ...operations].map((value) => {
+    keys.map((value) => {
       const status = getCellStatus(value, guesses)
-      const bg = status === 'correct' ? 'green.6' : status === 'present' ? 'yellow.6' : ''
-      const color = status === 'correct' ? 'white' : status === 'present' ? 'white' : ''
+      const bg = getStatusBackgroundColor(status)
+      const color = getStatusTextColor(status)
 
       return (
         <Button
@@ -29,8 +33,16 @@ export default function GameKeyboard() {
     })
   ), [setGuess, guesses])
 
+  if (status === 'won') {
+    return (
+      <Card bg="indigo.1">
+        <Button>Play Again</Button>
+      </Card>
+    )
+  }
+
   return (
-    <Card mb="md" bg="gray.1">
+    <Card bg="gray.1">
       <Group mb="md">{numberRow}</Group>
       <Group grow>
         <Button onClick={submitGuess}>Enter</Button>

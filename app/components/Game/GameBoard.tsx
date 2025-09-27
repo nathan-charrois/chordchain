@@ -5,7 +5,7 @@ import GameRow from './GameRow'
 import { useGame } from './hooks/useGame'
 
 export default function GameBoard() {
-  const { maxGuesses } = useGame()
+  const { maxGuesses, status } = useGame()
 
   const rows = useMemo(() => (
     [...Array(maxGuesses).keys()].map(i => (
@@ -14,6 +14,14 @@ export default function GameBoard() {
       </Stack>
     ))
   ), [maxGuesses])
+
+  if (status === 'won') {
+    return (
+      <Card mb="md" bg="indigo.1">
+        You won!
+      </Card>
+    )
+  }
 
   return (
     <Card mb="md" bg="indigo.1">
