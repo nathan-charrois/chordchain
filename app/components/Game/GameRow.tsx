@@ -12,10 +12,14 @@ export default function GameRow({ rowIndex }: Props) {
 
   const cells = useMemo(() => {
     return [...Array(maxCharacters).keys()].map((i) => {
-      if (guesses[rowIndex]) {
+      const guessedRow = guesses[rowIndex]
+      if (guessedRow) {
+        const status = guessedRow.status[i]
+        const bg = status === 'correct' ? 'green.6' : status === 'present' ? 'yellow.6' : 'indigo.2'
+        const color = status === 'correct' ? 'white' : status === 'present' ? 'white' : 'indigo.6'
         return (
-          <Box key={i} bg="indigo.2" c="gray.6" mb="sm" py="sm" ta="center">
-            {guesses[rowIndex][i]}
+          <Box key={i} bg={bg} c={color} mb="sm" py="sm" ta="center">
+            {guessedRow.guess[i]}
           </Box>
         )
       }
@@ -24,8 +28,8 @@ export default function GameRow({ rowIndex }: Props) {
       const currentChar = guess[i] && currentRow
 
       const ch = currentChar ? guess[i] : '-'
-      const bg = currentRow ? 'green.3' : 'indigo.2'
-      const color = currentChar ? 'green.9' : 'indigo.2'
+      const bg = currentRow ? 'indigo.6' : 'indigo.2'
+      const color = currentChar ? 'white' : currentRow ? 'indigo.6' : 'indigo.2'
 
       return (
         <Box key={i} bg={bg} c={color} mb="sm" py="sm" ta="center">

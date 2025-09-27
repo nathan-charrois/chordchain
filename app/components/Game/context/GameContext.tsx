@@ -2,11 +2,18 @@ import { createContext } from 'react'
 
 export type GameStatus = 'new' | 'started' | 'loss' | 'won'
 
+export type CellStatus = 'absent' | 'present' | 'correct'
+
+export type Guess = {
+  guess: string
+  status: CellStatus[]
+}
+
 export type Game = {
   status: GameStatus
   target: number
   guess: string
-  guesses: string[]
+  guesses: Guess[]
   maxCharacters: number
   maxGuesses: number
   setGuess: (guess: string) => void

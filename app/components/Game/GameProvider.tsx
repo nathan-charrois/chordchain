@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { GameContext, type GameStatus } from './context/GameContext'
-import isGuessValid from './logic/game'
+import { GameContext, type GameStatus, type Guess } from './context/GameContext'
+import { buildCellStatus, isGuessValid } from './logic/game'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
 type Props = {
@@ -9,19 +9,19 @@ type Props = {
 }
 
 const target = 50
-const targetEquation = '25+25'
+const solution = '25+25'
 
 export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')
   const [guess, setGuess] = useState('')
-  const [guesses, setGuesses] = useState<string[]>([])
+  const [guesses, setGuesses] = useState<Guess[]>([])
 
   useEffect(() => {
     console.log('Game status updated:', status)
   }, [status])
 
   useEffect(() => {
-    if (guesses.includes(targetEquation)) {
+    if (guesses.find(({ guess }) => guess === solution)) {
       setStatus('won')
     }
     else if (guesses.length >= GAME_MAX_GUESSES) {
@@ -48,7 +48,9 @@ export function GameProvider({ children }: Props) {
 
   const handleSubmitGuess = useCallback(() => {
     if (isGuessValid(guess, target)) {
-      setGuesses(prev => [...prev, guess])
+      const status = buildCellStatus(guess, solution)
+
+      setGuesses(prev => [...prev, { guess, status }])
       setGuess('')
     }
     else {
