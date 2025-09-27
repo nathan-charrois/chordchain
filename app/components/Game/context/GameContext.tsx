@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-export type GameStatus = 'new' | 'started' | 'loss' | 'won'
+export type GameStatus = 'new' | 'loss' | 'won'
 
 export type CellStatus = 'absent' | 'present' | 'correct'
 

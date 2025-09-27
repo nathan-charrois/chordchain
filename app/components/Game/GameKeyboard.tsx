@@ -32,6 +32,7 @@ export default function GameKeyboard() {
           onClick={() => setGuess(value)}
           bg={bg}
           color={color}
+          w={60}
         >
           {value}
         </Button>

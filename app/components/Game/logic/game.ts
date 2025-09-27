@@ -1,11 +1,20 @@
 import type { CellStatus, Guess } from '../context/GameContext'
 import evaluate from './evaluate'
+import { GAME_MAX_GUESSES } from '~/constant'
 
 export function isGuessValid(guess: string, target: number): boolean {
   const value = evaluate(guess)
   console.log('Guess evaluated to', value, 'and target is', target)
 
   return value === target
+}
+
+export function isGameWon(guesses: Guess[], solution: string): boolean {
+  return !!guesses.find(({ guess }) => guess === solution)
+}
+
+export function isGameLoss(guesses: Guess[]): boolean {
+  return guesses.length >= GAME_MAX_GUESSES
 }
 
 export function buildCellStatus(guess: string, solution: string): CellStatus[] {
@@ -82,7 +91,7 @@ export function getStatusTextColor(status?: CellStatus) {
 }
 
 export function getBackgroundColor(isActiveRow: boolean) {
-  return isActiveRow ? 'indigo.6' : 'indigo.2'
+  return isActiveRow ? 'indigo.3' : 'indigo.2'
 }
 
 export function getTextColor(isActiveRow: boolean, char: string) {

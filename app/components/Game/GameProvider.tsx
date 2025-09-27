@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { GameContext, type GameStatus, type Guess } from './context/GameContext'
-import { buildCellStatus, isGuessValid } from './logic/game'
+import { buildCellStatus, isGameLoss, isGameWon, isGuessValid } from './logic/game'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
 type Props = {
@@ -10,10 +10,6 @@ type Props = {
 
 const target = 50
 const solution = '25+25'
-
-const isGameWon = (guesses: Guess[], solution: string) => {
-  return guesses.find(({ guess }) => guess === solution)
-}
 
 export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')
@@ -24,11 +20,8 @@ export function GameProvider({ children }: Props) {
     if (isGameWon(guesses, solution)) {
       setStatus('won')
     }
-    else if (guesses.length >= GAME_MAX_GUESSES) {
+    else if (isGameLoss(guesses)) {
       setStatus('loss')
-    }
-    else if (guesses.length) {
-      setStatus('started')
     }
   }, [guesses, setStatus])
 
