@@ -9,19 +9,19 @@ import {
 } from './logic/game'
 
 type Props = {
-  isActiveRow: boolean
+  isActive: boolean
   character: string
   status?: CellStatus
 }
 
-function GameCell({ isActiveRow, character, status }: Props) {
+function GameCell({ isActive, character, status }: Props) {
   const bg = status
     ? getStatusBackgroundColor(status)
-    : getBackgroundColor(isActiveRow)
+    : getBackgroundColor(isActive)
 
   const color = status
     ? getStatusTextColor(status)
-    : getTextColor(isActiveRow, character)
+    : getTextColor(isActive, character)
 
   return (
     <Box bg={bg} c={color} py="sm" ta="center" mih={50}>

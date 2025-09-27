@@ -30,22 +30,15 @@ export function GameProvider({ children }: Props) {
   const handleSetGuess = useCallback((subString: string) => {
     setGuess((prev) => {
       if (prev.length === GAME_MAX_CHARS) {
-        events.publish('INVALID_GUESS')
         return prev
       }
 
       return prev + subString
     })
-  }, [setGuess, events])
+  }, [setGuess])
 
   const handleDeleteGuess = useCallback(() => {
-    setGuess((prev) => {
-      if (prev === '') {
-        events.publish('INVALID_GUESS')
-      }
-
-      return prev.slice(0, -1)
-    })
+    setGuess(prev => prev.slice(0, -1))
   }, [setGuess])
 
   const handleSubmitGuess = useCallback(() => {
@@ -57,7 +50,6 @@ export function GameProvider({ children }: Props) {
       }])
     }
     else {
-      console.error(`Guess was not submitted`)
       events.publish('INVALID_GUESS')
     }
   }, [guess, setGuesses, setGuess, events])

@@ -7,14 +7,12 @@ import { useAnimation } from '~/hooks/useAnimation'
 
 type Props = {
   rowIndex: number
+  isActive: boolean
 }
 
-export default function GameRow({ rowIndex }: Props) {
-  const { maxCharacters, guess, guesses, status, events } = useGame()
-
-  const { ref, animate } = useAnimation({
-    className: 'animate-headShake',
-  })
+export default function GameRow({ rowIndex, isActive }: Props) {
+  const { maxCharacters, guess, guesses, events } = useGame()
+  const { ref, animate } = useAnimation({ className: 'animate-headShake', isActive })
 
   useEffect(() => {
     events.subscribe((event) => {
@@ -24,12 +22,6 @@ export default function GameRow({ rowIndex }: Props) {
     })
   }, [events, animate])
 
-  const isActiveRow = useMemo(() =>
-    status === 'won'
-      ? rowIndex === guesses.length - 1
-      : rowIndex === guesses.length,
-  [status, rowIndex, guesses.length])
-
   const cells = useMemo(() => {
     return [...Array(maxCharacters).keys()].map((i) => {
       const character = guesses[rowIndex]?.guess[i] ?? guess[i]
@@ -38,16 +30,16 @@ export default function GameRow({ rowIndex }: Props) {
       return (
         <GameCell
           key={i}
-          isActiveRow={isActiveRow}
+          isActive={isActive}
           character={character}
           status={status}
         />
       )
     })
-  }, [maxCharacters, guess, guesses, isActiveRow])
+  }, [maxCharacters, guess, guesses, isActive])
 
   return (
-    <Group grow gap="sm" mb="sm" ref={isActiveRow ? ref : undefined}>
+    <Group grow gap="sm" mb="sm" ref={ref}>
       {cells}
     </Group>
   )

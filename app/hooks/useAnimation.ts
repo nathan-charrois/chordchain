@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef } from 'react'
 
 type Props = {
   className: string
+  isActive: boolean
 }
 
-export function useAnimation({ className }: Props) {
+export function useAnimation({ className, isActive }: Props) {
   const ref = useRef<HTMLImageElement | null>(null)
 
   useEffect(() => {
@@ -23,9 +24,11 @@ export function useAnimation({ className }: Props) {
   }, [ref.current])
 
   const animate = useCallback(() => {
-    ref.current?.classList.remove(className)
-    ref.current?.classList.add(className)
-  }, [className])
+    if (isActive) {
+      ref.current?.classList.remove(className)
+      ref.current?.classList.add(className)
+    }
+  }, [className, isActive])
 
   return { ref, animate }
 }
