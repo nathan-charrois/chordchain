@@ -1,5 +1,6 @@
 import { MantineProvider } from '@mantine/core'
 
+import { AchievementsProvider } from '../Achievements/AchievementsProvider'
 import { GameProvider } from '~/components/Game/GameProvider'
 
 type Props = {
@@ -10,7 +11,9 @@ export default function AppProvider({ children }: Props) {
   return (
     <MantineProvider>
       <GameProvider>
-        {children}
+        <AchievementsProvider>
+          {children}
+        </AchievementsProvider>
       </GameProvider>
     </MantineProvider>
   )

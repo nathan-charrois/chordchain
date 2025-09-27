@@ -1,6 +1,7 @@
 import type { MetaArgs } from 'react-router'
-import { Card, Grid, Text } from '@mantine/core'
+import { Grid } from '@mantine/core'
 
+import Achievements from '~/components/Achievements/Achievements'
 import AppLayout from '~/components/App/AppLayout'
 import AppProvider from '~/components/App/AppProvider'
 import GameBoard from '~/components/Game/GameBoard'
@@ -25,9 +26,7 @@ export default function Index() {
             <GameKeyboard />
           </Grid.Col>
           <Grid.Col span={3}>
-            <Card mb="md" bg="gray.1">
-              <Text>Achievements</Text>
-            </Card>
+            <Achievements />
           </Grid.Col>
         </Grid>
       </AppLayout>

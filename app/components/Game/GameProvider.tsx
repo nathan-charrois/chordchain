@@ -8,8 +8,8 @@ type Props = {
   children: React.ReactNode
 }
 
-const target = 50
-const solution = '25+25'
+const target = 6
+const solution = '3+3'
 
 export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')
