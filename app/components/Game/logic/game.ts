@@ -54,3 +54,37 @@ export function getCellStatus(char: string, guesses: Guess[]): CellStatus | unde
 
   return undefined
 }
+
+export function getStatusBackgroundColor(status?: CellStatus) {
+  switch (status) {
+    case 'correct':
+      return 'green.6'
+    case 'present':
+      return 'yellow.6'
+    default:
+      return 'indigo.2'
+  }
+}
+
+export function getStatusTextColor(status?: CellStatus) {
+  switch (status) {
+    case 'correct':
+      return 'white'
+    case 'present':
+      return 'white'
+    default:
+      return 'indigo.6'
+  }
+}
+
+export function getBackgroundColor(isActiveRow: boolean) {
+  return isActiveRow ? 'indigo.6' : 'indigo.2'
+}
+
+export function getTextColor(isActiveRow: boolean, char: string) {
+  if (isActiveRow && char) {
+    return 'white'
+  }
+
+  return isActiveRow ? 'indigo.6' : 'indigo.2'
+}
