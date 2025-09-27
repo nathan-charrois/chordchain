@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Button, Card, Group } from '@mantine/core'
 
 import { useGame } from './hooks/useGame'
@@ -19,6 +19,26 @@ export default function GameKeyboard() {
     submitGuess,
     resetGame,
   } = useGame()
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault()
+      if (keys.includes(e.key)) {
+        setGuess(e.key)
+      }
+      else if (e.key === 'Enter') {
+        submitGuess()
+      }
+      else if (e.key === 'Backspace') {
+        deleteGuess()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [setGuess, submitGuess, deleteGuess, resetGame])
 
   const numberRow = useMemo(() => (
     keys.map((value) => {
