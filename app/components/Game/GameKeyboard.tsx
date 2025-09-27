@@ -5,10 +5,13 @@ import { useGame } from './hooks/useGame'
 import { getCellStatus, getStatusBackgroundColor, getStatusTextColor } from './logic/game'
 
 const keys = [
-  '0', '1', '2', '3',
-  '4', '5', '6', '7',
-  '8', '9', '+', '-',
-  '*', '/', '(', ')',
+  '0', '1', '2', '3', '4',
+  '5', '6', '7', '8', '9',
+]
+
+const operations = [
+  '+', '-', '*',
+  '/', '(', ')',
 ]
 
 export default function GameKeyboard() {
@@ -60,13 +63,34 @@ export default function GameKeyboard() {
     })
   ), [setGuess, guesses])
 
+  const operationsRow = useMemo(() => (
+    operations.map((value) => {
+      const status = getCellStatus(value, guesses)
+      const bg = getStatusBackgroundColor(status)
+      const color = getStatusTextColor(status)
+
+      return (
+        <Button
+          key={value}
+          onClick={() => setGuess(value)}
+          bg={bg}
+          color={color}
+          w={60}
+        >
+          {value}
+        </Button>
+      )
+    })
+  ), [setGuess, guesses])
+
   return (
     <Card bg="gray.1">
       <Group mb="md">{numberRow}</Group>
-      <Group grow>
-        <Button onClick={submitGuess}>Enter</Button>
-        <Button onClick={deleteGuess}>Delete</Button>
-        <Button onClick={resetGame}>Reset</Button>
+      <Group>
+        <Button onClick={submitGuess} w={85}>Enter</Button>
+        {operationsRow}
+        <Button onClick={deleteGuess} w={86}>Delete</Button>
+        <Button onClick={resetGame} c="white" bg="red" w={86}>Reset</Button>
       </Group>
     </Card>
   )
