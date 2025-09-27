@@ -18,7 +18,7 @@ export default function GameBoard() {
         </Stack>
       )
     })
-  ), [maxGuesses])
+  ), [maxGuesses, status, guesses])
 
   return (
     <Card mb="md" bg="indigo.1">

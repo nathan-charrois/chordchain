@@ -2,9 +2,11 @@ import { createContext } from 'react'
 
 export type GameStatus = 'new' | 'loss' | 'won'
 
-export type GameEventTypes = 'INVALID_GUESS' | 'ANIMATE_WIN'
+export type GameEventTypes = 'INVALID_GUESS' | 'SET_GUESS'
 
-export type GameEventCallback = (event: GameEventTypes) => void
+export type GameEventPayload = { event: GameEventTypes, value?: string }
+
+export type GameEventCallback = (payload: GameEventPayload) => void
 
 export type GameEvents = {
   subscribe: (event: GameEventCallback) => () => boolean

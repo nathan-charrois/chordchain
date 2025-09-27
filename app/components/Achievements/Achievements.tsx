@@ -12,8 +12,8 @@ export default function Achievements() {
       {achievements.length === 0 && (
         <Text>No achievements unlocked.</Text>
       )}
-      {achievements.map(achievement => (
-        <Text key={achievement.title} display="inline">
+      {achievements.map((achievement, index) => (
+        <Text key={index} display="inline">
           {`${achievement.emoji} ${achievement.title} `}
         </Text>
       ))}

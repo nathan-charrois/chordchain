@@ -15,7 +15,7 @@ export default function GameRow({ rowIndex, isActive }: Props) {
   const { ref, animate } = useAnimation({ className: 'animate-headShake', isActive })
 
   useEffect(() => {
-    events.subscribe((event) => {
+    events.subscribe(({ event }) => {
       if (event === 'INVALID_GUESS') {
         animate()
       }

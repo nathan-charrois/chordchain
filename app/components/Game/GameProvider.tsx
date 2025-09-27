@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { GameContext, type GameEventTypes, type GameStatus, type Guess } from './context/GameContext'
+import { GameContext, type GameEventPayload, type GameStatus, type Guess } from './context/GameContext'
 import { buildCellStatus, isGameLoss, isGameWon, isGuessValid } from './logic/game'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { pubSub } from '~/utils/pubSub'
@@ -16,7 +16,7 @@ export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')
   const [guess, setGuess] = useState('')
   const [guesses, setGuesses] = useState<Guess[]>([])
-  const events = useMemo(() => pubSub<GameEventTypes>(), [])
+  const events = useMemo(() => pubSub<GameEventPayload>(), [])
 
   useEffect(() => {
     if (isGameWon(guesses, solution)) {
@@ -35,7 +35,7 @@ export function GameProvider({ children }: Props) {
 
       return prev + subString
     })
-  }, [setGuess])
+  }, [setGuess, events])
 
   const handleDeleteGuess = useCallback(() => {
     setGuess(prev => prev.slice(0, -1))
@@ -50,7 +50,8 @@ export function GameProvider({ children }: Props) {
       }])
     }
     else {
-      events.publish('INVALID_GUESS')
+      console.log('Publish INVALID_GUESS')
+      events.publish({ event: 'INVALID_GUESS' })
     }
   }, [guess, setGuesses, setGuess, events])
 

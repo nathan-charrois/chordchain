@@ -28,6 +28,9 @@ export function useAnimation({ className, isActive }: Props) {
       ref.current?.classList.remove(className)
       ref.current?.classList.add(className)
     }
+    else {
+      ref.current?.classList.remove(className)
+    }
   }, [className, isActive])
 
   return { ref, animate }
