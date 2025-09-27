@@ -1,15 +1,28 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Group } from '@mantine/core'
 
 import GameCell from './GameCell'
 import { useGame } from './hooks/useGame'
+import { useAnimation } from '~/hooks/useAnimation'
 
 type Props = {
   rowIndex: number
 }
 
 export default function GameRow({ rowIndex }: Props) {
-  const { maxCharacters, guess, guesses, status } = useGame()
+  const { maxCharacters, guess, guesses, status, events } = useGame()
+
+  const { ref, animate } = useAnimation({
+    className: 'animate-headShake',
+  })
+
+  useEffect(() => {
+    events.subscribe((event) => {
+      if (event === 'INVALID_GUESS') {
+        animate()
+      }
+    })
+  }, [events, animate])
 
   const isActiveRow = useMemo(() =>
     status === 'won'
@@ -34,7 +47,7 @@ export default function GameRow({ rowIndex }: Props) {
   }, [maxCharacters, guess, guesses, isActiveRow])
 
   return (
-    <Group grow gap="sm" mb="sm">
+    <Group grow gap="sm" mb="sm" ref={isActiveRow ? ref : undefined}>
       {cells}
     </Group>
   )

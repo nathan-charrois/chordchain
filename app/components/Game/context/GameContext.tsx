@@ -2,6 +2,15 @@ import { createContext } from 'react'
 
 export type GameStatus = 'new' | 'loss' | 'won'
 
+export type GameEventTypes = 'INVALID_GUESS' | 'ANIMATE_WIN'
+
+export type GameEventCallback = (event: GameEventTypes) => void
+
+export type GameEvents = {
+  subscribe: (event: GameEventCallback) => () => boolean
+  publish: GameEventCallback
+}
+
 export type CellStatus = 'absent' | 'present' | 'correct'
 
 export type Guess = {
@@ -11,6 +20,7 @@ export type Guess = {
 
 export type Game = {
   status: GameStatus
+  events: GameEvents
   target: number
   guess: string
   guesses: Guess[]

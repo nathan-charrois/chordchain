@@ -8,6 +8,7 @@ import {
 
 import '@mantine/core/styles.css'
 import './app.css'
+import './animate.css'
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

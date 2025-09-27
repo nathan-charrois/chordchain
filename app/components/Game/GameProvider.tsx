@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { GameContext, type GameStatus, type Guess } from './context/GameContext'
+import { GameContext, type GameEventTypes, type GameStatus, type Guess } from './context/GameContext'
 import { buildCellStatus, isGameLoss, isGameWon, isGuessValid } from './logic/game'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
+import { pubSub } from '~/utils/pubSub'
 
 type Props = {
   children: React.ReactNode
@@ -15,6 +16,7 @@ export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')
   const [guess, setGuess] = useState('')
   const [guesses, setGuesses] = useState<Guess[]>([])
+  const events = useMemo(() => pubSub<GameEventTypes>(), [])
 
   useEffect(() => {
     if (isGameWon(guesses, solution)) {
@@ -28,15 +30,22 @@ export function GameProvider({ children }: Props) {
   const handleSetGuess = useCallback((subString: string) => {
     setGuess((prev) => {
       if (prev.length === GAME_MAX_CHARS) {
+        events.publish('INVALID_GUESS')
         return prev
       }
 
       return prev + subString
     })
-  }, [setGuess])
+  }, [setGuess, events])
 
   const handleDeleteGuess = useCallback(() => {
-    setGuess(prev => prev.slice(0, -1))
+    setGuess((prev) => {
+      if (prev === '') {
+        events.publish('INVALID_GUESS')
+      }
+
+      return prev.slice(0, -1)
+    })
   }, [setGuess])
 
   const handleSubmitGuess = useCallback(() => {
@@ -49,8 +58,9 @@ export function GameProvider({ children }: Props) {
     }
     else {
       console.error(`Guess was not submitted`)
+      events.publish('INVALID_GUESS')
     }
-  }, [guess, setGuesses, setGuess])
+  }, [guess, setGuesses, setGuess, events])
 
   const handleResetGame = useCallback(() => {
     setStatus('new')
@@ -61,6 +71,7 @@ export function GameProvider({ children }: Props) {
   return (
     <GameContext.Provider value={{
       status,
+      events,
       target,
       guess,
       guesses,
