@@ -9,11 +9,16 @@ type Props = {
 }
 
 export default function GameRow({ rowIndex }: Props) {
-  const { maxCharacters, guess, guesses } = useGame()
+  const { maxCharacters, guess, guesses, status } = useGame()
+
+  const isActiveRow = useMemo(() =>
+    status === 'won'
+      ? rowIndex === guesses.length - 1
+      : rowIndex === guesses.length,
+  [status, rowIndex, guesses.length])
 
   const cells = useMemo(() => {
     return [...Array(maxCharacters).keys()].map((i) => {
-      const isActiveRow = rowIndex === guesses.length
       const character = guesses[rowIndex]?.guess[i] ?? guess[i]
       const status = guesses[rowIndex]?.status[i] ?? null
 
@@ -26,7 +31,7 @@ export default function GameRow({ rowIndex }: Props) {
         />
       )
     })
-  }, [maxCharacters, guess])
+  }, [maxCharacters, guess, guesses, isActiveRow])
 
   return (
     <Group grow gap="sm" mb="sm">

@@ -21,10 +21,6 @@ export function GameProvider({ children }: Props) {
   const [guesses, setGuesses] = useState<Guess[]>([])
 
   useEffect(() => {
-    console.log('Game status updated:', status)
-  }, [status])
-
-  useEffect(() => {
     if (isGameWon(guesses, solution)) {
       setStatus('won')
     }
@@ -52,10 +48,11 @@ export function GameProvider({ children }: Props) {
 
   const handleSubmitGuess = useCallback(() => {
     if (isGuessValid(guess, target)) {
-      const status = buildCellStatus(guess, solution)
-
-      setGuesses(prev => [...prev, { guess, status }])
       setGuess('')
+      setGuesses(prev => [...prev, {
+        guess,
+        status: buildCellStatus(guess, solution),
+      }])
     }
     else {
       console.error(`Guess was not submitted`)
@@ -66,7 +63,7 @@ export function GameProvider({ children }: Props) {
     setStatus('new')
     setGuess('')
     setGuesses([])
-  }, [guess, setGuesses])
+  }, [guess, setGuess, setGuesses, setStatus])
 
   return (
     <GameContext.Provider value={{
