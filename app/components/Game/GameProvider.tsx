@@ -42,18 +42,21 @@ export function GameProvider({ children }: Props) {
   }, [setGuess])
 
   const handleSubmitGuess = useCallback(() => {
-    if (isGuessValid(guess, target)) {
-      setGuess('')
-      setGuesses(prev => [...prev, {
-        guess,
-        status: buildCellStatus(guess, solution),
-      }])
+    if (status === 'won') {
+      return
     }
-    else {
-      console.log('Publish INVALID_GUESS')
+
+    if (!isGuessValid(guess, target)) {
       events.publish({ event: 'INVALID_GUESS' })
+      return
     }
-  }, [guess, setGuesses, setGuess, events])
+
+    setGuess('')
+    setGuesses(prev => [...prev, {
+      guess,
+      status: buildCellStatus(guess, solution),
+    }])
+  }, [guess, setGuesses, setGuess, events, status])
 
   const handleResetGame = useCallback(() => {
     setStatus('new')
