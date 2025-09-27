@@ -8,6 +8,7 @@ import GameBoard from '~/components/Game/GameBoard'
 import GameKeyboard from '~/components/Game/GameKeyboard'
 import GameTarget from '~/components/Game/GameTarget'
 import Header from '~/components/Header/Header'
+import { useIsTablet } from '~/hooks/useIsTablet'
 
 export function meta({}: MetaArgs) {
   return [
@@ -16,16 +17,18 @@ export function meta({}: MetaArgs) {
 }
 
 export default function Index() {
+  const isTablet = useIsTablet()
+
   return (
     <AppProvider>
       <AppLayout header={<Header />}>
         <Grid>
-          <Grid.Col span={9}>
+          <Grid.Col span={isTablet ? 12 : 9}>
             <GameTarget />
             <GameBoard />
             <GameKeyboard />
           </Grid.Col>
-          <Grid.Col span={3}>
+          <Grid.Col span={isTablet ? 12 : 3}>
             <Achievements />
           </Grid.Col>
         </Grid>

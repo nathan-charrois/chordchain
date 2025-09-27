@@ -1,3 +1,5 @@
+import type { DefaultMantineColor } from '@mantine/core'
+
 import type { CellStatus, GameStatus, Guess } from '../context/GameContext'
 import evaluate from './evaluate'
 import { GAME_MAX_GUESSES } from '~/constant'
@@ -68,7 +70,7 @@ export function getCellStatus(char: string, guesses: Guess[]): CellStatus | unde
   return undefined
 }
 
-export function getStatusBackgroundColor(status?: CellStatus) {
+export function getStatusBackgroundColor(status?: CellStatus): DefaultMantineColor {
   switch (status) {
     case 'correct':
       return 'green.6'
@@ -81,7 +83,7 @@ export function getStatusBackgroundColor(status?: CellStatus) {
   }
 }
 
-export function getStatusTextColor(status?: CellStatus) {
+export function getStatusTextColor(status?: CellStatus): DefaultMantineColor {
   switch (status) {
     case 'correct':
       return 'white'
@@ -94,11 +96,11 @@ export function getStatusTextColor(status?: CellStatus) {
   }
 }
 
-export function getBackgroundColor(isActive: boolean) {
-  return isActive ? 'indigo.3' : 'indigo.2'
+export function getBackgroundColor(isActive: boolean): DefaultMantineColor {
+  return isActive ? 'indigo.2' : 'indigo.2'
 }
 
-export function getTextColor(isActive: boolean, char: string) {
+export function getTextColor(isActive: boolean, char: string): DefaultMantineColor {
   if (isActive && char) {
     return 'white'
   }
