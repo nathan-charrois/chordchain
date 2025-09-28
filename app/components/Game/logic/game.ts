@@ -83,7 +83,7 @@ export function getStatusBackgroundColor(status?: CellStatus): DefaultMantineCol
   }
 }
 
-export function getStatusTextColor(status?: CellStatus): DefaultMantineColor {
+export function getCellTextColor(status?: CellStatus): DefaultMantineColor {
   switch (status) {
     case 'correct':
     case 'present':
@@ -93,7 +93,7 @@ export function getStatusTextColor(status?: CellStatus): DefaultMantineColor {
   }
 }
 
-export function getStatusClassName(status?: CellStatus): string {
+export function getCellClassName(status?: CellStatus): string {
   switch (status) {
     case 'correct':
       return 'cell cell-correct'
@@ -103,5 +103,16 @@ export function getStatusClassName(status?: CellStatus): string {
       return 'cell cell-absent'
     default:
       return 'cell cell-default'
+  }
+}
+
+export function getKeyClassName(status?: CellStatus): string {
+  switch (status) {
+    case 'correct':
+      return 'key key-correct'
+    case 'present':
+      return 'key key-present'
+    default:
+      return 'key key-default'
   }
 }

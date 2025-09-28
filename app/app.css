@@ -9,6 +9,7 @@ body {
 /* Cell */
 .cell {
   background-size: 100% 100%;
+  user-select: none;
 }
 .cell-default {
   background-image: url('/images/button-default.png');
@@ -25,4 +26,41 @@ body {
 .cell-absent {
   background-image: url('/images/button-absent.png');
   text-shadow: 0px 2px 0px #826a53;
+}
+
+/* Keyboard */
+.key {
+  background-size: 100% 100%;
+  background-position: center;
+  background-color: transparent;
+  cursor: pointer;
+  user-select: none;
+}
+.key:hover {
+  background-color: transparent;
+  filter: brightness(95%);
+}
+.key:active {
+  background-color: transparent;
+  filter: brightness(90%);
+}
+
+.key-default {
+  background-image: url('/images/key-default.png');
+  text-shadow: 0px 2px 0px #a38a6a
+}
+
+.key-correct {
+  background-image: url('/images/key-correct.png');
+  text-shadow: 0px 2px 0px #175b45;
+}
+
+.key-present {
+  background-image: url('/images/key-present.png');
+  text-shadow: 0px 2px 0px #bd8127;
+}
+
+.key-large-default {
+  background-image: url('/images/key-large-default.png');
+  text-shadow: 0px 2px 0px #a38a6a;
 }

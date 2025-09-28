@@ -3,8 +3,8 @@ import { Box, Center, Text } from '@mantine/core'
 
 import type { CellStatus } from './context/GameContext'
 import {
-  getStatusClassName,
-  getStatusTextColor,
+  getCellClassName,
+  getCellTextColor,
 } from './logic/game'
 import { useAnimation } from '~/hooks/useAnimation'
 
@@ -23,8 +23,8 @@ function GameCell({ isActive, character, status }: Props) {
     }
   }, [animate, character, status])
 
-  const color = getStatusTextColor(status)
-  const className = getStatusClassName(status)
+  const color = getCellTextColor(status)
+  const className = getCellClassName(status)
 
   return (
     <Box c={color} h={92} className={className}>

@@ -40,7 +40,7 @@ export default function GameRow({ rowIndex, isActive }: Props) {
   }, [maxCharacters, guess, guesses, isActive])
 
   return (
-    <Group grow gap="sm" mb="sm" ref={ref}>
+    <Group grow gap="sm" mb="xs" ref={ref}>
       {cells}
     </Group>
   )

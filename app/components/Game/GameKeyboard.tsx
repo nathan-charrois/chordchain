@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react'
-import { Button, Card, Group } from '@mantine/core'
+import { Box, Card, Center, type DefaultMantineColor, Group, Text } from '@mantine/core'
 
 import { useGame } from './hooks/useGame'
-import { getCellStatus, getStatusBackgroundColor, getStatusTextColor } from './logic/game'
+import { getCellStatus, getCellTextColor, getKeyClassName } from './logic/game'
 
 const keys = [
   '0', '1', '2', '3', '4',
@@ -13,6 +13,24 @@ const operations = [
   '+', '-', '*',
   '/', '(', ')',
 ]
+
+type Props = {
+  color: DefaultMantineColor
+  className: string
+  onClick: React.MouseEventHandler<HTMLDivElement>
+  value: string
+  width: number
+}
+
+function GameKeyboardButton({ color, className, onClick, value, width }: Props) {
+  return (
+    <Box c={color} w={width} h={42} className={className} onClick={onClick}>
+      <Center h={38}>
+        <Text size="sm" fw="bold">{value}</Text>
+      </Center>
+    </Box>
+  )
+}
 
 export default function GameKeyboard() {
   const {
@@ -44,53 +62,67 @@ export default function GameKeyboard() {
   }, [setGuess, submitGuess, deleteGuess, resetGame])
 
   const numberRow = useMemo(() => (
-    keys.map((value) => {
-      const status = getCellStatus(value, guesses)
-      const bg = getStatusBackgroundColor(status)
-      const color = getStatusTextColor(status)
+    keys.map((character) => {
+      const status = getCellStatus(character, guesses)
+      const color = getCellTextColor(status)
+      const className = getKeyClassName(status)
 
       return (
-        <Button
-          key={value}
-          onClick={() => setGuess(value)}
-          bg={bg}
+        <GameKeyboardButton
+          value={character}
+          width={60}
           color={color}
-          w={60}
-        >
-          {value}
-        </Button>
+          className={className}
+          onClick={() => setGuess(character)}
+        />
       )
     })
   ), [setGuess, guesses])
 
   const operationsRow = useMemo(() => (
-    operations.map((value) => {
-      const status = getCellStatus(value, guesses)
-      const bg = getStatusBackgroundColor(status)
-      const color = getStatusTextColor(status)
+    operations.map((character) => {
+      const status = getCellStatus(character, guesses)
+      const color = getCellTextColor(status)
+      const className = getKeyClassName(status)
 
       return (
-        <Button
-          key={value}
-          onClick={() => setGuess(value)}
-          bg={bg}
+        <GameKeyboardButton
+          value={character}
+          width={60}
           color={color}
-          w={60}
-        >
-          {value}
-        </Button>
+          className={className}
+          onClick={() => setGuess(character)}
+        />
       )
     })
   ), [setGuess, guesses])
 
   return (
-    <Card bg="gray.1">
-      <Group mb="md">{numberRow}</Group>
+    <Card>
+      <Group mb="sm">{numberRow}</Group>
       <Group>
-        <Button onClick={submitGuess} w={85}>Enter</Button>
+        <GameKeyboardButton
+          value="Enter"
+          width={85}
+          color="white"
+          className="key key-large-default"
+          onClick={submitGuess}
+        />
         {operationsRow}
-        <Button onClick={deleteGuess} w={86}>Delete</Button>
-        <Button onClick={resetGame} c="white" bg="red" w={86}>Reset</Button>
+        <GameKeyboardButton
+          value="Delete"
+          width={85}
+          color="white"
+          className="key key-large-default"
+          onClick={deleteGuess}
+        />
+        <GameKeyboardButton
+          value="Reset"
+          width={85}
+          color="white"
+          className="key key-large-default"
+          onClick={resetGame}
+        />
       </Group>
     </Card>
   )
