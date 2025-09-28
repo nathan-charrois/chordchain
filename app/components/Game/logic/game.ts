@@ -86,24 +86,22 @@ export function getStatusBackgroundColor(status?: CellStatus): DefaultMantineCol
 export function getStatusTextColor(status?: CellStatus): DefaultMantineColor {
   switch (status) {
     case 'correct':
-      return 'white'
     case 'present':
-      return 'white'
     case 'absent':
-      return 'white'
     default:
-      return 'indigo.6'
+      return 'white'
   }
 }
 
-export function getBackgroundColor(isActive: boolean): DefaultMantineColor {
-  return isActive ? 'indigo.2' : 'indigo.2'
-}
-
-export function getTextColor(isActive: boolean, char: string): DefaultMantineColor {
-  if (isActive && char) {
-    return 'white'
+export function getStatusClassName(status?: CellStatus): string {
+  switch (status) {
+    case 'correct':
+      return 'cell cell-correct'
+    case 'present':
+      return 'cell cell-present'
+    case 'absent':
+      return 'cell cell-absent'
+    default:
+      return 'cell cell-default'
   }
-
-  return isActive ? 'indigo.6' : 'indigo.2'
 }

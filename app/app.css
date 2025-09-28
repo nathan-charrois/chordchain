@@ -5,3 +5,24 @@ html,
 body {
 
 }
+
+/* Cell */
+.cell {
+  background-size: 100% 100%;
+}
+.cell-default {
+  background-image: url('/images/button-default.png');
+  text-shadow: 0px 2px 0px #a38a6a
+}
+.cell-correct {
+  background-image: url('/images/button-correct.png');
+  text-shadow: 0px 2px 0px #175b45
+}
+.cell-present {
+  background-image: url('/images/button-present.png');
+  text-shadow: 0px 2px 0px #bd8127;
+}
+.cell-absent {
+  background-image: url('/images/button-absent.png');
+  text-shadow: 0px 2px 0px #826a53;
+}

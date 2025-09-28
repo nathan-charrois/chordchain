@@ -1,12 +1,10 @@
 import { useEffect } from 'react'
-import { Box } from '@mantine/core'
+import { Box, Center, Text } from '@mantine/core'
 
 import type { CellStatus } from './context/GameContext'
 import {
-  getBackgroundColor,
-  getStatusBackgroundColor,
+  getStatusClassName,
   getStatusTextColor,
-  getTextColor,
 } from './logic/game'
 import { useAnimation } from '~/hooks/useAnimation'
 
@@ -25,19 +23,14 @@ function GameCell({ isActive, character, status }: Props) {
     }
   }, [animate, character, status])
 
-  const bg = status
-    ? getStatusBackgroundColor(status)
-    : getBackgroundColor(isActive)
-
-  const color = status
-    ? getStatusTextColor(status)
-    : getTextColor(isActive, character)
+  const color = getStatusTextColor(status)
+  const className = getStatusClassName(status)
 
   return (
-    <Box bg={bg} c={color} py="sm" ta="center" mih={50} fw="bold">
-      <div ref={ref}>
-        {character}
-      </div>
+    <Box c={color} h={92} className={className}>
+      <Center ref={ref} h={84}>
+        <Text size="xl" fw="bold">{character}</Text>
+      </Center>
     </Box>
   )
 }

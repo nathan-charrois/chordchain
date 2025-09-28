@@ -9,8 +9,8 @@ type Props = {
   children: React.ReactNode
 }
 
-const target = 6
-const solution = '3+3'
+const target = 1
+const solution = '6+5-10'
 
 export function GameProvider({ children }: Props) {
   const [status, setStatus] = useState<GameStatus>('new')

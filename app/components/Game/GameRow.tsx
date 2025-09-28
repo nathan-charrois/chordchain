@@ -24,8 +24,9 @@ export default function GameRow({ rowIndex, isActive }: Props) {
 
   const cells = useMemo(() => {
     return [...Array(maxCharacters).keys()].map((i) => {
-      const character = guesses[rowIndex]?.guess[i] ?? guess[i]
+      const char = guesses[rowIndex]?.guess[i] ?? guess[i]
       const status = guesses[rowIndex]?.status[i] ?? null
+      const character = isActive || status ? char : ''
 
       return (
         <GameCell
