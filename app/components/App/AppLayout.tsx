@@ -17,7 +17,6 @@ export default function AppLayout({ header, children }: Props) {
             {children}
           </Center>
         </AppShell.Main>
-
       </AppShell>
     </Center>
   )

@@ -3,13 +3,24 @@ import { Card, Text } from '@mantine/core'
 import { useGame } from './hooks/useGame'
 
 export default function GameTarget() {
-  const { target, status, guesses, maxGuesses } = useGame()
+  const { status, target } = useGame()
+
+  if (status === 'won') {
+    return (
+      <Card c="white">
+        <Text size="lg">
+          {`You win! You found the hidden calculation that equals ${target}.`}
+        </Text>
+      </Card>
+    )
+  }
 
   return (
     <Card c="white">
-      <Text>{`Game status: ${status}`}</Text>
-      <Text>{`Guess: ${guesses.length + 1} of ${maxGuesses}`}</Text>
-      <Text>{`Find the hidden calculation that equals ${target}`}</Text>
+      <Text size="lg">
+        Find the hidden calculation that equals:
+        <Text span fw="bold">{` ${target}`}</Text>
+      </Text>
     </Card>
   )
 }

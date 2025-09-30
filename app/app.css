@@ -62,6 +62,7 @@ body {
 .key {
   border-radius: 5px;
   cursor: pointer;
+  user-select: none;
 }
 .key:hover{
   filter: brightness(95%);
@@ -124,11 +125,16 @@ body {
 .achievement  {
   background-color: #353D41;
   border-radius: 5px;
-}
-
-.achievement.achievement-empty {
   box-shadow:
     0 0px 0px 1px #2a363d,
     -1px -1px 0px 1px #121A1F,
     1px 1px 0px 1px #667177;
+}
+
+.achievement-empty {
+  filter: grayscale(100%) opacity(50%);
+}
+
+.achievement-won {
+
 }
