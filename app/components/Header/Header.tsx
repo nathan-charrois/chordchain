@@ -1,9 +1,9 @@
-import { Box, Image } from '@mantine/core'
+import { Image, Stack } from '@mantine/core'
 
 export default function Header() {
   return (
-    <Box w="750px" h="275px" pos="relative" top="-125px">
+    <Stack w="750px" h="30vh" justify="center">
       <Image src="/images/header.png" />
-    </Box>
+    </Stack>
   )
 }

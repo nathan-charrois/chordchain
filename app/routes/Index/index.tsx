@@ -2,6 +2,7 @@ import type { MetaArgs } from 'react-router'
 import { Grid, Stack } from '@mantine/core'
 
 import Achievements from '~/components/Achievements/Achievements'
+import AppConnect from '~/components/App/AppConnect'
 import AppLayout from '~/components/App/AppLayout'
 import AppProvider from '~/components/App/AppProvider'
 import GameBoard from '~/components/Game/GameBoard'
@@ -31,7 +32,10 @@ export default function Index() {
             </Stack>
           </Grid.Col>
           <Grid.Col span={isTablet ? 12 : 3}>
-            <Achievements />
+            <Stack gap="xl">
+              <AppConnect />
+              <Achievements />
+            </Stack>
           </Grid.Col>
         </Grid>
       </AppLayout>

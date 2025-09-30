@@ -42,8 +42,7 @@ export default function GameKeyboard() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // e.preventDefault()
-      if (keys.includes(e.key)) {
+      if ([...keys, ...operations].includes(e.key)) {
         setGuess(e.key)
       }
       else if (e.key === 'Enter') {
