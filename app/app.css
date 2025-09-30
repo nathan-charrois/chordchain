@@ -132,6 +132,6 @@ body {
 }
 
 .achievement-empty {
-  filter: grayscale(100%) opacity(50%);
+  filter: grayscale(100%) opacity(25%);
 }
 .achievement-won {}

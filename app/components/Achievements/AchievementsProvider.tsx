@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useGame } from '../Game/hooks/useGame'
 import { type Achievement, AchievementsContext } from './context/AchievementsContext'
-import { firstGuessCorrect, isFirstGuessCorrect, isLastGuessCorrect, isMultiDayStreak, lastGuessCorrect, multiDayStreak } from './logic/achievements'
+import { allAchievements, firstGuessCorrect, hasAllAchievements, isFirstGuessCorrect, isLastGuessCorrect, lastGuessCorrect } from './logic/achievements'
 import { ACHIEVEMENTS_STORAGE_KEY } from '~/constant'
 
 type Props = {
@@ -39,14 +39,14 @@ export function AchievementsProvider({ children }: Props) {
       })
     }
 
-    if (isMultiDayStreak(status, guesses)) {
+    if (hasAllAchievements(status, achievement)) {
       setAchievement((prev) => {
-        const result = { ...prev, ...multiDayStreak }
+        const result = { ...prev, ...allAchievements }
         localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(result))
         return result
       })
     }
-  }, [status, guesses, setAchievement])
+  }, [status, guesses, achievement, setAchievement])
 
   return (
     <AchievementsContext.Provider value={{ achievement }}>

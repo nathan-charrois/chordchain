@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { Box, Card, Group } from '@mantine/core'
 
 import { useAchievements } from './hooks/useAchievements'
-import { firstGuessCorrect, lastGuessCorrect, multiDayStreak } from './logic/achievements'
+import { allAchievements, firstGuessCorrect, lastGuessCorrect } from './logic/achievements'
 
 export default function Achievements() {
   const { achievement } = useAchievements()
@@ -22,7 +22,7 @@ export default function Achievements() {
           <Box className={achievementClassName('lastGuessCorrect')}>{lastGuessCorrect['lastGuessCorrect']}</Box>
         </Box>
         <Box w="100%" ta="center" fz="h2" p="md" className="achievement">
-          <Box className={achievementClassName('multiDayStreak')}>{multiDayStreak['multiDayStreak']}</Box>
+          <Box className={achievementClassName('allAchievements')}>{allAchievements['allAchievements']}</Box>
         </Box>
       </Group>
     </Card>
