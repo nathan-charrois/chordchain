@@ -1,4 +1,4 @@
-import { Box, Card, Divider, Group, Text } from '@mantine/core'
+import { Box, Card, Group, Text } from '@mantine/core'
 
 import { useAchievements } from './hooks/useAchievements'
 
@@ -7,8 +7,7 @@ export default function Achievements() {
 
   return (
     <Card c="white">
-      <Text>Achievements</Text>
-      <Divider my="sm" mb="lg" color="dark.1" />
+      <Text mb="lg">Achievements</Text>
       {achievements.length === 0 && (
         <Text>No achievements unlocked.</Text>
       )}

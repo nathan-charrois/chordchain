@@ -22,7 +22,9 @@ export default function GameBoard() {
 
   return (
     <Card bdrs="md">
-      {rows}
+      <Stack gap="md">
+        {rows}
+      </Stack>
     </Card>
   )
 }

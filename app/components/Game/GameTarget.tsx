@@ -1,4 +1,4 @@
-import { Card, Divider, Text } from '@mantine/core'
+import { Card, Text } from '@mantine/core'
 
 import { useGame } from './hooks/useGame'
 
@@ -9,7 +9,6 @@ export default function GameTarget() {
     <Card c="white">
       <Text>{`Game status: ${status}`}</Text>
       <Text>{`Guess: ${guesses.length + 1} of ${maxGuesses}`}</Text>
-      <Divider my="sm" color="dark.1" />
       <Text>{`Find the hidden calculation that equals ${target}`}</Text>
     </Card>
   )
