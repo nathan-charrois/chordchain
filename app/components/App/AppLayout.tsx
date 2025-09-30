@@ -8,7 +8,7 @@ type Props = {
 export default function AppLayout({ header, children }: Props) {
   return (
     <Center>
-      <AppShell withBorder={false} padding="lg" w={900}>
+      <AppShell withBorder={false} offsetScrollbars={false}>
         <AppShell.Main>
           <Center w="100%">
             {header}

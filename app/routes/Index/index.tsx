@@ -22,7 +22,7 @@ export default function Index() {
   return (
     <AppProvider>
       <AppLayout header={<Header />}>
-        <Grid gutter="xl">
+        <Grid gutter="xl" miw={isTablet ? '90vw' : '900px'}>
           <Grid.Col span={isTablet ? 12 : 9}>
             <Stack gap="xl">
               <GameTarget />

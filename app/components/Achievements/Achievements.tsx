@@ -14,7 +14,7 @@ export default function Achievements() {
       )}
       <Group gap="sm" wrap="wrap">
         {achievements.map((achievement, index) => (
-          <Box w={72} ta="center" fz="h2" p="sm" key={index} className="achievement achievement-empty">
+          <Box w="100%" ta="center" fz="h1" p="sm" key={index} className="achievement achievement-empty">
             {`${achievement.emoji}`}
           </Box>
         ))}
