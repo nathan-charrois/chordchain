@@ -1,11 +1,9 @@
 import { createContext } from 'react'
 
-export type Achievement = {
-  emoji: '🥇' | '🥈'
-}
+export type Achievement = { [key: string]: string }
 
 export type Achievements = {
-  achievements: Achievement[]
+  achievement: Achievement
 }
 
 export const AchievementsContext = createContext<Achievements | undefined>(undefined)

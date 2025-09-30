@@ -1,8 +1,12 @@
-import type { Achievement } from '../context/AchievementsContext'
 import type { GameStatus, Guess } from '~/components/Game/context/GameContext'
 import { GAME_MAX_GUESSES } from '~/constant'
 
-// Achievement evaluators
+export const firstGuessCorrect = { ['firstGuessCorrect']: '🥇' }
+
+export const lastGuessCorrect = { ['lastGuessCorrect']: '🧨' }
+
+export const multiDayStreak = { ['multiDayStreak']: '🔗' }
+
 export function isFirstGuessCorrect(status: GameStatus, guesses: Guess[]): boolean {
   return status === 'won' && guesses.length === 1
 }
@@ -11,7 +15,6 @@ export function isLastGuessCorrect(status: GameStatus, guesses: Guess[]): boolea
   return status === 'won' && guesses.length === GAME_MAX_GUESSES
 }
 
-// Achievement objects
-export const firstGuessCorrect: Achievement = { emoji: '🥇' }
-
-export const lastGuessCorrect: Achievement = { emoji: '🥈' }
+export function isMultiDayStreak(status: GameStatus, guesses: Guess[]): boolean {
+  return status === 'won' && guesses.length === GAME_MAX_GUESSES
+}

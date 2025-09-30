@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useGame } from '../Game/hooks/useGame'
 import { type Achievement, AchievementsContext } from './context/AchievementsContext'
-import { firstGuessCorrect, isFirstGuessCorrect, isLastGuessCorrect, lastGuessCorrect } from './logic/achievements'
+import { firstGuessCorrect, isFirstGuessCorrect, isLastGuessCorrect, isMultiDayStreak, lastGuessCorrect, multiDayStreak } from './logic/achievements'
 import { ACHIEVEMENTS_STORAGE_KEY } from '~/constant'
 
 type Props = {
@@ -11,40 +11,45 @@ type Props = {
 
 export function AchievementsProvider({ children }: Props) {
   const { guesses, status } = useGame()
-  const [achievements, setAchievements] = useState<Achievement[]>([])
+  const [achievement, setAchievement] = useState<Achievement>({})
 
   useEffect(() => {
     const result = localStorage.getItem(ACHIEVEMENTS_STORAGE_KEY)
-    const parsed = result ? JSON.parse(result) : []
+    const parsed = result ? JSON.parse(result) : {}
 
-    if (Array.isArray(parsed)) {
-      setAchievements(parsed)
+    if (parsed) {
+      setAchievement(parsed)
     }
   }, [])
 
   useEffect(() => {
     if (isFirstGuessCorrect(status, guesses)) {
-      setAchievements((prev) => {
-        const result = [...prev, firstGuessCorrect]
+      setAchievement((prev) => {
+        const result = { ...prev, ...firstGuessCorrect }
         localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(result))
         return result
       })
     }
 
     if (isLastGuessCorrect(status, guesses)) {
-      setAchievements((prev) => {
-        const result = [...prev, lastGuessCorrect]
+      setAchievement((prev) => {
+        const result = { ...prev, ...lastGuessCorrect }
         localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(result))
         return result
       })
     }
-  }, [status, guesses, setAchievements])
+
+    if (isMultiDayStreak(status, guesses)) {
+      setAchievement((prev) => {
+        const result = { ...prev, ...multiDayStreak }
+        localStorage.setItem(ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(result))
+        return result
+      })
+    }
+  }, [status, guesses, setAchievement])
 
   return (
-    <AchievementsContext.Provider value={{
-      achievements,
-    }}
-    >
+    <AchievementsContext.Provider value={{ achievement }}>
       {children}
     </AchievementsContext.Provider>
   )

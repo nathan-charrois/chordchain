@@ -134,7 +134,4 @@ body {
 .achievement-empty {
   filter: grayscale(100%) opacity(50%);
 }
-
-.achievement-won {
-
-}
+.achievement-won {}

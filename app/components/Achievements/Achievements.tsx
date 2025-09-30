@@ -1,30 +1,29 @@
+import { useCallback } from 'react'
 import { Box, Card, Group } from '@mantine/core'
 
 import { useAchievements } from './hooks/useAchievements'
+import { firstGuessCorrect, lastGuessCorrect, multiDayStreak } from './logic/achievements'
 
 export default function Achievements() {
-  const { achievements } = useAchievements()
+  const { achievement } = useAchievements()
 
-  console.log(achievements)
+  const achievementClassName = useCallback(
+    (key: string) => (
+      achievement[key] ? 'achievement-won' : 'achievement-empty'
+    ), [achievement])
+
   return (
     <Card c="white">
       <Group gap="sm" wrap="wrap">
-        <Box w="100%" ta="center" fz="h1" p="sm" className="achievement">
-          <Box className="achievement-empty">🥇</Box>
+        <Box w="100%" ta="center" fz="h2" p="md" className="achievement">
+          <Box className={achievementClassName('firstGuessCorrect')}>{firstGuessCorrect['firstGuessCorrect']}</Box>
         </Box>
-        <Box w="100%" ta="center" fz="h1" p="sm" className="achievement">
-          <Box className="achievement-empty">🥈</Box>
+        <Box w="100%" ta="center" fz="h2" p="md" className="achievement">
+          <Box className={achievementClassName('lastGuessCorrect')}>{lastGuessCorrect['lastGuessCorrect']}</Box>
         </Box>
-        <Box w="100%" ta="center" fz="h1" p="sm" className="achievement">
-          <Box className="achievement-empty">🥉</Box>
+        <Box w="100%" ta="center" fz="h2" p="md" className="achievement">
+          <Box className={achievementClassName('multiDayStreak')}>{multiDayStreak['multiDayStreak']}</Box>
         </Box>
-        {achievements.map((achievement, index) => (
-          <Box w="100%" ta="center" fz="h1" p="sm" key={index} className="achievement">
-            <Box className="achievement-won">
-              {`${achievement.emoji}`}
-            </Box>
-          </Box>
-        ))}
       </Group>
     </Card>
   )
