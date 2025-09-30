@@ -70,26 +70,15 @@ export function getCellStatus(char: string, guesses: Guess[]): CellStatus | unde
   return undefined
 }
 
-export function getStatusBackgroundColor(status?: CellStatus): DefaultMantineColor {
-  switch (status) {
-    case 'correct':
-      return 'green.6'
-    case 'present':
-      return 'yellow.6'
-    case 'absent':
-      return 'gray.6'
-    default:
-      return 'indigo.2'
-  }
-}
-
 export function getCellTextColor(status?: CellStatus): DefaultMantineColor {
   switch (status) {
     case 'correct':
     case 'present':
-    case 'absent':
-    default:
       return 'white'
+    case 'absent':
+      return 'dark.2'
+    default:
+      return 'dark.5'
   }
 }
 
@@ -112,6 +101,8 @@ export function getKeyClassName(status?: CellStatus): string {
       return 'key key-correct'
     case 'present':
       return 'key key-present'
+    case 'absent':
+      return 'key key-absent'
     default:
       return 'key key-default'
   }

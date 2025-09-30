@@ -1,4 +1,4 @@
-import { AppShell } from '@mantine/core'
+import { AppShell, Center } from '@mantine/core'
 
 type Props = {
   header: React.ReactNode
@@ -7,13 +7,17 @@ type Props = {
 
 export default function AppLayout({ header, children }: Props) {
   return (
-    <AppShell withBorder={false} header={{ height: 65 }} padding="lg">
-      <AppShell.Header>
-        {header}
-      </AppShell.Header>
-      <AppShell.Main>
-        {children}
-      </AppShell.Main>
-    </AppShell>
+    <Center>
+      <AppShell withBorder={false} padding="lg" w={900}>
+        <AppShell.Main>
+          <Center w="100%">
+            {header}
+          </Center>
+          <Center w="100%">
+            {children}
+          </Center>
+        </AppShell.Main>
+      </AppShell>
+    </Center>
   )
 }

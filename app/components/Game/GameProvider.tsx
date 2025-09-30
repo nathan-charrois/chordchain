@@ -58,7 +58,7 @@ export function GameProvider({ children }: Props) {
     }])
   }, [guess, setGuesses, setGuess, events, status])
 
-  const handleResetGame = useCallback(() => {
+  const handleRestartGame = useCallback(() => {
     setStatus('new')
     setGuess('')
     setGuesses([])
@@ -76,7 +76,7 @@ export function GameProvider({ children }: Props) {
       setGuess: handleSetGuess,
       deleteGuess: handleDeleteGuess,
       submitGuess: handleSubmitGuess,
-      resetGame: handleResetGame,
+      restartGame: handleRestartGame,
     }}
     >
       {children}

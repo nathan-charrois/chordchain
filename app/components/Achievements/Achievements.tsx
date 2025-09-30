@@ -1,4 +1,4 @@
-import { Card, Divider, Text } from '@mantine/core'
+import { Box, Card, Divider, Group, Text } from '@mantine/core'
 
 import { useAchievements } from './hooks/useAchievements'
 
@@ -6,17 +6,19 @@ export default function Achievements() {
   const { achievements } = useAchievements()
 
   return (
-    <Card mb="md" bg="gray.1">
+    <Card c="white">
       <Text>Achievements</Text>
-      <Divider my="xs" />
+      <Divider my="sm" mb="lg" color="dark.1" />
       {achievements.length === 0 && (
         <Text>No achievements unlocked.</Text>
       )}
-      {achievements.map((achievement, index) => (
-        <Text key={index} display="inline">
-          {`${achievement.emoji} ${achievement.title} `}
-        </Text>
-      ))}
+      <Group gap="sm" wrap="wrap">
+        {achievements.map((achievement, index) => (
+          <Box w={72} ta="center" fz="h2" p="sm" key={index} className="achievement achievement-empty">
+            {`${achievement.emoji}`}
+          </Box>
+        ))}
+      </Group>
     </Card>
   )
 }

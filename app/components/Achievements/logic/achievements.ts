@@ -12,6 +12,6 @@ export function isLastGuessCorrect(status: GameStatus, guesses: Guess[]): boolea
 }
 
 // Achievement objects
-export const firstGuessCorrect: Achievement = { title: 'One and done!', emoji: '🥇' }
+export const firstGuessCorrect: Achievement = { emoji: '🥇' }
 
-export const lastGuessCorrect: Achievement = { title: 'Just in time!', emoji: '🥈' }
+export const lastGuessCorrect: Achievement = { emoji: '🥈' }

@@ -1,7 +1,6 @@
 import { createContext } from 'react'
 
 export type Achievement = {
-  title: 'One and done!' | 'Just in time!'
   emoji: '🥇' | '🥈'
 }
 

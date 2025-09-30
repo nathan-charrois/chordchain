@@ -21,7 +21,7 @@ export default function GameBoard() {
   ), [maxGuesses, status, guesses])
 
   return (
-    <Card mb="md" pb={6}>
+    <Card bdrs="md">
       {rows}
     </Card>
   )

@@ -28,7 +28,7 @@ function GameCell({ isActive, character, status }: Props) {
 
   return (
     <Box c={color} h={92} className={className}>
-      <Center ref={ref} h={84}>
+      <Center ref={ref} h={88}>
         <Text size="xl" fw="bold">{character}</Text>
       </Center>
     </Box>

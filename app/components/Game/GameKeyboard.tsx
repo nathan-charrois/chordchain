@@ -19,13 +19,12 @@ type Props = {
   className: string
   onClick: React.MouseEventHandler<HTMLDivElement>
   value: string
-  width: number
 }
 
-function GameKeyboardButton({ color, className, onClick, value, width }: Props) {
+function GameKeyboardButton({ color, className, onClick, value }: Props) {
   return (
-    <Box c={color} w={width} h={42} className={className} onClick={onClick}>
-      <Center h={38}>
+    <Box c={color} h={50} className={className} onClick={onClick}>
+      <Center h={48}>
         <Text size="sm" fw="bold">{value}</Text>
       </Center>
     </Box>
@@ -38,12 +37,12 @@ export default function GameKeyboard() {
     guesses,
     deleteGuess,
     submitGuess,
-    resetGame,
+    restartGame,
   } = useGame()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault()
+      // e.preventDefault()
       if (keys.includes(e.key)) {
         setGuess(e.key)
       }
@@ -59,7 +58,7 @@ export default function GameKeyboard() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [setGuess, submitGuess, deleteGuess, resetGame])
+  }, [setGuess, submitGuess, deleteGuess, restartGame])
 
   const numberRow = useMemo(() => (
     keys.map((character) => {
@@ -70,7 +69,6 @@ export default function GameKeyboard() {
       return (
         <GameKeyboardButton
           value={character}
-          width={60}
           color={color}
           className={className}
           onClick={() => setGuess(character)}
@@ -88,7 +86,6 @@ export default function GameKeyboard() {
       return (
         <GameKeyboardButton
           value={character}
-          width={60}
           color={color}
           className={className}
           onClick={() => setGuess(character)}
@@ -99,29 +96,26 @@ export default function GameKeyboard() {
 
   return (
     <Card>
-      <Group mb="sm">{numberRow}</Group>
-      <Group>
+      <Group grow mb="md">{numberRow}</Group>
+      <Group grow>
         <GameKeyboardButton
           value="Enter"
-          width={85}
-          color="white"
-          className="key key-large-default"
+          color="dark.5"
+          className="key key-default"
           onClick={submitGuess}
         />
         {operationsRow}
         <GameKeyboardButton
-          value="Delete"
-          width={85}
-          color="white"
-          className="key key-large-default"
+          value="Undo"
+          color="dark.5"
+          className="key key-default"
           onClick={deleteGuess}
         />
         <GameKeyboardButton
-          value="Reset"
-          width={85}
-          color="white"
-          className="key key-large-default"
-          onClick={resetGame}
+          value="Restart"
+          color="red.9"
+          className="key key-default"
+          onClick={restartGame}
         />
       </Group>
     </Card>

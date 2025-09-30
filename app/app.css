@@ -3,64 +3,132 @@
 
 html,
 body {
-
+  background-color: #9AB8C1;
+  background-image: url('/images/background.png');
+  background-position: center -50px;
+  background-size: cover;
+  background-size: 105% 105%;
 }
 
-/* Cell */
 .cell {
-  background-size: 100% 100%;
-  user-select: none;
-}
-.cell-default {
-  background-image: url('/images/button-default.png');
-  text-shadow: 0px 2px 0px #a38a6a
-}
-.cell-correct {
-  background-image: url('/images/button-correct.png');
-  text-shadow: 0px 2px 0px #175b45
-}
-.cell-present {
-  background-image: url('/images/button-present.png');
-  text-shadow: 0px 2px 0px #bd8127;
-}
-.cell-absent {
-  background-image: url('/images/button-absent.png');
-  text-shadow: 0px 2px 0px #826a53;
+  border-radius: 10px;
 }
 
-/* Keyboard */
-.key {
-  background-size: 100% 100%;
-  background-position: center;
-  background-color: transparent;
-  cursor: pointer;
-  user-select: none;
+.cell-default {
+  background: linear-gradient(
+    180deg,
+    #E2D8BE 50%,
+    #D9CDB4 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #FEFCDF,
+    0 0px 1px 2px #111C23;
 }
-.key:hover {
-  background-color: transparent;
+
+.cell-correct {
+  background: linear-gradient(
+    180deg,
+    #466B4E 50%,
+    #40654A 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #5b8768,
+    0 0px 1px 2px #111C23;
+}
+
+.cell-present {
+  background: linear-gradient(
+    180deg,
+    #EABB2F 50%,
+    #E3B52B 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #fddd6a,
+    0 0px 1px 2px #111C23;
+}
+
+.cell-absent {
+  background: linear-gradient(
+    180deg,
+    #b4afa4 50%,
+    #a29d92 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #d6d4be,
+    0 0px 1px 2px #111C23;
+}
+
+
+.key {
+  border-radius: 5px;
+  cursor: pointer;
+}
+.key:hover{
   filter: brightness(95%);
 }
-.key:active {
-  background-color: transparent;
+.key:active{
   filter: brightness(90%);
+  position: relative;
+  top: 1px;
 }
 
 .key-default {
-  background-image: url('/images/key-default.png');
-  text-shadow: 0px 2px 0px #a38a6a
+  background: linear-gradient(
+    180deg,
+    #E2D8BE 50%,
+     #D9CDB4 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #FEFCDF,
+    0 0px 0px 2px #b2a794,
+    0 0px 0px 3px #020608;
+}
+
+
+.key-present {
+  background: linear-gradient(
+    180deg,
+     #EABB2F 50%,
+     #E3B52B 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #fddd6a,
+    0 0px 0px 2px #8a7528,
+    0 0px 0px 3px #020608;
 }
 
 .key-correct {
-  background-image: url('/images/key-correct.png');
-  text-shadow: 0px 2px 0px #175b45;
+  background: linear-gradient(
+    180deg,
+     #466B4E 50%,
+     #40654A 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #5b8768,
+    0 0px 0px 2px #204c2d,
+    0 0px 0px 3px #020608;
 }
 
-.key-present {
-  background-image: url('/images/key-present.png');
-  text-shadow: 0px 2px 0px #bd8127;
+.key-absent {
+  background: linear-gradient(
+    180deg,
+     #b4afa4 50%,
+     #a29d92 100%
+  );
+  box-shadow:
+    0 -1px 0px 1px #cec8bc,
+    0 0px 0px 2px #7f7b70,
+    0 0px 0px 3px #020608;
 }
 
-.key-large-default {
-  background-image: url('/images/key-large-default.png');
-  text-shadow: 0px 2px 0px #a38a6a;
+.achievement  {
+  background-color: #353D41;
+  border-radius: 5px;
+}
+
+.achievement.achievement-empty {
+  box-shadow:
+    0 0px 0px 1px #2a363d,
+    -1px -1px 0px 1px #121A1F,
+    1px 1px 0px 1px #667177;
 }
