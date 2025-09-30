@@ -1,5 +1,5 @@
 import type { MetaArgs } from 'react-router'
-import { Grid, Stack } from '@mantine/core'
+import { Anchor, Grid, Stack, Text } from '@mantine/core'
 
 import Achievements from '~/components/Achievements/Achievements'
 import AppConnect from '~/components/App/AppConnect'
@@ -36,6 +36,13 @@ export default function Index() {
               <AppConnect />
               <Achievements />
             </Stack>
+          </Grid.Col>
+          <Grid.Col span={12}>
+            <Text size="md" ta="center" c="white">
+              <Anchor pl="xs" href="https://nathansoftware.ca" target="_blank" c="white">
+                Nathan Software © 2025
+              </Anchor>
+            </Text>
           </Grid.Col>
         </Grid>
       </AppLayout>
