@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Box, Card, Group } from '@mantine/core'
+import { Box, Card, Group, Text } from '@mantine/core'
 
 import { useAchievements } from './hooks/useAchievements'
 import { allAchievements, firstGuessCorrect, lastGuessCorrect } from './logic/achievements'
@@ -14,6 +14,7 @@ export default function Achievements() {
 
   return (
     <Card c="white">
+      <Text mb="md">Achievements</Text>
       <Group gap="sm" wrap="wrap">
         <Box w="100%" ta="center" fz="h2" p="md" className="achievement">
           <Box className={achievementClassName('firstGuessCorrect')}>{firstGuessCorrect['firstGuessCorrect']}</Box>

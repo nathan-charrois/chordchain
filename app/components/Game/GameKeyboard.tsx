@@ -45,6 +45,7 @@ export default function GameKeyboard() {
     keys.map((character) => {
       return (
         <GameKeyboardButton
+          key={character}
           character={character}
           guesses={guesses}
           onClick={() => setGuess(character)}
@@ -57,6 +58,7 @@ export default function GameKeyboard() {
     operations.map((character) => {
       return (
         <GameKeyboardButton
+          key={character}
           character={character}
           guesses={guesses}
           onClick={() => setGuess(character)}
