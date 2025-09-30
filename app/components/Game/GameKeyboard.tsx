@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from 'react'
-import { Box, Card, Center, type DefaultMantineColor, Group, Text } from '@mantine/core'
+import { Card, Group } from '@mantine/core'
 
+import GameKeyboardButton from './GameKeyboardButton'
 import { useGame } from './hooks/useGame'
-import { getCellStatus, getCellTextColor, getKeyClassName } from './logic/game'
 
 const keys = [
   '0', '1', '2', '3', '4',
@@ -14,30 +14,12 @@ const operations = [
   '/', '(', ')',
 ]
 
-type Props = {
-  color: DefaultMantineColor
-  className: string
-  onClick: React.MouseEventHandler<HTMLDivElement>
-  value: string
-}
-
-function GameKeyboardButton({ color, className, onClick, value }: Props) {
-  return (
-    <Box c={color} h={50} className={className} onClick={onClick}>
-      <Center h={48}>
-        <Text size="sm" fw="bold">{value}</Text>
-      </Center>
-    </Box>
-  )
-}
-
 export default function GameKeyboard() {
   const {
     setGuess,
     guesses,
     deleteGuess,
     submitGuess,
-    restartGame,
   } = useGame()
 
   useEffect(() => {
@@ -57,19 +39,14 @@ export default function GameKeyboard() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [setGuess, submitGuess, deleteGuess, restartGame])
+  }, [setGuess, submitGuess, deleteGuess])
 
   const numberRow = useMemo(() => (
     keys.map((character) => {
-      const status = getCellStatus(character, guesses)
-      const color = getCellTextColor(status)
-      const className = getKeyClassName(status)
-
       return (
         <GameKeyboardButton
-          value={character}
-          color={color}
-          className={className}
+          character={character}
+          guesses={guesses}
           onClick={() => setGuess(character)}
         />
       )
@@ -78,15 +55,10 @@ export default function GameKeyboard() {
 
   const operationsRow = useMemo(() => (
     operations.map((character) => {
-      const status = getCellStatus(character, guesses)
-      const color = getCellTextColor(status)
-      const className = getKeyClassName(status)
-
       return (
         <GameKeyboardButton
-          value={character}
-          color={color}
-          className={className}
+          character={character}
+          guesses={guesses}
           onClick={() => setGuess(character)}
         />
       )
@@ -98,23 +70,15 @@ export default function GameKeyboard() {
       <Group grow mb="md">{numberRow}</Group>
       <Group grow>
         <GameKeyboardButton
-          value="Enter"
-          color="dark.5"
-          className="key key-default"
+          character="Enter"
+          guesses={[]}
           onClick={submitGuess}
         />
         {operationsRow}
         <GameKeyboardButton
-          value="Undo"
-          color="dark.5"
-          className="key key-default"
+          character="Undo"
+          guesses={[]}
           onClick={deleteGuess}
-        />
-        <GameKeyboardButton
-          value="Restart"
-          color="red.9"
-          className="key key-default"
-          onClick={restartGame}
         />
       </Group>
     </Card>

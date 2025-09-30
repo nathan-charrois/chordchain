@@ -27,8 +27,8 @@ function GameCell({ isActive, character, status }: Props) {
   const className = getCellClassName(status)
 
   return (
-    <Box c={color} h={92} className={className}>
-      <Center ref={ref} h={88}>
+    <Box c={color} h={90} className={className}>
+      <Center ref={ref} h={86}>
         <Text size="xl" fw="bold">{character}</Text>
       </Center>
     </Box>
