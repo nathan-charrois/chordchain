@@ -23,9 +23,9 @@ export function GameProvider({ children }: Props) {
 
   useEffect(() => {
     if (status === 'won') {
-      saveGame()
+      saveGame(target)
     }
-  }, [status, saveGame])
+  }, [status, saveGame, target])
 
   useEffect(() => {
     if (isGameWon(guesses, solution)) {
