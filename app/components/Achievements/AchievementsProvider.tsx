@@ -20,7 +20,7 @@ export function AchievementsProvider({ children }: Props) {
     if (parsed) {
       setAchievement(parsed)
     }
-  }, [])
+  }, [setAchievement])
 
   useEffect(() => {
     if (isFirstGuessCorrect(status, guesses)) {
@@ -46,7 +46,7 @@ export function AchievementsProvider({ children }: Props) {
         return result
       })
     }
-  }, [status, guesses, achievement, setAchievement])
+  }, [status, guesses, setAchievement])
 
   return (
     <AchievementsContext.Provider value={{ achievement }}>

@@ -2,7 +2,7 @@ import { createContext } from 'react'
 
 export type GameStatus = 'new' | 'loss' | 'won'
 
-export type GameEventTypes = 'INVALID_GUESS' | 'SET_GUESS'
+export type GameEventTypes = 'INVALID_GUESS' | 'SET_GUESS' | 'SAVE_GAME'
 
 export type GameEventPayload = { event: GameEventTypes, value?: string }
 
