@@ -1,6 +1,6 @@
 import { AppShell, Center } from '@mantine/core'
 
-import Footer from '../Footer.tsx/Footer'
+import Footer from '../Footer/Footer'
 import Header from '../Header/Header'
 
 type Props = {

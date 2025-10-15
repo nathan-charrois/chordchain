@@ -1,5 +1,6 @@
 import { MantineProvider } from '@mantine/core'
 
+import { GameProvider } from '../Game/GameProvider'
 import theme from '~/utils/theme'
 
 type Props = {
@@ -9,7 +10,9 @@ type Props = {
 export default function AppProvider({ children }: Props) {
   return (
     <MantineProvider theme={theme}>
-      {children}
+      <GameProvider>
+        {children}
+      </GameProvider>
     </MantineProvider>
   )
 }

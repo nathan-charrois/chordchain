@@ -3,6 +3,9 @@ import { Stack, Text } from '@mantine/core'
 
 import AppLayout from '~/components/App/AppLayout'
 import AppProvider from '~/components/App/AppProvider'
+import Board from '~/components/Board/Board'
+import Pallete from '~/components/Pallete/Pallete'
+import Scale from '~/components/Scale/Scale'
 
 export function meta({ }: MetaArgs) {
   return [
@@ -15,11 +18,9 @@ export default function Game() {
     <AppProvider>
       <AppLayout>
         <Stack>
-          <Text>Scale</Text>
-          <Text>Board</Text>
-          <Text>-- Controls</Text>
-          <Text>-- Guesses</Text>
-          <Text>Pallete</Text>
+          <Scale />
+          <Board />
+          <Pallete />
         </Stack>
       </AppLayout>
     </AppProvider>
