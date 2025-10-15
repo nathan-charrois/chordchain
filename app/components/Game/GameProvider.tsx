@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { GameContext, type GameEventPayload, type GameStatus, type Guess } from './context/GameContext'
-import { useSaveGame } from './hooks/useSaveGame'
 import { buildCellStatus, isGameLoss, isGameWon, isGuessValid } from './logic/game'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { pubSub } from '~/utils/pubSub'
@@ -18,14 +17,7 @@ export function GameProvider({ children }: Props) {
   const [guess, setGuess] = useState('')
   const [guesses, setGuesses] = useState<Guess[]>([])
 
-  const saveGame = useSaveGame()
   const events = useMemo(() => pubSub<GameEventPayload>(), [])
-
-  useEffect(() => {
-    if (status === 'won') {
-      saveGame(target)
-    }
-  }, [status, saveGame, target])
 
   useEffect(() => {
     if (isGameWon(guesses, solution)) {
