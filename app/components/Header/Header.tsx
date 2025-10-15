@@ -1,9 +1,13 @@
-import { Image, Stack } from '@mantine/core'
+import { Card, Text } from '@mantine/core'
+
+import 'app/components/Header/Header.module.css'
 
 export default function Header() {
   return (
-    <Stack w="750px" h="30vh" justify="center">
-      <Image src="/images/header.png" />
-    </Stack>
+    <Card unstyled className="Card">
+      <Text>
+        ChordChain
+      </Text>
+    </Card>
   )
 }

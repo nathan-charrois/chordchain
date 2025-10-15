@@ -1,6 +1,6 @@
 # Chord Chain
 
-Chain the chord progression
+Guess the progression!
 
 ## Getting Started
 

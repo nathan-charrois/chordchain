@@ -19,7 +19,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.ico"></link>
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png"></link>
         <Meta />
         <Links />
       </head>

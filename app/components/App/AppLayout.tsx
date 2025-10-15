@@ -1,20 +1,25 @@
 import { AppShell, Center } from '@mantine/core'
 
+import Footer from '../Footer.tsx/Footer'
+import Header from '../Header/Header'
+
 type Props = {
-  header: React.ReactNode
   children: React.ReactNode
 }
 
-export default function AppLayout({ header, children }: Props) {
+export default function AppLayout({ children }: Props) {
   return (
     <Center>
       <AppShell withBorder={false} offsetScrollbars={false}>
         <AppShell.Main>
           <Center w="100%">
-            {header}
+            <Header />
           </Center>
           <Center w="100%">
             {children}
+          </Center>
+          <Center w="100%">
+            <Footer />
           </Center>
         </AppShell.Main>
       </AppShell>
