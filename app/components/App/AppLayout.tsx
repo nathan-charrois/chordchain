@@ -12,7 +12,7 @@ export default function AppLayout({ children }: Props) {
     <Center>
       <AppShell withBorder={false} offsetScrollbars={false}>
         <AppShell.Main>
-          <Center w="100%">
+          <Center w="100%" mt="xl">
             <Header />
           </Center>
           <Center w="100%">

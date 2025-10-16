@@ -7,7 +7,7 @@ export default function Board() {
   console.log(maxGuesses)
 
   return (
-    <Card bdrs="md">
+    <Card bdrs="md" bg="transparent">
       <Stack gap="md">
         Controls
         {maxGuesses}

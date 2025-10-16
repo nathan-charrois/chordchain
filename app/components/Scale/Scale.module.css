@@ -1,13 +1,10 @@
 .card {
-
   background-image: url('/images/texture-light.png');
   background-repeat: repeat;
-  border: 2px solid #08181D;
   box-shadow:
-    0 0 0 1px #6f7e70,
-    0 0 0 6px #5B685C,
-    0 0 0 7px #6f7e70,
-    0 0 0 13px #08181D;
+    0 -1px 0px 1px #42514b,
+    0 0px 0px 3px #394641,
+    0 0px 0px 9px #0a0f11b7;
 }
 
 .text {
