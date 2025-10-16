@@ -15,7 +15,7 @@ export default function AppLayout({ children }: Props) {
           <Center w="100%" mt="xl">
             <Header />
           </Center>
-          <Center w="100%">
+          <Center w={680}>
             {children}
           </Center>
           <Center w="100%">

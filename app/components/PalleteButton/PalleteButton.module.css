@@ -1,0 +1,27 @@
+.box {
+  border-radius: 5px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.216);
+}
+.box:hover{
+  filter: brightness(95%);
+}
+.box:active{
+  filter: brightness(90%);
+  position: relative;
+  top: 1px;
+}
+
+.text {
+  color: #C9B789;
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-shadow:
+    -1px 0 #f1d489,
+    0 1px #000016,
+    1px 0 #000016,
+    0 -1px #000016,
+    0 4px #122324;
+}
