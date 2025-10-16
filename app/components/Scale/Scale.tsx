@@ -9,8 +9,8 @@ export default function Scale() {
       m="lg"
       py="xs"
       px="xl"
-      bdrs="lg"
       ta="center"
+      w={460}
     >
       <Text className={classes.text}>C MAJOR, IONION</Text>
     </Card>

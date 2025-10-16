@@ -17,7 +17,7 @@ export default function Game() {
   return (
     <AppProvider>
       <AppLayout>
-        <Stack>
+        <Stack align="center">
           <Scale />
           <Board />
           <Pallete />

@@ -12,13 +12,13 @@ export default function AppLayout({ children }: Props) {
     <Center>
       <AppShell withBorder={false} offsetScrollbars={false}>
         <AppShell.Main>
-          <Center w="100%" mt="xl">
+          <Center mt="xl">
             <Header />
           </Center>
-          <Center w={680}>
+          <Center>
             {children}
           </Center>
-          <Center w="100%">
+          <Center>
             <Footer />
           </Center>
         </AppShell.Main>

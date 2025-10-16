@@ -8,7 +8,7 @@ type Props = {
 
 export default function PalleteButton({ character }: Props) {
   return (
-    <Box className={classes.box} px="lg">
+    <Box className={classes.box} px="lg" py="md" bdrs="lg">
       <Center>
         <Text className={classes.text}>{character}</Text>
       </Center>

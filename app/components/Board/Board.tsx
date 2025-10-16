@@ -4,7 +4,7 @@ import { useGame } from '../Game/hooks/useGame'
 
 export default function Board() {
   const { maxGuesses } = useGame()
-  console.log(maxGuesses)
+  console.log({ maxGuesses })
 
   return (
     <Card bdrs="md" bg="transparent">

@@ -1,15 +1,17 @@
 .card {
   background-image: url('/images/texture-light.png');
   background-repeat: repeat;
+  border: 1px solid #000810;
+  border-radius: 28px;
   box-shadow:
-    0 -1px 0px 1px #42514b,
-    0 0px 0px 3px #394641,
-    0 0px 0px 7px #0a0f11b7;
+    0 -1px 0px 1px #3f514b,
+    0 0px 0px 8px #394641,
+    0 0px 0px 14px #0a0f11b7;
 }
 
 .text {
   color: #C9B789;
-  font-size: 38px;
+  font-size: 42px;
   font-weight: 500;
   letter-spacing: 3px;
   text-shadow:

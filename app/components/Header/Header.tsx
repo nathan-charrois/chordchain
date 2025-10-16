@@ -9,7 +9,7 @@ export default function Header() {
       m="xl"
       p="xl"
       bdrs="xl"
-      w={500}
+      w={540}
     >
       <Image alt="ChordChain" src="/images/header.png" aria-label="ChordChain Logo" />
     </Card>
