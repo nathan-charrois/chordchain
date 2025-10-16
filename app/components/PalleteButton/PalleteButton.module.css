@@ -1,16 +1,26 @@
 .box {
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   user-select: none;
-  background: rgba(0, 0, 0, 0.216);
+  background-image: url('/images/button-texture.png');
+  box-shadow:
+    0 -1px 0px 1px #524e3e,
+    0 1px 0px 1.5px #0A1919,
+    0 7px 0px 1.5px #102124,
+    0 0px 0px 5.5px #0F191E,
+    0 7px 0px 5.5px #0F191E;
 }
-.box:hover{
-  filter: brightness(95%);
-}
+
 .box:active{
-  filter: brightness(90%);
+  filter: brightness(95%);
   position: relative;
-  top: 1px;
+  top: 2px;
+  box-shadow:
+    0 -1px 0px 1px #5A5545,
+    0 1px 0px 1.5px #0A1919,
+    0 5px 0px 1.5px #102124,
+    0 0px 0px 5.5px #0F191E,
+    0 5px 0px 5.5px #0F191E;
 }
 
 .text {

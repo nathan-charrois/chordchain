@@ -1,24 +1,25 @@
-import { Card, Group, Stack, Text } from '@mantine/core'
+import { Card, Group, Stack } from '@mantine/core'
 
 import PalleteButton from '../PalleteButton/PalleteButton'
 import classes from './Pallete.module.css'
 
 export default function Pallete() {
   return (
-    <Card className={classes.card} m="lg" bdrs="lg" ta="center">
+    <Card className={classes.card} m="lg" p="lg" bdrs="lg" ta="center">
       <Stack>
-        <Text className={classes.text}>CHORD PALETTE</Text>
-        <Group grow>
+        <Group grow gap="lg" mb="md">
           <PalleteButton character="C" />
           <PalleteButton character="Dm" />
           <PalleteButton character="Em" />
           <PalleteButton character="F" />
           <PalleteButton character="G" />
         </Group>
-        <Group>
-          <PalleteButton character="Am" />
-          <PalleteButton character="Bdim" />
-          <PalleteButton character="Undo" />
+        <Group grow gap="lg" mb="md">
+          <PalleteButton character="Del" />
+          <Group grow ml="lg" mr="lg" gap="lg">
+            <PalleteButton character="Am" />
+            <PalleteButton character="Bdim" />
+          </Group>
           <PalleteButton character="Enter" />
         </Group>
       </Stack>
