@@ -1,5 +1,24 @@
 .card {
-  background-image: url('/images/texture.png');
-  background-blend-mode:multiply;
+
+  background-image: url('/images/texture-light.png');
   background-repeat: repeat;
+  border: 2px solid #08181D;
+  box-shadow:
+    0 0 0 1px #6f7e70,
+    0 0 0 6px #5B685C,
+    0 0 0 7px #6f7e70,
+    0 0 0 13px #08181D;
+}
+
+.text {
+  color: #C9B789;
+  font-size: 38px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-shadow:
+    -1px 0 #f1d489,
+    0 1px #000016,
+    1px 0 #000016,
+    0 -1px #000016,
+    0 4px #122324;
 }

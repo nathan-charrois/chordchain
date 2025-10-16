@@ -1,5 +1,5 @@
 import type { MetaArgs } from 'react-router'
-import { Stack, Text } from '@mantine/core'
+import { Stack } from '@mantine/core'
 
 import AppLayout from '~/components/App/AppLayout'
 import AppProvider from '~/components/App/AppProvider'

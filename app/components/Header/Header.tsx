@@ -4,8 +4,14 @@ import classes from './Header.module.css'
 
 export default function Header() {
   return (
-    <Card className={classes.card} p="xl" bdrs="xl">
-      <Image src="/images/header.png" />
+    <Card
+      className={classes.card}
+      m="xl"
+      p="xl"
+      bdrs="xl"
+      w={500}
+    >
+      <Image alt="ChordChain" src="/images/header.png" aria-label="ChordChain Logo" />
     </Card>
   )
 }

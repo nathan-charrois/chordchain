@@ -1,11 +1,17 @@
-import { Card } from '@mantine/core'
+import { Card, Text } from '@mantine/core'
 
 import classes from './Scale.module.css'
 
 export default function Scale() {
   return (
-    <Card className={classes.card} p="xl" bdrs="xl">
-      Scale
+    <Card
+      className={classes.card}
+      m="lg"
+      py="xs"
+      px="xl"
+      bdrs="xl"
+    >
+      <Text className={classes.text}>C MAJOR, IONION</Text>
     </Card>
   )
 }
