@@ -8,19 +8,19 @@ export default function Pallete() {
     <Card className={classes.card} m="lg" p="lg" bdrs="lg" ta="center">
       <Stack>
         <Group grow gap="lg" mb="md">
-          <PalleteButton character="C" />
-          <PalleteButton character="Dm" />
-          <PalleteButton character="Em" />
-          <PalleteButton character="F" />
-          <PalleteButton character="G" />
+          <PalleteButton text="C" />
+          <PalleteButton text="Dm" />
+          <PalleteButton text="Em" />
+          <PalleteButton text="F" />
+          <PalleteButton text="G" />
         </Group>
         <Group grow gap="lg" mb="md">
-          <PalleteButton character="Del" />
-          <Group grow ml="lg" mr="lg" gap="lg">
-            <PalleteButton character="Am" />
-            <PalleteButton character="Bdim" />
+          <PalleteButton variant="secondary" text="Undo" />
+          <Group grow gap="lg">
+            <PalleteButton text="Am" />
+            <PalleteButton text="Bdim" />
           </Group>
-          <PalleteButton character="Enter" />
+          <PalleteButton variant="secondary" text="Enter" />
         </Group>
       </Stack>
     </Card>

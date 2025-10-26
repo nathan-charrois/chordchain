@@ -1,3 +1,4 @@
+/* Button */
 .box {
   border-radius: 8px;
   cursor: pointer;
@@ -10,9 +11,7 @@
     0 0px 0px 5.5px #0F191E,
     0 7px 0px 5.5px #0F191E;
 }
-
 .box:active{
-  filter: brightness(95%);
   position: relative;
   top: 2px;
   box-shadow:
@@ -22,7 +21,6 @@
     0 0px 0px 5.5px #0F191E,
     0 5px 0px 5.5px #0F191E;
 }
-
 .text {
   color: #C9B789;
   font-size: 38px;
@@ -34,4 +32,28 @@
     1px 0 #000016,
     0 -1px #000016,
     0 4px #122324;
+}
+
+/* Variants */
+.primary {
+  filter: brightness(100%);
+}
+.primary:hover {
+  filter: brightness(95%);
+}
+.primary:active {
+  filter: brightness(90%);
+}
+
+.secondary {
+  filter: saturate(50%) brightness(90%);
+}
+.secondary:hover {
+  filter: saturate(50%) brightness(85%);
+}
+.secondary:active {
+  filter: saturate(50%) brightness(80%);
+}
+.secondary .text {
+  color: #f7d276;
 }
