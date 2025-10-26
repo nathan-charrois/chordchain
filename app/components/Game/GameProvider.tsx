@@ -1,44 +1,45 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
-import { type Chord, GameContext, type GameStatus, type Guess } from './context/GameContext'
-import { isGameLoss, isGameWon } from './logic/game'
+import { type Chord, GameContext, type Guess } from './context/GameContext'
+import { useStatus } from './hooks/useStatus'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
 type Props = {
   children: React.ReactNode
 }
 
-const target = ['C', 'Fm', 'Am', 'G']
+const target: Chord[] = ['C', 'Fm', 'Am', 'G']
 
-function useStatus(guesses: Guess[]) {
-  const [status, setStatus] = useState<GameStatus>('new')
-
-  useEffect(() => {
-    if (isGameWon(guesses, target)) {
-      setStatus('won')
-    }
-    else if (isGameLoss(guesses)) {
-      setStatus('loss')
-    }
-  }, [guesses, setStatus])
-
-  return [status, setStatus] as const
+const newGuess: Guess = {
+  chords: [],
+  status: [],
 }
 
 export function GameProvider({ children }: Props) {
   const [guesses, setGuesses] = useState<Guess[]>([])
-  const [status, setStatus] = useStatus(guesses)
+  const [status, setStatus] = useStatus(guesses, target)
+  const [current, setCurrent] = useState<Guess>(newGuess)
 
-  const handleAddGuess = useCallback((chords: Chord[]) => {
-    setGuesses(prev => ({
+  const handleSubmitGuess = useCallback(() => {
+    setGuesses(prev => ([...prev, current]))
+    setCurrent(newGuess)
+  }, [setGuesses, setCurrent, current])
+
+  const handleAddCurrent = useCallback((chord: Chord) => {
+    setCurrent(prev => ({
       ...prev,
-      chords,
+      chords: [...prev.chords, chord],
+      status: [],
     }))
-  }, [setGuesses])
+  }, [setCurrent])
 
-  const handleRemoveGuess = useCallback(() => {
-    setGuesses(prev => prev.slice(0, -1))
-  }, [setGuesses])
+  const handleRemoveCurrent = useCallback(() => {
+    setCurrent(prev => ({
+      ...prev,
+      chords: [...prev.chords.slice(0, -1)],
+      status: [],
+    }))
+  }, [setCurrent])
 
   const handleReset = useCallback(() => {
     setStatus('new')
@@ -50,10 +51,12 @@ export function GameProvider({ children }: Props) {
       status,
       target,
       guesses,
+      current,
       maxLength: GAME_MAX_CHARS,
       maxGuesses: GAME_MAX_GUESSES,
-      addGuess: handleAddGuess,
-      removeGuess: handleRemoveGuess,
+      addCurrent: handleAddCurrent,
+      removeCurrent: handleRemoveCurrent,
+      submitGuess: handleSubmitGuess,
       reset: handleReset,
     }}
     >

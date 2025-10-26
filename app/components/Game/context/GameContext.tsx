@@ -3,18 +3,18 @@ import { createContext } from 'react'
 /* Game */
 export type Game = {
   status: GameStatus
-  target: GameTarget
+  target: Chord[]
   guesses: Guess[]
+  current: Guess
   maxLength: number
   maxGuesses: number
-  addGuess: (chords: Chord[]) => void
-  removeGuess: () => void
+  addCurrent: (chord: Chord) => void
+  removeCurrent: () => void
+  submitGuess: () => void
   reset: () => void
 }
 
 export type GameStatus = 'new' | 'started' | 'loss' | 'won'
-
-export type GameTarget = Chord[]
 
 /* Guess */
 export type Guess = {
