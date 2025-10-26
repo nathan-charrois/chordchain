@@ -4,15 +4,15 @@ import { type Chord, GameContext, type Guess } from './context/GameContext'
 import { useStatus } from './hooks/useStatus'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
-type Props = {
-  children: React.ReactNode
-}
-
 const target: Chord[] = ['C', 'Fm', 'Am', 'G']
 
 const newGuess: Guess = {
   chords: [],
   status: [],
+}
+
+type Props = {
+  children: React.ReactNode
 }
 
 export function GameProvider({ children }: Props) {
@@ -44,7 +44,8 @@ export function GameProvider({ children }: Props) {
   const handleReset = useCallback(() => {
     setStatus('new')
     setGuesses([])
-  }, [setGuesses, setStatus])
+    setCurrent(newGuess)
+  }, [setGuesses, setStatus, setCurrent])
 
   return (
     <GameContext.Provider value={{

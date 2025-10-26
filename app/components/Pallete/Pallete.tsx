@@ -6,29 +6,19 @@ import PalleteButton from '../PalleteButton/PalleteButton'
 import classes from './Pallete.module.css'
 
 export default function Pallete() {
-  const { current, addCurrent, removeCurrent, submitGuess, maxLength } = useGame()
+  const { addCurrent, removeCurrent, submitGuess } = useGame()
 
   const handleClickChord = useCallback((chord: string) => {
-    if (current.chords.length < maxLength) {
-      addCurrent(chord)
-    }
-    else {
-      console.log('Max chords reached')
-    }
-  }, [addCurrent, current])
+    addCurrent(chord)
+  }, [addCurrent])
 
   const handleClickUndo = useCallback(() => {
     removeCurrent()
   }, [removeCurrent])
 
   const handleClickEnter = useCallback(() => {
-    if (current.chords.length >= maxLength) {
-      submitGuess()
-    }
-    else {
-      console.log('Not enough chords')
-    }
-  }, [submitGuess, current, maxLength])
+    submitGuess()
+  }, [submitGuess])
 
   return (
     <Card className={classes.card} m="lg" p="lg" bdrs="lg" ta="center">
