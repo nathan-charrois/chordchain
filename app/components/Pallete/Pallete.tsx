@@ -11,7 +11,7 @@ export default function Pallete() {
 
   const handleClickChord = useCallback((chord: string) => {
     addCurrent(chord)
-    playChord(chord)
+    playChord(chord, false)
   }, [addCurrent])
 
   const handleClickUndo = useCallback(() => {

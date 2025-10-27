@@ -65,17 +65,23 @@ export function pitchClassesFromChord(chord: string): number[] {
   return intervals.map(i => (rootPitchClass + i) % 12)
 }
 
-export function playChord(chord: string) {
+export function playChord(chord: string, arpeggiate: boolean) {
   const pitchClasses = pitchClassesFromChord(chord)
+  const interval = arpeggiate ? 200 : 0
 
-  pitchClasses.map(pitchClass => playTone(pitchClass, 4))
+  pitchClasses.map((pitchClass, index) => {
+    setTimeout(
+      () => playTone(pitchClass, 4),
+      index * interval,
+    )
+  })
 }
 
 export function playTone(pitchClass: number, octave: number) {
   const frequency = hzFromPitchClass(pitchClass, octave)
 
   zzfx({
-    volume: 6,
+    volume: 4,
     randomness: 0,
     frequency,
     attack: 0.01,
