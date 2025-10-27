@@ -12,7 +12,7 @@ let chordTimeouts: ReturnType<typeof setTimeout>[] | null = null
 type PlaySequence = {
   chords: Chord[]
   arpeggiate: boolean
-  loop: boolean
+  loop?: boolean
   setIndex: (index: number | null) => void
 }
 
@@ -20,7 +20,12 @@ export function playSequence({ chords, arpeggiate, setIndex, loop }: PlaySequenc
   const totalDuration = chords.length * SEQUENCE_GAP_MS
 
   function playSequenceAndLoop() {
-    playSequenceOnce(chords, arpeggiate, setIndex)
+    playSequenceOnce({
+      chords,
+      arpeggiate,
+      setIndex,
+    })
+
     if (loop) {
       loopTimeout = setTimeout(() => playSequenceAndLoop(), totalDuration)
     }
@@ -32,16 +37,14 @@ export function playSequence({ chords, arpeggiate, setIndex, loop }: PlaySequenc
   playSequenceAndLoop()
 }
 
-export function playSequenceOnce(chords: Chord[], arpeggiate: boolean, setIndex: (index: number | null) => void) {
+export function playSequenceOnce({ chords, arpeggiate, setIndex }: PlaySequence) {
   for (let i = 0; i < chords.length; i++) {
-    const chordDelay = i * SEQUENCE_GAP_MS
-
     const timeout = setTimeout(
       () => {
         playChord(chords[i], arpeggiate)
         setIndex(i)
       },
-      chordDelay,
+      i * SEQUENCE_GAP_MS,
     )
 
     chordTimeouts = [...(chordTimeouts ?? []), timeout]
@@ -54,7 +57,6 @@ export function stopSequence() {
   if (chordTimeouts) {
     chordTimeouts.map(chordTimeout => clearTimeout(chordTimeout))
     chordTimeouts = null
-    loopEnd = null
   }
 
   if (loopTimeout) {
