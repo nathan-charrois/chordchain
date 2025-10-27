@@ -6,16 +6,22 @@ import { useSequence } from './hooks/useSequence'
 
 export default function Board() {
   const { status, guesses, current, maxLength, maxGuesses } = useGame()
-  const { target, activeIndex, play, stop } = useSequence()
+  const { target, activeIndex, play, stop, end, insert } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(true)
 
   useEffect(() => {
     if (!isLooping) {
-      stop()
+      end()
     }
-  }, [isLooping, stop])
+  }, [isLooping, end])
+
+  useEffect(() => {
+    if (guesses.length >= 1) {
+      insert(isArpeggiate)
+    }
+  }, [guesses.length])
 
   const handleClickPlay = useCallback(() => {
     play(isArpeggiate, isLooping)

@@ -51,12 +51,39 @@ export function playSequenceOnce({ chords, arpeggiate, setIndex }: PlaySequence)
   sequencePlayed()
 }
 
+type InsertSequence = {
+  chords: Chord[]
+  arpeggiate: boolean
+  activeIndex: number | null
+  setIndex: (index: number | null) => void
+}
+
+export function insertSequence({ chords, arpeggiate, activeIndex, setIndex }: InsertSequence) {
+  endSequence()
+
+  const remainingSequenceDuration = activeIndex
+    ? (chords.length - activeIndex) * SEQUENCE_GAP_MS
+    : SEQUENCE_GAP_MS
+
+  setTimeout(() => {
+    playSequenceOnce({ chords, arpeggiate, setIndex })
+  }, remainingSequenceDuration)
+}
+
 export function stopSequence() {
   if (chordTimeouts) {
     chordTimeouts.map(chordTimeout => clearTimeout(chordTimeout))
     chordTimeouts = null
   }
 
+  if (loopTimeout) {
+    clearTimeout(loopTimeout)
+    loopTimeout = null
+    loopEnd = null
+  }
+}
+
+export function endSequence() {
   if (loopTimeout) {
     clearTimeout(loopTimeout)
     loopTimeout = null
