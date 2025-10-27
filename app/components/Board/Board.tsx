@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
@@ -9,6 +9,12 @@ export default function Board() {
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(true)
+
+  useEffect(() => {
+    if (!isLooping) {
+      stopSequence()
+    }
+  }, [isLooping])
 
   const handleClickPlay = useCallback(() => {
     playSequence(current.chords, isArpeggiate, isLooping)
