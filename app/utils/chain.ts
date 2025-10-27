@@ -5,6 +5,22 @@ export const testSequence: Chord[] = ['C', 'Fm', 'Am', 'G']
 
 export const SEQUENCE_GAP_MS = 600
 
+let loopTimeout: ReturnType<typeof setTimeout> | null = null
+
+export function playSequence(chords: Chord[], arpeggiate: boolean, loop: boolean) {
+  const totalDuration = chords.length * SEQUENCE_GAP_MS
+
+  function playSequenceAndLoop() {
+    playSequenceOnce(chords, arpeggiate)
+    if (loop) {
+      loopTimeout = setTimeout(playSequenceAndLoop, totalDuration)
+    }
+  }
+
+  stopSequence()
+  playSequenceAndLoop()
+}
+
 export function playSequenceOnce(chords: Chord[], arpeggiate: boolean) {
   for (let i = 0; i < chords.length; i++) {
     setTimeout(
@@ -14,30 +30,9 @@ export function playSequenceOnce(chords: Chord[], arpeggiate: boolean) {
   }
 }
 
-export function playSequence(chords: Chord[], arpeggiate: boolean) {
-  const totalDuration = chords.length * SEQUENCE_GAP_MS
-
-  function playLoop() {
-    playSequenceOnce(chords, arpeggiate)
-    setTimeout(playLoop, totalDuration)
-  }
-
-  playLoop()
-}
-
-export function playChain({
-  chords,
-  loop,
-  arpeggiate,
-}: {
-  chords: Chord[]
-  loop: boolean
-  arpeggiate: boolean
-}) {
-  if (loop) {
-    playSequence(chords, arpeggiate)
-  }
-  else {
-    playSequenceOnce(chords, arpeggiate)
+export function stopSequence() {
+  if (loopTimeout) {
+    clearTimeout(loopTimeout)
+    loopTimeout = null
   }
 }

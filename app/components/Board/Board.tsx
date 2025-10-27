@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
-import { playChain } from '~/utils/chain'
+import { playSequence, stopSequence } from '~/utils/chain'
 
 export default function Board() {
   const { status, target, guesses, current, maxLength, maxGuesses } = useGame()
@@ -11,12 +11,12 @@ export default function Board() {
   const [isArpeggiate, setIsArpeggiate] = useState(true)
 
   const handleClickPlay = useCallback(() => {
-    playChain({
-      chords: current.chords,
-      loop: isLooping,
-      arpeggiate: isArpeggiate,
-    })
+    playSequence(current.chords, isArpeggiate, isLooping)
   }, [current, isLooping, isArpeggiate])
+
+  const handleClickStop = useCallback(() => {
+    stopSequence()
+  }, [])
 
   const handleToggleLooping = useCallback(() => {
     setIsLooping(prev => !prev)
@@ -60,6 +60,7 @@ export default function Board() {
         <Divider />
         <Group>
           <Button onClick={handleClickPlay}>Play</Button>
+          <Button onClick={handleClickStop}>Stop</Button>
           <Checkbox label="Loop" checked={isLooping} onChange={handleToggleLooping} />
           <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={handleToggleArpeggiate} />
         </Group>
