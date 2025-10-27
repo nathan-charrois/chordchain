@@ -4,14 +4,12 @@ import { Card, Group, Stack } from '@mantine/core'
 import { useGame } from '../Game/hooks/useGame'
 import PalleteButton from '../PalleteButton/PalleteButton'
 import classes from './Pallete.module.css'
-import { playChord } from '~/utils/music'
 
 export default function Pallete() {
   const { addCurrent, removeCurrent, submitGuess } = useGame()
 
   const handleClickChord = useCallback((chord: string) => {
     addCurrent(chord)
-    playChord(chord, false)
   }, [addCurrent])
 
   const handleClickUndo = useCallback(() => {
