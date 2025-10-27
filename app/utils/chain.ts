@@ -52,22 +52,22 @@ export function playSequenceOnce({ chords, arpeggiate, setIndex }: PlaySequence)
 }
 
 type InsertSequence = {
+  target: Chord[]
   chords: Chord[]
   arpeggiate: boolean
-  activeIndex: number | null
   setIndex: (index: number | null) => void
 }
 
-export function insertSequence({ chords, arpeggiate, activeIndex, setIndex }: InsertSequence) {
-  endSequence()
-
-  const remainingSequenceDuration = activeIndex
-    ? (chords.length - activeIndex) * SEQUENCE_GAP_MS
-    : SEQUENCE_GAP_MS
+export function insertSequence({ target, chords, arpeggiate, setIndex }: InsertSequence) {
+  stopSequence()
 
   setTimeout(() => {
     playSequenceOnce({ chords, arpeggiate, setIndex })
-  }, remainingSequenceDuration)
+  }, SEQUENCE_GAP_MS)
+
+  setTimeout(() => {
+    playSequence({ chords: target, arpeggiate, loop: true, setIndex })
+  }, chords.length + 1 * SEQUENCE_GAP_MS)
 }
 
 export function stopSequence() {

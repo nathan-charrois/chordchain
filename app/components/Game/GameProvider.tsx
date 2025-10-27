@@ -4,7 +4,7 @@ import { type Chord, GameContext, type Guess } from './context/GameContext'
 import { useStatus } from './hooks/useStatus'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
-const target: Chord[] = ['Em', 'F', 'Dm', 'G', 'G']
+const target: Chord[] = ['Em', 'Em', 'Em', 'Em', 'Em']
 
 const newGuess: Guess = {
   chords: [],
