@@ -7,8 +7,8 @@ import { playSequence, stopSequence } from '~/utils/chain'
 export default function Board() {
   const { status, target, guesses, current, maxLength, maxGuesses } = useGame()
 
-  const [isLooping, setIsLooping] = useState(true)
-  const [isArpeggiate, setIsArpeggiate] = useState(true)
+  const [isLooping, setIsLooping] = useState(false)
+  const [isArpeggiate, setIsArpeggiate] = useState(false)
 
   useEffect(() => {
     if (!isLooping) {
@@ -17,7 +17,7 @@ export default function Board() {
   }, [isLooping])
 
   const handleClickPlay = useCallback(() => {
-    playSequence(current.chords, isArpeggiate, isLooping)
+    playSequence(target, isArpeggiate, isLooping)
   }, [current, isLooping, isArpeggiate])
 
   const handleClickStop = useCallback(() => {
@@ -60,15 +60,14 @@ export default function Board() {
     <Card bdrs="md" p="xl">
       <Stack>
         <Group>
-          <Text>{`Status: ${status}`}</Text>
-          <Text>{`Target: ${target.join(' - ')}`}</Text>
-        </Group>
-        <Divider />
-        <Group>
           <Button onClick={handleClickPlay}>Play</Button>
           <Button onClick={handleClickStop}>Stop</Button>
           <Checkbox label="Loop" checked={isLooping} onChange={handleToggleLooping} />
           <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={handleToggleArpeggiate} />
+        </Group>
+        <Group>
+          <Text>{`Status: ${status}`}</Text>
+          <Text>{`Target: ${target.join(' - ')}`}</Text>
         </Group>
         <Divider />
         <Group>
