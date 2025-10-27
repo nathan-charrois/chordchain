@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import { type GameStatus, type Guess } from '../context/GameContext'
+import { type Chord, type GameStatus, type Guess } from '../context/GameContext'
 import { isGameLoss, isGameWon } from '../logic/game'
 
-export function useStatus(guesses: Guess[], target: string[]) {
+export function useStatus(guesses: Guess[], target: Chord[]) {
   const [status, setStatus] = useState<GameStatus>('new')
 
   useEffect(() => {

@@ -1,28 +1,29 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
+import { Badge, Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
-import { playSequence, stopSequence } from '~/utils/chain'
+import { useSequence } from './hooks/useSequence'
 
 export default function Board() {
-  const { status, target, guesses, current, maxLength, maxGuesses } = useGame()
+  const { status, guesses, current, maxLength, maxGuesses } = useGame()
+  const { target, activeIndex, play, stop } = useSequence()
 
-  const [isLooping, setIsLooping] = useState(false)
-  const [isArpeggiate, setIsArpeggiate] = useState(false)
+  const [isLooping, setIsLooping] = useState(true)
+  const [isArpeggiate, setIsArpeggiate] = useState(true)
 
   useEffect(() => {
     if (!isLooping) {
-      stopSequence()
+      stop()
     }
-  }, [isLooping])
+  }, [isLooping, stop])
 
   const handleClickPlay = useCallback(() => {
-    playSequence(target, isArpeggiate, isLooping)
-  }, [current, isLooping, isArpeggiate])
+    play(isArpeggiate, isLooping)
+  }, [play, isLooping, isArpeggiate])
 
   const handleClickStop = useCallback(() => {
-    stopSequence()
-  }, [])
+    stop()
+  }, [stop])
 
   const handleToggleLooping = useCallback(() => {
     setIsLooping(prev => !prev)
@@ -65,9 +66,20 @@ export default function Board() {
           <Checkbox label="Loop" checked={isLooping} onChange={handleToggleLooping} />
           <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={handleToggleArpeggiate} />
         </Group>
-        <Group>
+        <Group wrap="wrap" gap="sm">
           <Text>{`Status: ${status}`}</Text>
-          <Text>{`Target: ${target.join(' - ')}`}</Text>
+          <Group gap="xs">
+            <Text>Target:</Text>
+            {target.map((chord, index) => (
+              <Badge
+                key={`${chord}-${index}`}
+                color={index === activeIndex ? 'lime.6' : 'gray.6'}
+                variant={index === activeIndex ? 'filled' : 'light'}
+              >
+                {chord}
+              </Badge>
+            ))}
+          </Group>
         </Group>
         <Divider />
         <Group>
