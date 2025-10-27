@@ -1,8 +1,6 @@
 import { playChord } from './music'
 import type { Chord } from '~/components/Game/context/GameContext'
 
-export const testSequence: Chord[] = ['C', 'Fm', 'Am', 'G']
-
 export const SEQUENCE_GAP_MS = 600
 
 let loopTimeout: ReturnType<typeof setTimeout> | null = null
@@ -30,7 +28,7 @@ export function playSequence({ chords, arpeggiate, setIndex, loop }: PlaySequenc
       loopTimeout = setTimeout(() => playSequenceAndLoop(), totalDuration)
     }
 
-    loopEnd = setTimeout(() => setIndex(null), totalDuration)
+    loopEnd = setTimeout(() => setIndex(null), totalDuration + SEQUENCE_GAP_MS)
   }
 
   stopSequence()

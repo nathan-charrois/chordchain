@@ -85,7 +85,7 @@ export function playTone(pitchClass: number, octave: number) {
     randomness: 0,
     frequency,
     attack: 0.01,
-    sustain: 0.25,
-    release: 0.25,
+    sustain: 0.10,
+    release: 0.10,
   })
 }
