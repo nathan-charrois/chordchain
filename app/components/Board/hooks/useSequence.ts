@@ -22,7 +22,7 @@ export function useSequence() {
 
   const handleInsert = useCallback((arpeggiate: boolean) => {
     const chords = (guesses[guesses.length - 1]?.chords || [])
-    insertSequence({ target, chords, arpeggiate, setIndex })
+    insertSequence({ chords, arpeggiate, setIndex })
   }, [guesses, setIndex])
 
   return {
