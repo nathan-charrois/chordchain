@@ -29,6 +29,7 @@
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "baseline-browser-mapping": "^2.10.8",
     "eslint": "^9.36.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "tailwindcss": "^4.1.4",
