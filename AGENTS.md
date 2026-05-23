@@ -45,7 +45,9 @@ Done means:
 
 If a command fails, read the error and recover conservatively. Do not retry the same command blindly.
 
-If the target branch already exists, switch to it if the working tree is clean. If there are uncommitted changes, stop and explain before switching.
+Long-running tooling (tests, npm, git, etc.) must always be invoked with sensible timeouts or in non-interactive batch mode. Never leave a shell command waiting indefinitely—prefer explicit timeouts, scripted runs, or log polling after the command exits.
+
+If the target branch already exists, switch to it. If there are uncommitted changes, stop and explain before switching.
 
 Never run destructive Git commands such as `git reset --hard`, `git clean -fd`, branch deletion, rebase, or force push unless explicitly instructed.
 

@@ -19,27 +19,54 @@ export function GameProvider({ children }: Props) {
   const [guesses, setGuesses] = useState<Guess[]>([])
   const [status, setStatus] = useStatus(guesses, target)
   const [current, setCurrent] = useState<Guess>(newGuess)
+  const isGameOver = status === 'won' || status === 'loss'
 
   const handleSubmitGuess = useCallback(() => {
+    if (isGameOver) {
+      return
+    }
+
+    if (!current.chords.length) {
+      return
+    }
+
+    if (current.chords.length !== GAME_MAX_CHARS) {
+      return
+    }
+
+    if (guesses.length >= GAME_MAX_GUESSES) {
+      return
+    }
+
     setGuesses(prev => ([...prev, current]))
+    setStatus(prev => (prev === 'new' ? 'started' : prev))
     setCurrent(newGuess)
-  }, [setGuesses, setCurrent, current])
+  }, [isGameOver, current, guesses.length, setGuesses, setStatus, setCurrent])
 
   const handleAddCurrent = useCallback((chord: Chord) => {
+    if (isGameOver || current.chords.length >= GAME_MAX_CHARS) {
+      return
+    }
+
     setCurrent(prev => ({
       ...prev,
       chords: [...prev.chords, chord],
       status: [],
     }))
-  }, [setCurrent])
+    setStatus(prev => (prev === 'new' ? 'started' : prev))
+  }, [isGameOver, current.chords.length, setCurrent, setStatus])
 
   const handleRemoveCurrent = useCallback(() => {
+    if (isGameOver) {
+      return
+    }
+
     setCurrent(prev => ({
       ...prev,
       chords: [...prev.chords.slice(0, -1)],
       status: [],
     }))
-  }, [setCurrent])
+  }, [isGameOver, setCurrent])
 
   const handleReset = useCallback(() => {
     setStatus('new')

@@ -7,13 +7,22 @@ export function useStatus(guesses: Guess[], target: Chord[]) {
   const [status, setStatus] = useState<GameStatus>('new')
 
   useEffect(() => {
+    if (!guesses.length) {
+      return
+    }
+
     if (isGameWon(guesses, target)) {
       setStatus('won')
+      return
     }
-    else if (isGameLoss(guesses)) {
+
+    if (isGameLoss(guesses)) {
       setStatus('loss')
+      return
     }
-  }, [guesses, setStatus])
+
+    setStatus(prev => (prev === 'new' ? 'started' : prev))
+  }, [guesses, target, setStatus])
 
   return [status, setStatus] as const
 }
