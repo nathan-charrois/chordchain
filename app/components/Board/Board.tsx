@@ -1,8 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Badge, Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
 
+import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
 import { useSequence } from './hooks/useSequence'
+
+function getBadgeColor(status?: GuessStatus): string {
+  switch (status) {
+    case 'correct':
+      return 'green.7'
+    case 'present':
+      return 'yellow.7'
+    case 'absent':
+      return 'gray.7'
+    default:
+      return 'gray.5'
+  }
+}
 
 export default function Board() {
   const { status, guesses, current, maxLength, maxGuesses } = useGame()
@@ -46,8 +60,17 @@ export default function Board() {
 
     return (
       guesses.map((guess, index) => (
-        <Group key={index}>
-          {guess.chords.join(' - ')}
+        <Group key={index} gap="xs" wrap="wrap">
+          {guess.chords.map((chord, chordIndex) => (
+            <Badge
+              key={`${index}-${chord}-${chordIndex}`}
+              color={getBadgeColor(guess.status[chordIndex])}
+              variant="filled"
+              size="lg"
+            >
+              {chord}
+            </Badge>
+          ))}
         </Group>
       ))
     )
@@ -59,7 +82,18 @@ export default function Board() {
     }
 
     return (
-      current.chords.join(' - ')
+      <Group gap="xs" wrap="wrap">
+        {current.chords.map((chord, index) => (
+          <Badge
+            key={`${chord}-${index}`}
+            color="gray.6"
+            variant="outline"
+            size="lg"
+          >
+            {chord}
+          </Badge>
+        ))}
+      </Group>
     )
   }, [current])
 

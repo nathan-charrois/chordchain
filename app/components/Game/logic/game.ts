@@ -31,51 +31,82 @@ export function isGameRowActive(guesses: Guess[], status: GameStatus, index: num
   return status === 'won' ? index === guesses.length - 1 : index === guesses.length
 }
 
-export function buildGuessStatus(guess: string, solution: string): GuessStatus[] {
+export function buildGuessStatus(guess: Chord[], solution: Chord[]): GuessStatus[] {
   const result: GuessStatus[] = new Array(guess.length).fill('absent')
-  const chars = new Map<string, number>()
+  const remaining = new Map<Chord, number>()
 
-  // Count characters
-  for (const char of solution) {
-    const count = chars.get(char) ?? 0
-    chars.set(char, count + 1)
+  for (const chord of solution) {
+    const count = remaining.get(chord) ?? 0
+    remaining.set(chord, count + 1)
   }
 
-  // Set correct status
   for (let i = 0; i < guess.length; i++) {
     if (guess[i] === solution[i]) {
       result[i] = 'correct'
-      const count = chars.get(guess[i]) ?? 0
-      chars.set(guess[i], count - 1)
+      const count = remaining.get(guess[i]) ?? 0
+      remaining.set(guess[i], count - 1)
     }
   }
 
-  // Set present status
   for (let i = 0; i < guess.length; i++) {
     if (result[i] === 'correct') {
       continue
     }
 
-    const count = chars.get(guess[i]) ?? 0
+    const count = remaining.get(guess[i]) ?? 0
     if (count > 0) {
       result[i] = 'present'
-      chars.set(guess[i], count - 1)
+      remaining.set(guess[i], count - 1)
     }
   }
 
   return result
 }
 
-export function getGuessStatus(char: string, guesses: Guess[]): GuessStatus | undefined {
+export function createSubmittedGuess(chords: Chord[], solution: Chord[]): Guess {
+  const nextChords = [...chords]
+
+  return {
+    chords: nextChords,
+    status: buildGuessStatus(nextChords, solution),
+  }
+}
+
+export function mergeGuessStatus(
+  current?: GuessStatus,
+  incoming?: GuessStatus,
+): GuessStatus | undefined {
+  if (!incoming) {
+    return current
+  }
+
+  if (!current) {
+    return incoming
+  }
+
+  if (current === 'correct' || incoming === 'correct') {
+    return 'correct'
+  }
+
+  if (current === 'present' || incoming === 'present') {
+    return 'present'
+  }
+
+  return 'absent'
+}
+
+export function getGuessStatus(chord: Chord, guesses: Guess[]): GuessStatus | undefined {
+  let bestStatus: GuessStatus | undefined
+
   for (const guess of guesses) {
     for (let i = 0; i < guess.chords.length; i++) {
-      if (guess.chords[i] === char) {
-        return guess.status[i]
+      if (guess.chords[i] === chord) {
+        bestStatus = mergeGuessStatus(bestStatus, guess.status[i])
       }
     }
   }
 
-  return undefined
+  return bestStatus
 }
 
 export function getCellTextColor(status?: GuessStatus): DefaultMantineColor {

@@ -57,3 +57,26 @@
 .secondary .text {
   color: #f7d276;
 }
+
+/* Status */
+.correct {
+  box-shadow:
+    0 -1px 0px 1px #2b5c2d,
+    0 1px 0px 1.5px #0A1919,
+    0 7px 0px 1.5px #1f4a27,
+    0 0px 0px 5.5px #173320,
+    0 7px 0px 5.5px #173320;
+}
+
+.present {
+  box-shadow:
+    0 -1px 0px 1px #7d6324,
+    0 1px 0px 1.5px #0A1919,
+    0 7px 0px 1.5px #5f4b1b,
+    0 0px 0px 5.5px #3e3214,
+    0 7px 0px 5.5px #3e3214;
+}
+
+.absent {
+  filter: saturate(30%) brightness(75%);
+}

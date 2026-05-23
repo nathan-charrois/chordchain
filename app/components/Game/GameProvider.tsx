@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 
 import { type Chord, GameContext, type Guess } from './context/GameContext'
 import { useStatus } from './hooks/useStatus'
+import { createSubmittedGuess } from './logic/game'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 
 const target: Chord[] = ['Em', 'Am', 'F', 'G']
@@ -38,10 +39,12 @@ export function GameProvider({ children }: Props) {
       return
     }
 
-    setGuesses(prev => ([...prev, current]))
+    const submittedGuess = createSubmittedGuess(current.chords, target)
+
+    setGuesses(prev => ([...prev, submittedGuess]))
     setStatus(prev => (prev === 'new' ? 'started' : prev))
     setCurrent(newGuess)
-  }, [isGameOver, current, guesses.length, setGuesses, setStatus, setCurrent])
+  }, [isGameOver, current.chords, guesses.length, setGuesses, setStatus, setCurrent])
 
   const handleAddCurrent = useCallback((chord: Chord) => {
     if (isGameOver || current.chords.length >= GAME_MAX_CHARS) {
