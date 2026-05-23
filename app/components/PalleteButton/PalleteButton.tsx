@@ -8,6 +8,7 @@ type Props = {
   text: string
   variant?: 'primary' | 'secondary'
   status?: GuessStatus
+  disabled?: boolean
   onClick: (text: string) => void
 }
 
@@ -15,6 +16,7 @@ export default function PalleteButton({
   text,
   variant,
   status,
+  disabled,
   onClick,
 }: Props) {
   const variantClassName = useMemo(() => (
@@ -44,12 +46,16 @@ export default function PalleteButton({
 
   return (
     <Box
+      component="button"
+      type="button"
       px="lg"
       py="md"
       bdrs="lg"
       h={86}
-      className={`${classes.box} ${variantClassName} ${statusClassName}`}
+      className={`${classes.box} ${variantClassName} ${statusClassName} ${disabled ? classes.disabled : ''}`}
       onClick={() => handleOnClick(text)}
+      disabled={disabled}
+      aria-disabled={disabled}
     >
       <Center h={50}>
         <Text className={classes.text}>{text}</Text>

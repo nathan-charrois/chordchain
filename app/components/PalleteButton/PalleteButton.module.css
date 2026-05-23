@@ -1,6 +1,7 @@
 /* Button */
 .box {
   border-radius: 8px;
+  border: none;
   cursor: pointer;
   user-select: none;
   background-image: url('/images/button-texture.png');
@@ -56,6 +57,17 @@
 }
 .secondary .text {
   color: #f7d276;
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(25%);
+}
+
+.disabled:active {
+  position: static;
+  top: auto;
 }
 
 /* Status */

@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Badge, Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
+import { Alert, Badge, Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
+import {
+  getAttemptsUsed,
+  getEndStateMessage,
+  getLossTargetLabel,
+  shouldRevealTarget,
+} from '../Game/logic/session'
 import { useSequence } from './hooks/useSequence'
 
 function getBadgeColor(status?: GuessStatus): string {
@@ -19,7 +25,7 @@ function getBadgeColor(status?: GuessStatus): string {
 }
 
 export default function Board() {
-  const { status, guesses, current, maxLength, maxGuesses } = useGame()
+  const { status, guesses, current, maxLength, maxGuesses, reset, isGameOver } = useGame()
   const { target, activeIndex, play, stop, end, insert } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
@@ -52,6 +58,14 @@ export default function Board() {
   const handleToggleArpeggiate = useCallback(() => {
     setIsArpeggiate(prev => !prev)
   }, [setIsArpeggiate])
+
+  const handleClickNewGame = useCallback(() => {
+    reset()
+  }, [reset])
+
+  const attemptsUsed = getAttemptsUsed(guesses)
+  const isLoss = status === 'loss'
+  const endStateMessage = getEndStateMessage(status)
 
   const guessesList = useMemo(() => {
     if (!guesses.length) {
@@ -108,19 +122,40 @@ export default function Board() {
         </Group>
         <Group wrap="wrap" gap="sm">
           <Text>{`Status: ${status}`}</Text>
-          <Group gap="xs">
-            <Text>Target:</Text>
-            {target.map((chord, index) => (
-              <Badge
-                key={`${chord}-${index}`}
-                color={index === activeIndex ? 'lime.6' : 'gray.6'}
-                variant={index === activeIndex ? 'filled' : 'light'}
-              >
-                {chord}
-              </Badge>
-            ))}
-          </Group>
+          {shouldRevealTarget(status)
+            ? (
+              <Group gap="xs">
+                <Text>Target:</Text>
+                {target.map((chord, index) => (
+                  <Badge
+                    key={`${chord}-${index}`}
+                    color={index === activeIndex ? 'lime.6' : 'gray.6'}
+                    variant={index === activeIndex ? 'filled' : 'light'}
+                  >
+                    {chord}
+                  </Badge>
+                ))}
+              </Group>
+            )
+            : (
+              <Text c="dimmed">Target is revealed on loss.</Text>
+            )}
         </Group>
+        {isGameOver && endStateMessage && (
+          <Alert color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
+            <Stack gap="xs">
+              <Text>{endStateMessage}</Text>
+              <Text>{`Attempts used: ${attemptsUsed}/${maxGuesses}`}</Text>
+              {isLoss && (
+                <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
+              )}
+              <Text c="dimmed">Playback controls remain available for listening.</Text>
+              <Group>
+                <Button onClick={handleClickNewGame}>New Game</Button>
+              </Group>
+            </Stack>
+          </Alert>
+        )}
         <Divider />
         <Group>
           {currentList}

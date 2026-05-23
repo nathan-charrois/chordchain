@@ -3,24 +3,22 @@ import { useCallback, useState } from 'react'
 import { type Chord, GameContext, type Guess } from './context/GameContext'
 import { useStatus } from './hooks/useStatus'
 import { createSubmittedGuess } from './logic/game'
+import { createEmptyGuess, createResetSessionState, isGameOverStatus } from './logic/session'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
+import { endSequence, stopSequence } from '~/utils/chain'
 
 const target: Chord[] = ['Em', 'Am', 'F', 'G']
-
-const newGuess: Guess = {
-  chords: [],
-  status: [],
-}
 
 type Props = {
   children: React.ReactNode
 }
 
 export function GameProvider({ children }: Props) {
-  const [guesses, setGuesses] = useState<Guess[]>([])
+  const initialState = createResetSessionState()
+  const [guesses, setGuesses] = useState<Guess[]>(initialState.guesses)
   const [status, setStatus] = useStatus(guesses, target)
-  const [current, setCurrent] = useState<Guess>(newGuess)
-  const isGameOver = status === 'won' || status === 'loss'
+  const [current, setCurrent] = useState<Guess>(initialState.current)
+  const isGameOver = isGameOverStatus(status)
 
   const handleSubmitGuess = useCallback(() => {
     if (isGameOver) {
@@ -43,7 +41,7 @@ export function GameProvider({ children }: Props) {
 
     setGuesses(prev => ([...prev, submittedGuess]))
     setStatus(prev => (prev === 'new' ? 'started' : prev))
-    setCurrent(newGuess)
+    setCurrent(createEmptyGuess())
   }, [isGameOver, current.chords, guesses.length, setGuesses, setStatus, setCurrent])
 
   const handleAddCurrent = useCallback((chord: Chord) => {
@@ -72,14 +70,19 @@ export function GameProvider({ children }: Props) {
   }, [isGameOver, setCurrent])
 
   const handleReset = useCallback(() => {
-    setStatus('new')
-    setGuesses([])
-    setCurrent(newGuess)
+    const resetState = createResetSessionState()
+
+    stopSequence()
+    endSequence()
+    setStatus(resetState.status)
+    setGuesses(resetState.guesses)
+    setCurrent(resetState.current)
   }, [setGuesses, setStatus, setCurrent])
 
   return (
     <GameContext.Provider value={{
       status,
+      isGameOver,
       target,
       guesses,
       current,

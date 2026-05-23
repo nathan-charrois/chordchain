@@ -3,6 +3,7 @@ import { createContext } from 'react'
 /* Game */
 export type Game = {
   status: GameStatus
+  isGameOver: boolean
   target: Chord[]
   guesses: Guess[]
   current: Guess
