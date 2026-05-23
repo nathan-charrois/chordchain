@@ -1,8 +1,12 @@
 import { Card, Text } from '@mantine/core'
 
+import { useGame } from '../Game/hooks/useGame'
 import classes from './Scale.module.css'
 
 export default function Scale() {
+  const { activePuzzle } = useGame()
+  const scaleLabel = `${activePuzzle.key ?? 'C'} ${activePuzzle.mode ?? 'Ionian'}`.toUpperCase()
+
   return (
     <Card
       className={classes.card}
@@ -12,7 +16,7 @@ export default function Scale() {
       ta="center"
       w={460}
     >
-      <Text className={classes.text}>C MAJOR, IONION</Text>
+      <Text className={classes.text}>{scaleLabel}</Text>
     </Card>
   )
 }

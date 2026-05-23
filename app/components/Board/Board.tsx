@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Badge, Button, Card, Checkbox, Divider, Group, Stack, Text } from '@mantine/core'
+import { Alert, Badge, Button, Card, Checkbox, Divider, Group, Modal, Stack, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
@@ -25,11 +25,24 @@ function getBadgeColor(status?: GuessStatus): string {
 }
 
 export default function Board() {
-  const { status, guesses, current, maxLength, maxGuesses, reset, isGameOver } = useGame()
+  const {
+    status,
+    guesses,
+    current,
+    maxLength,
+    maxGuesses,
+    reset,
+    isGameOver,
+    activePuzzle,
+    todayDate,
+    puzzleDates,
+    historyEntries,
+  } = useGame()
   const { target, activeIndex, play, stop, end, insert } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(true)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
 
   useEffect(() => {
     if (!isLooping) {
@@ -41,7 +54,7 @@ export default function Board() {
     if (guesses.length >= 1) {
       insert(isArpeggiate)
     }
-  }, [guesses.length])
+  }, [guesses.length, insert, isArpeggiate])
 
   const handleClickPlay = useCallback(() => {
     play(isArpeggiate, isLooping)
@@ -63,9 +76,55 @@ export default function Board() {
     reset()
   }, [reset])
 
+  const handleOpenHistory = useCallback(() => {
+    setIsHistoryOpen(true)
+  }, [])
+
+  const handleCloseHistory = useCallback(() => {
+    setIsHistoryOpen(false)
+  }, [])
+
   const attemptsUsed = getAttemptsUsed(guesses)
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
+
+  const historyRows = useMemo(() => {
+    if (!puzzleDates.length) {
+      return <Text c="dimmed">No daily puzzles available.</Text>
+    }
+
+    return puzzleDates.map((date) => {
+      const entry = historyEntries[date]
+      const completedLabel = entry?.completed ? 'Complete' : 'Incomplete'
+      const completedAt = entry?.completedAt ? new Date(entry.completedAt).toLocaleString() : null
+
+      return (
+        <Card key={date} withBorder>
+          <Group justify="space-between" align="center">
+            <Group gap="xs" align="center">
+              <Text fw={600}>{date}</Text>
+              {date === todayDate && <Badge color="blue">Today</Badge>}
+            </Group>
+            <Badge color={entry?.completed ? 'green' : 'gray'}>{completedLabel}</Badge>
+          </Group>
+          {entry?.completed && (
+            <Stack gap={2} mt="xs">
+              {typeof entry.attemptsUsed === 'number' && (
+                <Text size="sm" c="dimmed">
+                  {`Attempts used: ${entry.attemptsUsed}`}
+                </Text>
+              )}
+              {completedAt && (
+                <Text size="sm" c="dimmed">
+                  {`Completed at: ${completedAt}`}
+                </Text>
+              )}
+            </Stack>
+          )}
+        </Card>
+      )
+    })
+  }, [puzzleDates, historyEntries, todayDate])
 
   const guessesList = useMemo(() => {
     if (!guesses.length) {
@@ -117,11 +176,13 @@ export default function Board() {
         <Group>
           <Button onClick={handleClickPlay}>Play</Button>
           <Button onClick={handleClickStop}>Stop</Button>
+          <Button variant="light" onClick={handleOpenHistory}>Puzzle History</Button>
           <Checkbox label="Loop" checked={isLooping} onChange={handleToggleLooping} />
           <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={handleToggleArpeggiate} />
         </Group>
         <Group wrap="wrap" gap="sm">
           <Text>{`Status: ${status}`}</Text>
+          <Text>{`Puzzle Date: ${activePuzzle.date}`}</Text>
           {shouldRevealTarget(status)
             ? (
               <Group gap="xs">
@@ -171,6 +232,17 @@ export default function Board() {
           <Text>{`Max Guesses: ${maxGuesses}`}</Text>
         </Group>
       </Stack>
+      <Modal
+        opened={isHistoryOpen}
+        onClose={handleCloseHistory}
+        title="Puzzle History"
+        closeOnEscape
+        centered
+      >
+        <Stack>
+          {historyRows}
+        </Stack>
+      </Modal>
     </Card>
   )
 }
