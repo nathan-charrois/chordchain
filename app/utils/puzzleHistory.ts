@@ -84,7 +84,8 @@ export function readPuzzleHistory(): PuzzleHistoryStore {
     }
 
     return store
-  } catch {
+  }
+  catch {
     writePuzzleHistory(EMPTY_STORE)
     return EMPTY_STORE
   }
@@ -97,7 +98,8 @@ export function writePuzzleHistory(store: PuzzleHistoryStore): void {
 
   try {
     localStorage.setItem(PUZZLE_HISTORY_STORAGE_KEY, JSON.stringify(store))
-  } catch {
+  }
+  catch {
     // Ignore write failures to keep gameplay responsive.
   }
 }
