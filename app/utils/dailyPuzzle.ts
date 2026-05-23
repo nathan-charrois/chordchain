@@ -6,11 +6,13 @@ export type DailyPuzzle = {
 }
 
 const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
-  '2026-05-19': { date: '2026-05-19', target: ['C', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
-  '2026-05-20': { date: '2026-05-20', target: ['Em', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
-  '2026-05-21': { date: '2026-05-21', target: ['Dm', 'G', 'C', 'Am'], key: 'C', mode: 'Ionian' },
-  '2026-05-22': { date: '2026-05-22', target: ['Am', 'F', 'C', 'G'], key: 'C', mode: 'Ionian' },
   '2026-05-23': { date: '2026-05-23', target: ['F', 'G', 'Em', 'Am'], key: 'C', mode: 'Ionian' },
+  '2026-05-24': { date: '2026-05-24', target: ['C', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
+  '2026-05-25': { date: '2026-05-25', target: ['Em', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
+  '2026-05-26': { date: '2026-05-26', target: ['Dm', 'G', 'C', 'Am'], key: 'C', mode: 'Ionian' },
+  '2026-05-27': { date: '2026-05-27', target: ['C', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
+  '2026-05-28': { date: '2026-05-28', target: ['Em', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
+  '2026-05-29': { date: '2026-05-29', target: ['Dm', 'G', 'C', 'Am'], key: 'C', mode: 'Ionian' },
 }
 
 export function getCatalogDatesDesc(maxDate?: string): string[] {

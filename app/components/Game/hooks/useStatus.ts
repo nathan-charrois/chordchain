@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react'
 import { type Chord, type GameStatus, type Guess } from '../context/GameContext'
 import { isGameLoss, isGameWon } from '../logic/game'
 
-export function useStatus(guesses: Guess[], target: Chord[]) {
-  const [status, setStatus] = useState<GameStatus>('new')
+export function useStatus(guesses: Guess[], target: Chord[], initialStatus: GameStatus = 'new') {
+  const [status, setStatus] = useState<GameStatus>(initialStatus)
 
   useEffect(() => {
     if (!guesses.length) {

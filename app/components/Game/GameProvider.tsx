@@ -19,12 +19,13 @@ export function GameProvider({ children }: Props) {
   const activePuzzle = useMemo(() => resolveDailyPuzzle(todayDate), [todayDate])
   const target: Chord[] = activePuzzle.target
   const puzzleDates = useMemo(() => getCatalogDatesDesc(todayDate), [todayDate])
+  const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
+  const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
 
   const initialState = createResetSessionState()
   const [guesses, setGuesses] = useState<Guess[]>(initialState.guesses)
-  const [status, setStatus] = useStatus(guesses, target)
+  const [status, setStatus] = useStatus(guesses, target, hasCompletedActivePuzzle ? 'won' : initialState.status)
   const [current, setCurrent] = useState<Guess>(initialState.current)
-  const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
   const prevStatusRef = useRef(status)
   const isGameOver = isGameOverStatus(status)
 

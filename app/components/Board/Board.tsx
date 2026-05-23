@@ -31,7 +31,6 @@ export default function Board() {
     current,
     maxLength,
     maxGuesses,
-    reset,
     isGameOver,
     activePuzzle,
     todayDate,
@@ -72,10 +71,6 @@ export default function Board() {
     setIsArpeggiate(prev => !prev)
   }, [setIsArpeggiate])
 
-  const handleClickNewGame = useCallback(() => {
-    reset()
-  }, [reset])
-
   const handleOpenHistory = useCallback(() => {
     setIsHistoryOpen(true)
   }, [])
@@ -87,6 +82,12 @@ export default function Board() {
   const attemptsUsed = getAttemptsUsed(guesses)
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
+  const shouldShowTarget = shouldRevealTarget(status)
+  const activeHistoryEntry = historyEntries[activePuzzle.date]
+  const activeHistoryLabel = activeHistoryEntry?.completed ? 'Complete' : 'Incomplete'
+  const activeCompletedAt = activeHistoryEntry?.completedAt
+    ? new Date(activeHistoryEntry.completedAt).toLocaleString()
+    : null
 
   const historyRows = useMemo(() => {
     if (!puzzleDates.length) {
@@ -183,24 +184,32 @@ export default function Board() {
         <Group wrap="wrap" gap="sm">
           <Text>{`Status: ${status}`}</Text>
           <Text>{`Puzzle Date: ${activePuzzle.date}`}</Text>
-          {shouldRevealTarget(status)
-            ? (
-              <Group gap="xs">
-                <Text>Target:</Text>
-                {target.map((chord, index) => (
-                  <Badge
-                    key={`${chord}-${index}`}
-                    color={index === activeIndex ? 'lime.6' : 'gray.6'}
-                    variant={index === activeIndex ? 'filled' : 'light'}
-                  >
-                    {chord}
-                  </Badge>
-                ))}
-              </Group>
-            )
-            : (
-              <Text c="dimmed">Target is revealed on loss.</Text>
-            )}
+          <Badge color={activeHistoryEntry?.completed ? 'green' : 'gray'}>
+            {`Today's puzzle: ${activeHistoryLabel}`}
+          </Badge>
+          {activeHistoryEntry?.completed && typeof activeHistoryEntry.attemptsUsed === 'number' && (
+            <Text c="dimmed">{`Attempts used: ${activeHistoryEntry.attemptsUsed}`}</Text>
+          )}
+          {activeCompletedAt && (
+            <Text c="dimmed">{`Completed at: ${activeCompletedAt}`}</Text>
+          )}
+          {shouldShowTarget && (
+            <Group gap="xs">
+              <Text>Target:</Text>
+              {target.map((chord, index) => (
+                <Badge
+                  key={`${chord}-${index}`}
+                  color={index === activeIndex ? 'lime.6' : 'gray.6'}
+                  variant={index === activeIndex ? 'filled' : 'light'}
+                >
+                  {chord}
+                </Badge>
+              ))}
+            </Group>
+          )}
+          {!shouldShowTarget && (
+            <Text c="dimmed">Target is revealed on loss.</Text>
+          )}
         </Group>
         {isGameOver && endStateMessage && (
           <Alert color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
@@ -211,9 +220,6 @@ export default function Board() {
                 <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
               )}
               <Text c="dimmed">Playback controls remain available for listening.</Text>
-              <Group>
-                <Button onClick={handleClickNewGame}>New Game</Button>
-              </Group>
             </Stack>
           </Alert>
         )}
