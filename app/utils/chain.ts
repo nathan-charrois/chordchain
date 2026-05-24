@@ -3,9 +3,23 @@ import type { Chord } from '~/components/Game/context/GameContext'
 
 export const SEQUENCE_GAP_MS = 1200
 
-let loopTimeout: ReturnType<typeof setTimeout> | null = null
-let loopEnd: ReturnType<typeof setTimeout> | null = null
-let chordTimeouts: ReturnType<typeof setTimeout>[] | null = null
+type TimeoutHandle = ReturnType<typeof setTimeout>
+
+type SequenceTimeouts = {
+  chord: TimeoutHandle[]
+  loopRestart: TimeoutHandle | null
+  loopEnd: TimeoutHandle | null
+  delayedInsert: TimeoutHandle | null
+}
+
+const sequenceTimeouts: SequenceTimeouts = {
+  chord: [],
+  loopRestart: null,
+  loopEnd: null,
+  delayedInsert: null,
+}
+
+let activeSession = 0
 
 type PlaySequence = {
   chords: Chord[]
@@ -15,80 +29,119 @@ type PlaySequence = {
 }
 
 export function playSequence({ chords, arpeggiate, setIndex, loop }: PlaySequence) {
+  const session = startNewSession()
   const totalDuration = chords.length * SEQUENCE_GAP_MS
 
-  function playSequenceAndLoop() {
+  function playSequenceAndLoop(currentSession: number) {
+    if (!isSessionActive(currentSession)) {
+      return
+    }
+
     playSequenceOnce({
       chords,
       arpeggiate,
       setIndex,
+      session: currentSession,
     })
 
     if (loop) {
-      loopTimeout = setTimeout(() => playSequenceAndLoop(), totalDuration)
+      replaceTimeout('loopRestart', setTimeout(() => {
+        if (!isSessionActive(currentSession)) {
+          return
+        }
+
+        playSequenceAndLoop(currentSession)
+      }, totalDuration))
     }
 
-    loopEnd = setTimeout(() => setIndex(null), totalDuration + SEQUENCE_GAP_MS)
+    replaceTimeout('loopEnd', setTimeout(() => {
+      if (!isSessionActive(currentSession)) {
+        return
+      }
+
+      setIndex(null)
+    }, totalDuration + SEQUENCE_GAP_MS))
   }
 
-  stopSequence()
-  playSequenceAndLoop()
+  playSequenceAndLoop(session)
 }
 
-export function playSequenceOnce({ chords, arpeggiate, setIndex }: PlaySequence) {
+type PlaySequenceOnce = Pick<PlaySequence, 'chords' | 'arpeggiate' | 'setIndex'> & {
+  session: number
+}
+
+export function playSequenceOnce({ chords, arpeggiate, setIndex, session }: PlaySequenceOnce) {
+  clearChordTimeouts()
+
   for (let i = 0; i < chords.length; i++) {
     const timeout = setTimeout(
       () => {
+        if (!isSessionActive(session)) {
+          return
+        }
+
         playChord(chords[i], arpeggiate)
         setIndex(i)
       },
       i * SEQUENCE_GAP_MS,
     )
 
-    chordTimeouts = [...(chordTimeouts ?? []), timeout]
+    sequenceTimeouts.chord = [...sequenceTimeouts.chord, timeout]
   }
 
   sequencePlayed()
 }
 
-type InsertSequence = {
-  chords: Chord[]
-  arpeggiate: boolean
-  setIndex: (index: number | null) => void
-}
-
-export function insertSequence({ chords, arpeggiate, setIndex }: InsertSequence) {
-  stopSequence()
-
-  setTimeout(() => {
-    playSequenceOnce({ chords, arpeggiate, setIndex })
-  }, SEQUENCE_GAP_MS)
-}
-
 export function stopSequence() {
-  if (chordTimeouts) {
-    chordTimeouts.map(chordTimeout => clearTimeout(chordTimeout))
-    chordTimeouts = null
-  }
-
-  if (loopTimeout) {
-    clearTimeout(loopTimeout)
-    loopTimeout = null
-    loopEnd = null
-  }
+  invalidateSequenceLifecycle()
 }
 
 export function endSequence() {
-  if (loopTimeout) {
-    clearTimeout(loopTimeout)
-    loopTimeout = null
-    loopEnd = null
-  }
+  invalidateSequenceLifecycle()
 }
 
 export function sequencePlayed() {
-  if (loopEnd) {
-    clearTimeout(loopEnd)
-    loopEnd = null
+  clearTimeoutByKey('loopEnd')
+}
+
+function startNewSession(): number {
+  activeSession += 1
+  clearAllTrackedTimeouts()
+
+  return activeSession
+}
+
+function invalidateSequenceLifecycle() {
+  activeSession += 1
+  clearAllTrackedTimeouts()
+}
+
+function isSessionActive(session: number) {
+  return session === activeSession
+}
+
+function clearChordTimeouts() {
+  sequenceTimeouts.chord.forEach(clearTimeout)
+  sequenceTimeouts.chord = []
+}
+
+function clearTimeoutByKey(key: Exclude<keyof SequenceTimeouts, 'chord'>) {
+  if (!sequenceTimeouts[key]) {
+    return
   }
+
+  clearTimeout(sequenceTimeouts[key])
+  sequenceTimeouts[key] = null
+}
+
+function clearAllTrackedTimeouts() {
+  clearChordTimeouts()
+  clearTimeoutByKey('loopRestart')
+  clearTimeoutByKey('loopEnd')
+  clearTimeoutByKey('delayedInsert')
+}
+
+function replaceTimeout(key: Exclude<keyof SequenceTimeouts, 'chord'>, timeout: TimeoutHandle) {
+  clearTimeoutByKey(key)
+  sequenceTimeouts[key] = timeout
 }

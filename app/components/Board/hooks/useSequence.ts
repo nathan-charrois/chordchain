@@ -1,11 +1,17 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useGame } from '~/components/Game/hooks/useGame'
-import { endSequence, insertSequence, playSequence, stopSequence } from '~/utils/chain'
+import { endSequence, playSequence, stopSequence } from '~/utils/chain'
 
 export function useSequence() {
   const { target, guesses } = useGame()
   const [activeIndex, setIndex] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!guesses.length) {
+      setIndex(null)
+    }
+  }, [guesses.length])
 
   const handlePlay = useCallback((arpeggiate: boolean, loop: boolean) => {
     playSequence({ chords: target, arpeggiate, loop, setIndex })
@@ -18,12 +24,8 @@ export function useSequence() {
 
   const handleEnd = useCallback(() => {
     endSequence()
-  }, [])
-
-  const handleInsert = useCallback((arpeggiate: boolean) => {
-    const chords = (guesses[guesses.length - 1]?.chords || [])
-    insertSequence({ chords, arpeggiate, setIndex })
-  }, [guesses, setIndex])
+    setIndex(null)
+  }, [setIndex])
 
   return {
     target,
@@ -31,6 +33,5 @@ export function useSequence() {
     play: handlePlay,
     stop: handleStop,
     end: handleEnd,
-    insert: handleInsert,
   }
 }

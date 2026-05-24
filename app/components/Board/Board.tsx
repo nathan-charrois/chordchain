@@ -38,7 +38,7 @@ export default function Board() {
     puzzleDates,
     historyEntries,
   } = useGame()
-  const { target, activeIndex, play, stop, end, insert } = useSequence()
+  const { target, activeIndex, play, stop, end } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(false)
@@ -49,12 +49,6 @@ export default function Board() {
       end()
     }
   }, [isLooping, end])
-
-  useEffect(() => {
-    if (guesses.length >= 1) {
-      insert(isArpeggiate)
-    }
-  }, [guesses.length, insert, isArpeggiate])
 
   const handleClickPlay = useCallback(() => {
     play(isArpeggiate, isLooping)
@@ -84,6 +78,15 @@ export default function Board() {
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
   const shouldShowTarget = shouldRevealTarget(status)
+  const revealedTargetByIndex = useMemo(() => {
+    return target.map((_, index) => {
+      if (shouldShowTarget) {
+        return true
+      }
+
+      return guesses.some(guess => guess.status[index] === 'correct')
+    })
+  }, [guesses, shouldShowTarget, target])
   const activeHistoryEntry = historyEntries[activePuzzle.date]
   const activeHistoryLabel = activeHistoryEntry?.completed ? 'Complete' : 'Incomplete'
   const activeCompletedAt = activeHistoryEntry?.completedAt
@@ -196,23 +199,18 @@ export default function Board() {
           {activeCompletedAt && (
             <Text c="dimmed">{`Completed at: ${activeCompletedAt}`}</Text>
           )}
-          {shouldShowTarget && (
-            <Group gap="xs">
-              <Text>Target:</Text>
-              {target.map((chord, index) => (
-                <Badge
-                  key={`${chord}-${index}`}
-                  color={index === activeIndex ? 'lime.6' : 'gray.6'}
-                  variant={index === activeIndex ? 'filled' : 'light'}
-                >
-                  {chord}
-                </Badge>
-              ))}
-            </Group>
-          )}
-          {!shouldShowTarget && (
-            <Text c="dimmed">Target is revealed on loss.</Text>
-          )}
+          <Group gap="xs">
+            <Text>Target:</Text>
+            {target.map((chord, index) => (
+              <Badge
+                key={`${chord}-${index}`}
+                color={index === activeIndex ? 'lime.6' : 'gray.6'}
+                variant={index === activeIndex ? 'filled' : 'light'}
+              >
+                {revealedTargetByIndex[index] ? chord : '?'}
+              </Badge>
+            ))}
+          </Group>
         </Group>
         {isGameOver && endStateMessage && (
           <Alert color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
