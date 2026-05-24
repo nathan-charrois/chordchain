@@ -184,6 +184,7 @@ export default function Board() {
         <Group wrap="wrap" gap="sm">
           <Text>{`Status: ${status}`}</Text>
           <Text>{`Puzzle Date: ${activePuzzle.date}`}</Text>
+          <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
           <Badge color={activeHistoryEntry?.completed ? 'green' : 'gray'}>
             {`Today's puzzle: ${activeHistoryLabel}`}
           </Badge>
