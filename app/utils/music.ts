@@ -28,6 +28,16 @@ export const CHORD_INTERVALS: Record<string, number[]> = {
   minor: [0, 3, 7],
   dim: [0, 3, 6],
   aug: [0, 4, 8],
+  maj7: [0, 4, 7, 11],
+  m7: [0, 3, 7, 10],
+  dom7: [0, 4, 7, 10],
+  m7b5: [0, 3, 6, 10],
+}
+
+export type PaletteSections = {
+  diatonic: string[]
+  secondaryDominant: string[]
+  extensions: string[]
 }
 
 export type ModeId
@@ -140,6 +150,47 @@ function getChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug')
   return root
 }
 
+function getPolicyChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug'): string {
+  if (quality === 'major') {
+    return `${root}maj`
+  }
+
+  return getChordLabel(root, quality)
+}
+
+function getSeventhQuality(
+  thirdOffset: number,
+  fifthOffset: number,
+  seventhOffset: number,
+): 'maj7' | 'm7' | 'dom7' | 'm7b5' {
+  if (thirdOffset === 4 && fifthOffset === 7 && seventhOffset === 11) {
+    return 'maj7'
+  }
+
+  if (thirdOffset === 3 && fifthOffset === 7 && seventhOffset === 10) {
+    return 'm7'
+  }
+
+  if (thirdOffset === 4 && fifthOffset === 7 && seventhOffset === 10) {
+    return 'dom7'
+  }
+
+  if (thirdOffset === 3 && fifthOffset === 6 && seventhOffset === 10) {
+    return 'm7b5'
+  }
+
+  // Fallback keeps generation deterministic for malformed input.
+  return 'dom7'
+}
+
+function getSeventhChordLabel(root: string, quality: 'maj7' | 'm7' | 'dom7' | 'm7b5'): string {
+  if (quality === 'dom7') {
+    return `${root}7`
+  }
+
+  return `${root}${quality}`
+}
+
 export function getScalePitchClasses(key: string, mode: ModeId): number[] {
   const root = normalizeKey(key)
   const modeId = normalizeModeId(mode)
@@ -163,6 +214,77 @@ export function getDiatonicTriads(key: string, mode: ModeId): string[] {
   })
 }
 
+export function normalizeChordLabel(chord: string): string {
+  const value = chord.trim()
+
+  if (!value) {
+    return value
+  }
+
+  if (value.endsWith('maj') || value.endsWith('m') || value.endsWith('dim') || value.endsWith('aug')) {
+    return value
+  }
+
+  if (value.endsWith('maj7') || value.endsWith('m7') || value.endsWith('m7b5') || value.endsWith('7')) {
+    return value
+  }
+
+  return `${value}maj`
+}
+
+export function getDiatonicTriadsByPolicy(key: string, mode: ModeId): string[] {
+  const scalePitchClasses = getScalePitchClasses(key, mode)
+
+  return scalePitchClasses.map((rootPitchClass, degree) => {
+    const thirdPitchClass = scalePitchClasses[(degree + 2) % 7]
+    const fifthPitchClass = scalePitchClasses[(degree + 4) % 7]
+    const thirdOffset = (thirdPitchClass - rootPitchClass + 12) % 12
+    const fifthOffset = (fifthPitchClass - rootPitchClass + 12) % 12
+    const quality = getTriadQuality(thirdOffset, fifthOffset)
+    const rootLabel = PITCH_CLASSES[rootPitchClass]
+
+    return getPolicyChordLabel(rootLabel, quality)
+  })
+}
+
+export function getSecondaryDominants(key: string, mode: ModeId): string[] {
+  const scalePitchClasses = getScalePitchClasses(key, mode)
+
+  return scalePitchClasses.map((targetPitchClass) => {
+    const dominantRootPitchClass = (targetPitchClass + 7) % 12
+    return `${PITCH_CLASSES[dominantRootPitchClass]}7`
+  })
+}
+
+export function getDiatonicExtensions(key: string, mode: ModeId): string[] {
+  const scalePitchClasses = getScalePitchClasses(key, mode)
+
+  return scalePitchClasses.map((rootPitchClass, degree) => {
+    const thirdPitchClass = scalePitchClasses[(degree + 2) % 7]
+    const fifthPitchClass = scalePitchClasses[(degree + 4) % 7]
+    const seventhPitchClass = scalePitchClasses[(degree + 6) % 7]
+    const thirdOffset = (thirdPitchClass - rootPitchClass + 12) % 12
+    const fifthOffset = (fifthPitchClass - rootPitchClass + 12) % 12
+    const seventhOffset = (seventhPitchClass - rootPitchClass + 12) % 12
+    const quality = getSeventhQuality(thirdOffset, fifthOffset, seventhOffset)
+    const rootLabel = PITCH_CLASSES[rootPitchClass]
+
+    return getSeventhChordLabel(rootLabel, quality)
+  })
+}
+
+export function getPaletteSections(key: string, mode: ModeId): PaletteSections {
+  return {
+    diatonic: getDiatonicTriadsByPolicy(key, mode),
+    secondaryDominant: getSecondaryDominants(key, mode),
+    extensions: getDiatonicExtensions(key, mode),
+  }
+}
+
+export function flattenPaletteSections(sections: PaletteSections): string[] {
+  return [...sections.diatonic, ...sections.secondaryDominant, ...sections.extensions]
+}
+
 export function midiFromPitchClass(pitchClass: number, octave = 4): number {
   const n = ((pitchClass % 12) + 12) % 12
   const baseC = 12 * (octave + 1)
@@ -179,12 +301,24 @@ export function hzFromPitchClass(pc: number, octave = 4): number {
 }
 
 export function rootFromChord(chord: string): string {
-  return chord.replace(/m|dim/g, '')
+  const rootMatch = chord.match(/^([A-G](?:b)?)/)
+
+  if (!rootMatch) {
+    return chord
+  }
+
+  return rootMatch[1]
 }
 
 export function qualityFromChord(chord: string): string {
+  if (chord.endsWith('maj7')) return 'maj7'
+  if (chord.endsWith('m7b5')) return 'm7b5'
+  if (chord.endsWith('m7')) return 'm7'
+  if (chord.endsWith('7')) return 'dom7'
   if (chord.endsWith('dim')) return 'dim'
+  if (chord.endsWith('aug')) return 'aug'
   if (chord.endsWith('m')) return 'minor'
+  if (chord.endsWith('maj')) return 'major'
   return 'major'
 }
 

@@ -40,7 +40,7 @@ export default function Board() {
   const { target, activeIndex, play, stop, end, insert } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
-  const [isArpeggiate, setIsArpeggiate] = useState(true)
+  const [isArpeggiate, setIsArpeggiate] = useState(false)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
 
   useEffect(() => {

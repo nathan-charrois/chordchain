@@ -8,7 +8,7 @@ import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { endSequence, stopSequence } from '~/utils/chain'
 import { getCatalogDatesDesc, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
-import { getDiatonicTriads } from '~/utils/music'
+import { flattenPaletteSections, getPaletteSections, normalizeChordLabel } from '~/utils/music'
 import { markPuzzleCompleted, readPuzzleHistory, writePuzzleHistory } from '~/utils/puzzleHistory'
 
 type Props = {
@@ -18,24 +18,32 @@ type Props = {
 export function GameProvider({ children }: Props) {
   const todayDate = useMemo(() => formatLocalDate(new Date()), [])
   const activePuzzle = useMemo(() => resolveDailyPuzzle(todayDate), [todayDate])
-  const paletteChords = useMemo(
-    () => getDiatonicTriads(activePuzzle.key, activePuzzle.mode),
+  const paletteSections = useMemo(
+    () => getPaletteSections(activePuzzle.key, activePuzzle.mode),
     [activePuzzle.key, activePuzzle.mode],
   )
+  const paletteChords = useMemo(
+    () => flattenPaletteSections(paletteSections),
+    [paletteSections],
+  )
+  const normalizedTarget = useMemo(
+    () => activePuzzle.target.map(chord => normalizeChordLabel(chord)),
+    [activePuzzle.target],
+  )
   const target: Chord[] = useMemo(() => {
-    const invalidTargetChords = activePuzzle.target.filter(chord => !paletteChords.includes(chord))
+    const invalidTargetChords = normalizedTarget.filter(chord => !paletteChords.includes(chord))
 
     if (!invalidTargetChords.length) {
-      return activePuzzle.target
+      return normalizedTarget
     }
 
     console.warn(
-      `[game] Puzzle '${activePuzzle.date}' contains non-diatonic target chords: ${invalidTargetChords.join(', ')}. `
+      `[game] Puzzle '${activePuzzle.date}' contains target chords missing from the generated palette: ${invalidTargetChords.join(', ')}. `
       + `Falling back to first ${GAME_MAX_CHARS} palette chords.`,
     )
 
     return paletteChords.slice(0, GAME_MAX_CHARS)
-  }, [activePuzzle.date, activePuzzle.target, paletteChords])
+  }, [activePuzzle.date, normalizedTarget, paletteChords])
   const puzzleDates = useMemo(() => getCatalogDatesDesc(todayDate), [todayDate])
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
   const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true

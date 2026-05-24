@@ -16,7 +16,7 @@ type DailyPuzzleCatalogEntry = {
 }
 
 const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzleCatalogEntry> = {
-  '2026-05-23': { date: '2026-05-23', target: ['D', 'G', 'Am', 'C'], key: 'D', mode: 'Mixolydian' },
+  '2026-05-23': { date: '2026-05-23', target: ['Dmaj', 'Em', 'Dmaj', 'Em7'], key: 'D', mode: 'Mixolydian' },
   '2026-05-24': { date: '2026-05-24', target: ['C', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
   '2026-05-25': { date: '2026-05-25', target: ['Em', 'Am', 'F', 'G'], key: 'C', mode: 'Ionian' },
   '2026-05-26': { date: '2026-05-26', target: ['Dm', 'G', 'C', 'Am'], key: 'C', mode: 'Ionian' },

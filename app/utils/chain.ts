@@ -1,7 +1,7 @@
 import { playChord } from './music'
 import type { Chord } from '~/components/Game/context/GameContext'
 
-export const SEQUENCE_GAP_MS = 800
+export const SEQUENCE_GAP_MS = 1200
 
 let loopTimeout: ReturnType<typeof setTimeout> | null = null
 let loopEnd: ReturnType<typeof setTimeout> | null = null
