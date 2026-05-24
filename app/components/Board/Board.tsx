@@ -34,6 +34,7 @@ export default function Board() {
     isGameOver,
     activePuzzle,
     todayDate,
+    currentStreak,
     puzzleDates,
     historyEntries,
   } = useGame()
@@ -185,6 +186,7 @@ export default function Board() {
           <Text>{`Status: ${status}`}</Text>
           <Text>{`Puzzle Date: ${activePuzzle.date}`}</Text>
           <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
+          <Text>{`Current Streak: ${currentStreak}`}</Text>
           <Badge color={activeHistoryEntry?.completed ? 'green' : 'gray'}>
             {`Today's puzzle: ${activeHistoryLabel}`}
           </Badge>

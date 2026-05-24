@@ -1,4 +1,5 @@
 import { PUZZLE_HISTORY_STORAGE_KEY } from '~/constant'
+import { formatLocalDate } from '~/utils/date'
 
 export type PuzzleHistoryEntry = {
   completed: boolean
@@ -11,9 +12,46 @@ export type PuzzleHistoryStore = {
   entries: Record<string, PuzzleHistoryEntry>
 }
 
+export type StreakResult = {
+  current: number
+}
+
 const EMPTY_STORE: PuzzleHistoryStore = {
   version: 1,
   entries: {},
+}
+
+function parseDateKey(date: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date)
+
+  if (!match) {
+    return null
+  }
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+
+  // Use noon local time to avoid DST-related midnight shifts.
+  const parsed = new Date(year, month - 1, day, 12, 0, 0, 0)
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null
+  }
+
+  return parsed
+}
+
+function getPreviousDateKey(date: string): string | null {
+  const parsed = parseDateKey(date)
+
+  if (!parsed) {
+    return null
+  }
+
+  parsed.setDate(parsed.getDate() - 1)
+
+  return formatLocalDate(parsed)
 }
 
 function isValidEntry(value: unknown): value is PuzzleHistoryEntry {
@@ -140,4 +178,36 @@ export function removePuzzleHistoryEntry(store: PuzzleHistoryStore, date: string
     version: 1,
     entries,
   }
+}
+
+export function calculateCurrentStreak(
+  entries: Record<string, PuzzleHistoryEntry> | null | undefined,
+  todayDate: string,
+): StreakResult {
+  if (!entries || typeof entries !== 'object') {
+    return { current: 0 }
+  }
+
+  const todayEntry = entries[todayDate]
+
+  if (!todayEntry?.completed) {
+    return { current: 0 }
+  }
+
+  let current = 0
+  let date = todayDate
+
+  while (entries[date]?.completed) {
+    current += 1
+
+    const previousDate = getPreviousDateKey(date)
+
+    if (!previousDate) {
+      break
+    }
+
+    date = previousDate
+  }
+
+  return { current }
 }

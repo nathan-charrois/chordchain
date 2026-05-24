@@ -9,7 +9,13 @@ import { endSequence, stopSequence } from '~/utils/chain'
 import { getCatalogDatesDesc, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
 import { flattenPaletteSections, getPaletteSections, normalizeChordLabel } from '~/utils/music'
-import { markPuzzleCompleted, readPuzzleHistory, removePuzzleHistoryEntry, writePuzzleHistory } from '~/utils/puzzleHistory'
+import {
+  calculateCurrentStreak,
+  markPuzzleCompleted,
+  readPuzzleHistory,
+  removePuzzleHistoryEntry,
+  writePuzzleHistory,
+} from '~/utils/puzzleHistory'
 
 type Props = {
   children: React.ReactNode
@@ -47,6 +53,10 @@ export function GameProvider({ children }: Props) {
   const puzzleDates = useMemo(() => getCatalogDatesDesc(todayDate), [todayDate])
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
   const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
+  const currentStreak = useMemo(
+    () => calculateCurrentStreak(historyStore.entries, todayDate).current,
+    [historyStore.entries, todayDate],
+  )
 
   const initialState = createResetSessionState()
   const [guesses, setGuesses] = useState<Guess[]>(initialState.guesses)
@@ -155,6 +165,7 @@ export function GameProvider({ children }: Props) {
       isGameOver,
       activePuzzle,
       todayDate,
+      currentStreak,
       paletteChords,
       target,
       guesses,
