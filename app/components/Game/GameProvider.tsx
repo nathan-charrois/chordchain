@@ -9,7 +9,7 @@ import { endSequence, stopSequence } from '~/utils/chain'
 import { getCatalogDatesDesc, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
 import { flattenPaletteSections, getPaletteSections, normalizeChordLabel } from '~/utils/music'
-import { markPuzzleCompleted, readPuzzleHistory, writePuzzleHistory } from '~/utils/puzzleHistory'
+import { markPuzzleCompleted, readPuzzleHistory, removePuzzleHistoryEntry, writePuzzleHistory } from '~/utils/puzzleHistory'
 
 type Props = {
   children: React.ReactNode
@@ -136,6 +136,19 @@ export function GameProvider({ children }: Props) {
     setCurrent(resetState.current)
   }, [setGuesses, setStatus, setCurrent])
 
+  const handleResetToday = useCallback(() => {
+    setHistoryStore((prev) => {
+      const next = removePuzzleHistoryEntry(prev, activePuzzle.date)
+
+      if (next !== prev) {
+        writePuzzleHistory(next)
+      }
+
+      return next
+    })
+    handleReset()
+  }, [activePuzzle.date, handleReset])
+
   return (
     <GameContext.Provider value={{
       status,
@@ -154,6 +167,7 @@ export function GameProvider({ children }: Props) {
       removeCurrent: handleRemoveCurrent,
       submitGuess: handleSubmitGuess,
       reset: handleReset,
+      resetToday: handleResetToday,
     }}
     >
       {children}

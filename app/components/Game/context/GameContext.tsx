@@ -21,6 +21,7 @@ export type Game = {
   removeCurrent: () => void
   submitGuess: () => void
   reset: () => void
+  resetToday: () => void
 }
 
 export type GameStatus = 'new' | 'started' | 'loss' | 'won'

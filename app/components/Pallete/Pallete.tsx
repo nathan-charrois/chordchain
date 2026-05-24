@@ -47,14 +47,15 @@ export default function Pallete() {
                   text={chord}
                   status={getGuessStatus(chord, guesses)}
                   disabled={isLocked}
+                  variant="default"
                 />
               ))}
             </Group>
           </Stack>
         ))}
         <Group>
-          <PalleteButton onClick={handleClickUndo} text="Undo" variant="secondary" disabled={isLocked} />
-          <PalleteButton onClick={handleClickEnter} text="Enter" variant="secondary" disabled={isLocked} />
+          <PalleteButton onClick={handleClickUndo} text="Undo" variant="filled" disabled={isLocked} />
+          <PalleteButton onClick={handleClickEnter} text="Enter" variant="filled" disabled={isLocked} />
         </Group>
       </Stack>
     </Card>

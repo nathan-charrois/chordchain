@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from 'react'
-import { Button, Text } from '@mantine/core'
+import { Button, type ButtonVariant, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
 
 type Props = {
   text: string
-  variant?: 'primary' | 'secondary'
+  variant?: ButtonVariant
   status?: GuessStatus
   disabled?: boolean
   onClick: (text: string) => void
@@ -18,13 +18,7 @@ export default function PalleteButton({
   disabled,
   onClick,
 }: Props) {
-  const palette = useMemo(() => {
-    if (variant === 'secondary') {
-      return {
-        textColor: '#495057',
-      }
-    }
-
+  const statusPalette = useMemo(() => {
     switch (status) {
       case 'correct':
         return {
@@ -40,7 +34,7 @@ export default function PalleteButton({
         }
       default:
         return {
-          textColor: '#343a40',
+          textColor: undefined,
         }
     }
   }, [status, variant])
@@ -56,14 +50,14 @@ export default function PalleteButton({
 
   return (
     <Button
-      variant="default"
+      variant={variant}
       size="xl"
       style={buttonStyle}
       onClick={() => handleOnClick(text)}
       disabled={disabled}
       aria-disabled={disabled}
     >
-      <Text c={palette.textColor}>
+      <Text c={statusPalette.textColor}>
         {text}
       </Text>
     </Button>

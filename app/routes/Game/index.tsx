@@ -4,6 +4,7 @@ import { Stack } from '@mantine/core'
 import AppLayout from '~/components/App/AppLayout'
 import AppProvider from '~/components/App/AppProvider'
 import Board from '~/components/Board/Board'
+import DebugPanel from '~/components/DebugPanel/DebugPanel'
 import Pallete from '~/components/Pallete/Pallete'
 import Scale from '~/components/Scale/Scale'
 
@@ -17,6 +18,7 @@ export default function Game() {
   return (
     <AppProvider>
       <AppLayout>
+        <DebugPanel />
         <Stack align="center">
           <Scale />
           <Board />

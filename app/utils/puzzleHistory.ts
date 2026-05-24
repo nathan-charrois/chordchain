@@ -127,3 +127,17 @@ export function markPuzzleCompleted(
     },
   }
 }
+
+export function removePuzzleHistoryEntry(store: PuzzleHistoryStore, date: string): PuzzleHistoryStore {
+  if (!(date in store.entries)) {
+    return store
+  }
+
+  const entries = { ...store.entries }
+  delete entries[date]
+
+  return {
+    version: 1,
+    entries,
+  }
+}
