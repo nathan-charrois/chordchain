@@ -1,11 +1,12 @@
 import { Card, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
+import { getPuzzleScaleLabel } from '~/utils/dailyPuzzle'
 import classes from './Scale.module.css'
 
 export default function Scale() {
   const { activePuzzle } = useGame()
-  const scaleLabel = `${activePuzzle.key ?? 'C'} ${activePuzzle.mode ?? 'Ionian'}`.toUpperCase()
+  const scaleLabel = getPuzzleScaleLabel(activePuzzle)
 
   return (
     <Card

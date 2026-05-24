@@ -30,6 +30,139 @@ export const CHORD_INTERVALS: Record<string, number[]> = {
   aug: [0, 4, 8],
 }
 
+export type ModeId
+  = | 'ionian'
+    | 'dorian'
+    | 'phrygian'
+    | 'lydian'
+    | 'mixolydian'
+    | 'aeolian'
+    | 'locrian'
+
+export const DEFAULT_MODE_ID: ModeId = 'ionian'
+export const DEFAULT_KEY = 'C'
+
+const MODE_LABELS: Record<ModeId, string> = {
+  ionian: 'Ionian',
+  dorian: 'Dorian',
+  phrygian: 'Phrygian',
+  lydian: 'Lydian',
+  mixolydian: 'Mixolydian',
+  aeolian: 'Aeolian',
+  locrian: 'Locrian',
+}
+
+const PITCH_CLASS_ALIASES: Record<string, string> = {
+  'C#': 'Db',
+  'D#': 'Eb',
+  'F#': 'Gb',
+  'G#': 'Ab',
+  'A#': 'Bb',
+}
+
+function toTitleCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+}
+
+export function normalizeModeId(mode?: string): ModeId {
+  if (!mode) {
+    return DEFAULT_MODE_ID
+  }
+
+  const normalized = mode.trim().toLowerCase()
+
+  if (normalized in SCALE_INTERVALS) {
+    return normalized as ModeId
+  }
+
+  console.warn(`[music] Unknown mode '${mode}', falling back to '${DEFAULT_MODE_ID}'.`)
+  return DEFAULT_MODE_ID
+}
+
+export function normalizeKey(key?: string): string {
+  if (!key) {
+    return DEFAULT_KEY
+  }
+
+  const normalized = toTitleCase(key.trim())
+  const alias = PITCH_CLASS_ALIASES[normalized] ?? normalized
+
+  if (alias in PITCH_CLASS_TO_NUM) {
+    return alias
+  }
+
+  console.warn(`[music] Unknown key '${key}', falling back to '${DEFAULT_KEY}'.`)
+  return DEFAULT_KEY
+}
+
+export function formatModeLabel(mode: ModeId): string {
+  return MODE_LABELS[mode]
+}
+
+export function formatKeyModeLabel(key: string, mode: ModeId): string {
+  return `${key} ${formatModeLabel(mode)}`
+}
+
+function getTriadQuality(thirdOffset: number, fifthOffset: number): 'major' | 'minor' | 'dim' | 'aug' {
+  if (thirdOffset === 4 && fifthOffset === 7) {
+    return 'major'
+  }
+
+  if (thirdOffset === 3 && fifthOffset === 7) {
+    return 'minor'
+  }
+
+  if (thirdOffset === 3 && fifthOffset === 6) {
+    return 'dim'
+  }
+
+  if (thirdOffset === 4 && fifthOffset === 8) {
+    return 'aug'
+  }
+
+  // Fallback keeps generation deterministic for malformed input.
+  return 'major'
+}
+
+function getChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug'): string {
+  if (quality === 'minor') {
+    return `${root}m`
+  }
+
+  if (quality === 'dim') {
+    return `${root}dim`
+  }
+
+  if (quality === 'aug') {
+    return `${root}aug`
+  }
+
+  return root
+}
+
+export function getScalePitchClasses(key: string, mode: ModeId): number[] {
+  const root = normalizeKey(key)
+  const modeId = normalizeModeId(mode)
+  const rootPitchClass = PITCH_CLASS_TO_NUM[root]
+
+  return SCALE_INTERVALS[modeId].map(interval => (rootPitchClass + interval) % 12)
+}
+
+export function getDiatonicTriads(key: string, mode: ModeId): string[] {
+  const scalePitchClasses = getScalePitchClasses(key, mode)
+
+  return scalePitchClasses.map((rootPitchClass, degree) => {
+    const thirdPitchClass = scalePitchClasses[(degree + 2) % 7]
+    const fifthPitchClass = scalePitchClasses[(degree + 4) % 7]
+    const thirdOffset = (thirdPitchClass - rootPitchClass + 12) % 12
+    const fifthOffset = (fifthPitchClass - rootPitchClass + 12) % 12
+    const quality = getTriadQuality(thirdOffset, fifthOffset)
+    const rootLabel = PITCH_CLASSES[rootPitchClass]
+
+    return getChordLabel(rootLabel, quality)
+  })
+}
+
 export function midiFromPitchClass(pitchClass: number, octave = 4): number {
   const n = ((pitchClass % 12) + 12) % 12
   const baseC = 12 * (octave + 1)

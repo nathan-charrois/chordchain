@@ -7,8 +7,10 @@ import PalleteButton from '../PalleteButton/PalleteButton'
 import classes from './Pallete.module.css'
 
 export default function Pallete() {
-  const { status, guesses, addCurrent, removeCurrent, submitGuess } = useGame()
+  const { status, guesses, paletteChords, addCurrent, removeCurrent, submitGuess } = useGame()
   const isLocked = status === 'won' || status === 'loss'
+  const primaryRow = paletteChords.slice(0, 5)
+  const secondaryRow = paletteChords.slice(5)
 
   const handleClickChord = useCallback((chord: string) => {
     addCurrent(chord)
@@ -26,17 +28,28 @@ export default function Pallete() {
     <Card className={classes.card} m="lg" p="lg" bdrs="lg" ta="center">
       <Stack>
         <Group grow gap="lg" mb="md">
-          <PalleteButton onClick={handleClickChord} text="C" status={getGuessStatus('C', guesses)} disabled={isLocked} />
-          <PalleteButton onClick={handleClickChord} text="Dm" status={getGuessStatus('Dm', guesses)} disabled={isLocked} />
-          <PalleteButton onClick={handleClickChord} text="Em" status={getGuessStatus('Em', guesses)} disabled={isLocked} />
-          <PalleteButton onClick={handleClickChord} text="F" status={getGuessStatus('F', guesses)} disabled={isLocked} />
-          <PalleteButton onClick={handleClickChord} text="G" status={getGuessStatus('G', guesses)} disabled={isLocked} />
+          {primaryRow.map(chord => (
+            <PalleteButton
+              key={chord}
+              onClick={handleClickChord}
+              text={chord}
+              status={getGuessStatus(chord, guesses)}
+              disabled={isLocked}
+            />
+          ))}
         </Group>
         <Group grow gap="lg" mb="md">
           <PalleteButton onClick={handleClickUndo} text="Undo" variant="secondary" disabled={isLocked} />
           <Group grow gap="lg">
-            <PalleteButton onClick={handleClickChord} text="Am" status={getGuessStatus('Am', guesses)} disabled={isLocked} />
-            <PalleteButton onClick={handleClickChord} text="Bdim" status={getGuessStatus('Bdim', guesses)} disabled={isLocked} />
+            {secondaryRow.map(chord => (
+              <PalleteButton
+                key={chord}
+                onClick={handleClickChord}
+                text={chord}
+                status={getGuessStatus(chord, guesses)}
+                disabled={isLocked}
+              />
+            ))}
           </Group>
           <PalleteButton onClick={handleClickEnter} text="Enter" variant="secondary" disabled={isLocked} />
         </Group>

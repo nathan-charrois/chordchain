@@ -9,6 +9,7 @@ export type Game = {
   isGameOver: boolean
   activePuzzle: DailyPuzzle
   todayDate: string
+  paletteChords: Chord[]
   target: Chord[]
   guesses: Guess[]
   current: Guess
