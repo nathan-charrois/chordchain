@@ -49,6 +49,16 @@ export type ModeId
     | 'aeolian'
     | 'locrian'
 
+export const MODE_IDS: ModeId[] = [
+  'ionian',
+  'dorian',
+  'phrygian',
+  'lydian',
+  'mixolydian',
+  'aeolian',
+  'locrian',
+]
+
 export const DEFAULT_MODE_ID: ModeId = 'ionian'
 export const DEFAULT_KEY = 'C'
 

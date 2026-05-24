@@ -1,10 +1,10 @@
 import { useCallback } from 'react'
-import { Card, Group, Stack, Text } from '@mantine/core'
+import { Card, Group, NativeSelect, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
 import PalleteButton from '../PalleteButton/PalleteButton'
-import { getPaletteSections } from '~/utils/music'
+import { formatModeLabel, getPaletteSections, MODE_IDS, normalizeModeId, PITCH_CLASSES } from '~/utils/music'
 
 type PaletteSection = {
   title: string
@@ -12,9 +12,22 @@ type PaletteSection = {
 }
 
 export default function Pallete() {
-  const { status, guesses, activePuzzle, addCurrent, removeCurrent, submitGuess } = useGame()
+  const {
+    status,
+    guesses,
+    selectedKey,
+    selectedMode,
+    hintProgress,
+    setSelectedKey,
+    setSelectedMode,
+    addCurrent,
+    removeCurrent,
+    submitGuess,
+  } = useGame()
   const isLocked = status === 'won' || status === 'loss'
-  const paletteSectionsData = getPaletteSections(activePuzzle.key, activePuzzle.mode)
+  const isKeyLocked = isLocked || hintProgress >= 1
+  const isModeLocked = isLocked || hintProgress >= 2
+  const paletteSectionsData = getPaletteSections(selectedKey, selectedMode)
   const sections: PaletteSection[] = [
     { title: 'Diatonic', chords: paletteSectionsData.diatonic },
     { title: 'Secondary/Dominant', chords: paletteSectionsData.secondaryDominant },
@@ -33,9 +46,39 @@ export default function Pallete() {
     submitGuess()
   }, [submitGuess])
 
+  const handleSelectKey = useCallback((value: string | null) => {
+    if (!value) {
+      return
+    }
+
+    setSelectedKey(value)
+  }, [setSelectedKey])
+
+  const handleSelectMode = useCallback((value: string | null) => {
+    if (!value) {
+      return
+    }
+
+    setSelectedMode(normalizeModeId(value))
+  }, [setSelectedMode])
+
   return (
     <Card bdrs="md" p="xl">
       <Stack gap="md">
+        <NativeSelect
+          label="Palette key"
+          data={[...PITCH_CLASSES]}
+          value={selectedKey}
+          disabled={isKeyLocked}
+          onChange={event => handleSelectKey(event.currentTarget.value)}
+        />
+        <NativeSelect
+          label="Palette mode"
+          data={MODE_IDS.map(mode => ({ value: mode, label: formatModeLabel(mode) }))}
+          value={selectedMode}
+          disabled={isModeLocked}
+          onChange={event => handleSelectMode(event.currentTarget.value)}
+        />
         {sections.map(section => (
           <Stack key={section.title} gap="xs">
             <Text fw={700} size="sm" tt="uppercase" c="dimmed">{section.title}</Text>

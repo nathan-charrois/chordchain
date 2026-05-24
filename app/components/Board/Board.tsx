@@ -37,6 +37,8 @@ export default function Board() {
     currentStreak,
     puzzleDates,
     historyEntries,
+    hintProgress,
+    revealHint,
   } = useGame()
   const { target, activeIndex, play, stop, end } = useSequence()
 
@@ -92,6 +94,9 @@ export default function Board() {
   const activeCompletedAt = activeHistoryEntry?.completedAt
     ? new Date(activeHistoryEntry.completedAt).toLocaleString()
     : null
+  const activeHintsUsed = activeHistoryEntry?.hintsUsed ?? 0
+  const hintButtonLabel = `Hints (${2 - hintProgress})`
+  const isHintButtonDisabled = hintProgress >= 2
 
   const historyRows = useMemo(() => {
     if (!puzzleDates.length) {
@@ -112,11 +117,16 @@ export default function Board() {
             </Group>
             <Badge color={entry?.completed ? 'green' : 'gray'}>{completedLabel}</Badge>
           </Group>
-          {entry?.completed && (
+          {(entry?.completed || typeof entry?.hintsUsed === 'number') && (
             <Stack gap={2} mt="xs">
               {typeof entry.attemptsUsed === 'number' && (
                 <Text size="sm" c="dimmed">
                   {`Attempts used: ${entry.attemptsUsed}`}
+                </Text>
+              )}
+              {typeof entry.hintsUsed === 'number' && (
+                <Text size="sm" c="dimmed">
+                  {`Hints used: ${entry.hintsUsed}`}
                 </Text>
               )}
               {completedAt && (
@@ -181,6 +191,7 @@ export default function Board() {
         <Group>
           <Button onClick={handleClickPlay}>Play</Button>
           <Button onClick={handleClickStop}>Stop</Button>
+          <Button onClick={revealHint} disabled={isHintButtonDisabled}>{hintButtonLabel}</Button>
           <Button variant="light" onClick={handleOpenHistory}>Puzzle History</Button>
           <Checkbox label="Loop" checked={isLooping} onChange={handleToggleLooping} />
           <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={handleToggleArpeggiate} />
@@ -196,6 +207,7 @@ export default function Board() {
           {activeHistoryEntry?.completed && typeof activeHistoryEntry.attemptsUsed === 'number' && (
             <Text c="dimmed">{`Attempts used: ${activeHistoryEntry.attemptsUsed}`}</Text>
           )}
+          <Text c="dimmed">{`Hints used: ${activeHintsUsed}`}</Text>
           {activeCompletedAt && (
             <Text c="dimmed">{`Completed at: ${activeCompletedAt}`}</Text>
           )}

@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 
 import type { DailyPuzzle } from '~/utils/dailyPuzzle'
+import type { ModeId } from '~/utils/music'
 import type { PuzzleHistoryEntry } from '~/utils/puzzleHistory'
 
 /* Game */
@@ -8,6 +9,9 @@ export type Game = {
   status: GameStatus
   isGameOver: boolean
   activePuzzle: DailyPuzzle
+  selectedKey: string
+  selectedMode: ModeId
+  hintProgress: HintProgress
   todayDate: string
   currentStreak: number
   paletteChords: Chord[]
@@ -18,12 +22,17 @@ export type Game = {
   historyEntries: Record<string, PuzzleHistoryEntry>
   maxLength: number
   maxGuesses: number
+  setSelectedKey: (key: string) => void
+  setSelectedMode: (mode: ModeId) => void
+  revealHint: () => void
   addCurrent: (chord: Chord) => void
   removeCurrent: () => void
   submitGuess: () => void
   reset: () => void
   resetToday: () => void
 }
+
+export type HintProgress = 0 | 1 | 2
 
 export type GameStatus = 'new' | 'started' | 'loss' | 'won'
 

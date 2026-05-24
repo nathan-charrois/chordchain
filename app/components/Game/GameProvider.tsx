@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { type Chord, GameContext, type Guess } from './context/GameContext'
+import { type Chord, GameContext, type Guess, type HintProgress } from './context/GameContext'
 import { useStatus } from './hooks/useStatus'
 import { createSubmittedGuess } from './logic/game'
 import { createEmptyGuess, createResetSessionState, isGameOverStatus } from './logic/session'
@@ -8,11 +8,12 @@ import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { endSequence, stopSequence } from '~/utils/chain'
 import { getCatalogDatesDesc, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
-import { flattenPaletteSections, getPaletteSections, normalizeChordLabel } from '~/utils/music'
+import { flattenPaletteSections, getPaletteSections, normalizeChordLabel, normalizeKey, normalizeModeId, type ModeId } from '~/utils/music'
 import {
   calculateCurrentStreak,
   markPuzzleCompleted,
   readPuzzleHistory,
+  revealPuzzleHint,
   removePuzzleHistoryEntry,
   writePuzzleHistory,
 } from '~/utils/puzzleHistory'
@@ -22,22 +23,56 @@ type Props = {
 }
 
 export function GameProvider({ children }: Props) {
+  const toHintProgress = (value?: number): HintProgress => {
+    if (value === 1 || value === 2) {
+      return value
+    }
+
+    return 0
+  }
+
   const todayDate = useMemo(() => formatLocalDate(new Date()), [])
   const activePuzzle = useMemo(() => resolveDailyPuzzle(todayDate), [todayDate])
+  const [selectedKey, setSelectedKey] = useState(activePuzzle.key)
+  const [selectedMode, setSelectedMode] = useState<ModeId>(activePuzzle.mode)
+  const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
+  const hintProgress = toHintProgress(historyStore.entries[activePuzzle.date]?.hintsUsed)
+  const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
+
+  useEffect(() => {
+    setSelectedKey(activePuzzle.key)
+    setSelectedMode(activePuzzle.mode)
+  }, [activePuzzle.date, activePuzzle.key, activePuzzle.mode])
+
+  useEffect(() => {
+    if (hintProgress >= 1) {
+      setSelectedKey(activePuzzle.key)
+    }
+
+    if (hintProgress >= 2) {
+      setSelectedMode(activePuzzle.mode)
+    }
+  }, [hintProgress, activePuzzle.key, activePuzzle.mode])
+
   const paletteSections = useMemo(
-    () => getPaletteSections(activePuzzle.key, activePuzzle.mode),
-    [activePuzzle.key, activePuzzle.mode],
+    () => getPaletteSections(selectedKey, selectedMode),
+    [selectedKey, selectedMode],
   )
   const paletteChords = useMemo(
     () => flattenPaletteSections(paletteSections),
     [paletteSections],
   )
+  const puzzlePaletteChords = useMemo(() => {
+    const puzzlePaletteSections = getPaletteSections(activePuzzle.key, activePuzzle.mode)
+
+    return flattenPaletteSections(puzzlePaletteSections)
+  }, [activePuzzle.key, activePuzzle.mode])
   const normalizedTarget = useMemo(
     () => activePuzzle.target.map(chord => normalizeChordLabel(chord)),
     [activePuzzle.target],
   )
   const target: Chord[] = useMemo(() => {
-    const invalidTargetChords = normalizedTarget.filter(chord => !paletteChords.includes(chord))
+    const invalidTargetChords = normalizedTarget.filter(chord => !puzzlePaletteChords.includes(chord))
 
     if (!invalidTargetChords.length) {
       return normalizedTarget
@@ -48,11 +83,9 @@ export function GameProvider({ children }: Props) {
       + `Falling back to first ${GAME_MAX_CHARS} palette chords.`,
     )
 
-    return paletteChords.slice(0, GAME_MAX_CHARS)
-  }, [activePuzzle.date, normalizedTarget, paletteChords])
+    return puzzlePaletteChords.slice(0, GAME_MAX_CHARS)
+  }, [activePuzzle.date, normalizedTarget, puzzlePaletteChords])
   const puzzleDates = useMemo(() => getCatalogDatesDesc(todayDate), [todayDate])
-  const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
-  const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
   const currentStreak = useMemo(
     () => calculateCurrentStreak(historyStore.entries, todayDate).current,
     [historyStore.entries, todayDate],
@@ -64,6 +97,26 @@ export function GameProvider({ children }: Props) {
   const [current, setCurrent] = useState<Guess>(initialState.current)
   const prevStatusRef = useRef(status)
   const isGameOver = isGameOverStatus(status)
+
+  const handleSetSelectedKey = useCallback((key: string) => {
+    setSelectedKey(normalizeKey(key))
+  }, [])
+
+  const handleSetSelectedMode = useCallback((mode: ModeId) => {
+    setSelectedMode(normalizeModeId(mode))
+  }, [])
+
+  const handleRevealHint = useCallback(() => {
+    setHistoryStore((prev) => {
+      const next = revealPuzzleHint(prev, activePuzzle.date)
+
+      if (next !== prev) {
+        writePuzzleHistory(next)
+      }
+
+      return next
+    })
+  }, [activePuzzle.date])
 
   useEffect(() => {
     const previousStatus = prevStatusRef.current
@@ -164,6 +217,9 @@ export function GameProvider({ children }: Props) {
       status,
       isGameOver,
       activePuzzle,
+      selectedKey,
+      selectedMode,
+      hintProgress,
       todayDate,
       currentStreak,
       paletteChords,
@@ -174,6 +230,9 @@ export function GameProvider({ children }: Props) {
       historyEntries: historyStore.entries,
       maxLength: GAME_MAX_CHARS,
       maxGuesses: GAME_MAX_GUESSES,
+      setSelectedKey: handleSetSelectedKey,
+      setSelectedMode: handleSetSelectedMode,
+      revealHint: handleRevealHint,
       addCurrent: handleAddCurrent,
       removeCurrent: handleRemoveCurrent,
       submitGuess: handleSubmitGuess,
