@@ -4,10 +4,5 @@
 html,
 body {
   font-family: "Fredoka", sans-serif;
-  background-color: #212b2e;
-  background-image: url('/images/background.png');
-  background-position: top left;
-  background-size: auto 100%;
-  background-repeat: no-repeat;
 }
 

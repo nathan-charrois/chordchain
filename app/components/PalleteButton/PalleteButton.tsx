@@ -1,8 +1,7 @@
 import { useCallback, useMemo } from 'react'
-import { Box, Center, Text } from '@mantine/core'
+import { Button, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
-import classes from './PalleteButton.module.css'
 
 type Props = {
   text: string
@@ -19,24 +18,30 @@ export default function PalleteButton({
   disabled,
   onClick,
 }: Props) {
-  const variantClassName = useMemo(() => (
-    variant === 'secondary' ? classes.secondary : classes.primary
-  ), [variant])
-
-  const statusClassName = useMemo(() => {
+  const palette = useMemo(() => {
     if (variant === 'secondary') {
-      return ''
+      return {
+        textColor: '#495057',
+      }
     }
 
     switch (status) {
       case 'correct':
-        return classes.correct
+        return {
+          textColor: '#2b8a3e',
+        }
       case 'present':
-        return classes.present
+        return {
+          textColor: '#e67700',
+        }
       case 'absent':
-        return classes.absent
+        return {
+          textColor: '#495057',
+        }
       default:
-        return ''
+        return {
+          textColor: '#343a40',
+        }
     }
   }, [status, variant])
 
@@ -44,22 +49,23 @@ export default function PalleteButton({
     onClick(text)
   }, [onClick])
 
+  const buttonStyle = useMemo(() => ({
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    opacity: disabled ? 0.55 : 1,
+  }), [disabled])
+
   return (
-    <Box
-      component="button"
-      type="button"
-      px="lg"
-      py="md"
-      bdrs="lg"
-      h={86}
-      className={`${classes.box} ${variantClassName} ${statusClassName} ${disabled ? classes.disabled : ''}`}
+    <Button
+      variant="default"
+      size="xl"
+      style={buttonStyle}
       onClick={() => handleOnClick(text)}
       disabled={disabled}
       aria-disabled={disabled}
     >
-      <Center h={50}>
-        <Text className={classes.text}>{text}</Text>
-      </Center>
-    </Box>
+      <Text c={palette.textColor}>
+        {text}
+      </Text>
+    </Button>
   )
 }
