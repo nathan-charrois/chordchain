@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Badge, Button, Card, Checkbox, Divider, Group, Modal, Stack, Text } from '@mantine/core'
+import { Alert, Badge, Card, Divider, Group, Modal, Stack, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
@@ -9,6 +9,10 @@ import {
   getLossTargetLabel,
   shouldRevealTarget,
 } from '../Game/logic/session'
+import { DailyPuzzle } from './components/DailyPuzzle'
+import { Hints } from './components/Hints'
+import { PlaybackControls } from './components/PlaybackControls'
+import { Streak } from './components/Streak'
 import { useSequence } from './hooks/useSequence'
 
 function getBadgeColor(status?: GuessStatus): string {
@@ -29,7 +33,6 @@ export default function Board() {
     status,
     guesses,
     current,
-    maxLength,
     maxGuesses,
     isGameOver,
     activePuzzle,
@@ -89,14 +92,9 @@ export default function Board() {
       return guesses.some(guess => guess.status[index] === 'correct')
     })
   }, [guesses, shouldShowTarget, target])
-  const activeHistoryEntry = historyEntries[activePuzzle.date]
-  const activeHistoryLabel = activeHistoryEntry?.completed ? 'Complete' : 'Incomplete'
-  const activeCompletedAt = activeHistoryEntry?.completedAt
-    ? new Date(activeHistoryEntry.completedAt).toLocaleString()
-    : null
-  const activeHintsUsed = activeHistoryEntry?.hintsUsed ?? 0
-  const hintButtonLabel = `Hints (${2 - hintProgress})`
-  const isHintButtonDisabled = hintProgress >= 2
+
+  const hintText = `${hintProgress}/2`
+  const hintButtonLabel = `Reveal Hint`
 
   const historyRows = useMemo(() => {
     if (!puzzleDates.length) {
@@ -143,7 +141,7 @@ export default function Board() {
 
   const guessesList = useMemo(() => {
     if (!guesses.length) {
-      return <Text>No guesses</Text>
+      return null
     }
 
     return (
@@ -166,7 +164,7 @@ export default function Board() {
 
   const currentList = useMemo(() => {
     if (!current.chords.length) {
-      return <Text>No current guess</Text>
+      return null
     }
 
     return (
@@ -187,70 +185,65 @@ export default function Board() {
 
   return (
     <Card bdrs="md" p="xl">
-      <Stack>
-        <Group>
-          <Button onClick={handleClickPlay}>Play</Button>
-          <Button onClick={handleClickStop}>Stop</Button>
-          <Button onClick={revealHint} disabled={isHintButtonDisabled}>{hintButtonLabel}</Button>
-          <Button variant="light" onClick={handleOpenHistory}>Puzzle History</Button>
-          <Checkbox label="Loop" checked={isLooping} onChange={handleToggleLooping} />
-          <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={handleToggleArpeggiate} />
+      <Card mb="lg" withBorder>
+        <DailyPuzzle date={todayDate} onOpenHistory={handleOpenHistory} />
+      </Card>
+      <Card mb="lg" withBorder>
+        <PlaybackControls
+          onPlay={handleClickPlay}
+          onStop={handleClickStop}
+          isLooping={isLooping}
+          onToggleLooping={handleToggleLooping}
+          isArpeggiate={isArpeggiate}
+          onToggleArpeggiate={handleToggleArpeggiate}
+        />
+      </Card>
+      <Group grow align="stretch">
+        <Card mb="lg" withBorder>
+          <Hints
+            onRevealHint={revealHint}
+            label={hintButtonLabel}
+            text={hintText}
+          />
+        </Card>
+        <Card mb="lg" withBorder>
+          <Streak value={currentStreak} />
+        </Card>
+      </Group>
+      {isGameOver && endStateMessage && (
+        <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
+          <Stack gap="xs">
+            <Text>{endStateMessage}</Text>
+            <Text>{`Attempts used: ${attemptsUsed}/${maxGuesses}`}</Text>
+            {isLoss && (
+              <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
+            )}
+            <Text c="dimmed">Playback controls remain available for listening.</Text>
+          </Stack>
+        </Alert>
+      )}
+      <Card mb="lg" withBorder>
+        <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
+        <Divider my="md" />
+        <Group gap="xs">
+          <Text>Target:</Text>
+          {target.map((chord, index) => (
+            <Badge
+              key={`${chord}-${index}`}
+              color={index === activeIndex ? 'lime.6' : 'gray.6'}
+              variant={index === activeIndex ? 'filled' : 'light'}
+            >
+              {revealedTargetByIndex[index] ? chord : '?'}
+            </Badge>
+          ))}
         </Group>
-        <Group wrap="wrap" gap="sm">
-          <Text>{`Status: ${status}`}</Text>
-          <Text>{`Puzzle Date: ${activePuzzle.date}`}</Text>
-          <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
-          <Text>{`Current Streak: ${currentStreak}`}</Text>
-          <Badge color={activeHistoryEntry?.completed ? 'green' : 'gray'}>
-            {`Today's puzzle: ${activeHistoryLabel}`}
-          </Badge>
-          {activeHistoryEntry?.completed && typeof activeHistoryEntry.attemptsUsed === 'number' && (
-            <Text c="dimmed">{`Attempts used: ${activeHistoryEntry.attemptsUsed}`}</Text>
-          )}
-          <Text c="dimmed">{`Hints used: ${activeHintsUsed}`}</Text>
-          {activeCompletedAt && (
-            <Text c="dimmed">{`Completed at: ${activeCompletedAt}`}</Text>
-          )}
-          <Group gap="xs">
-            <Text>Target:</Text>
-            {target.map((chord, index) => (
-              <Badge
-                key={`${chord}-${index}`}
-                color={index === activeIndex ? 'lime.6' : 'gray.6'}
-                variant={index === activeIndex ? 'filled' : 'light'}
-              >
-                {revealedTargetByIndex[index] ? chord : '?'}
-              </Badge>
-            ))}
-          </Group>
-        </Group>
-        {isGameOver && endStateMessage && (
-          <Alert color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
-            <Stack gap="xs">
-              <Text>{endStateMessage}</Text>
-              <Text>{`Attempts used: ${attemptsUsed}/${maxGuesses}`}</Text>
-              {isLoss && (
-                <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
-              )}
-              <Text c="dimmed">Playback controls remain available for listening.</Text>
-            </Stack>
-          </Alert>
-        )}
-        <Divider />
-        <Group>
-          {currentList}
-        </Group>
-        <Divider />
+      </Card>
+      <Card withBorder>
         <Stack>
           {guessesList}
+          {currentList}
         </Stack>
-        <Divider />
-        <Group>
-          <Text>{`Guess #: ${guesses.length}`}</Text>
-          <Text>{`Chain Length: ${maxLength}`}</Text>
-          <Text>{`Max Guesses: ${maxGuesses}`}</Text>
-        </Group>
-      </Stack>
+      </Card>
       <Modal
         opened={isHistoryOpen}
         onClose={handleCloseHistory}
