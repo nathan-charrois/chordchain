@@ -1,12 +1,13 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Card, Group, NativeSelect, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
 import PalleteButton from '../PalleteButton/PalleteButton'
-import { formatModeLabel, getPaletteSections, MODE_IDS, normalizeModeId, PITCH_CLASSES } from '~/utils/music'
+import { formatModeLabel, MODE_IDS, normalizeModeId, type PaletteSectionId, PITCH_CLASSES } from '~/utils/music'
 
 type PaletteSection = {
+  id: PaletteSectionId
   title: string
   chords: string[]
 }
@@ -18,6 +19,8 @@ export default function Pallete() {
     selectedKey,
     selectedMode,
     hintProgress,
+    paletteSections,
+    enabledPaletteSectionIds,
     setSelectedKey,
     setSelectedMode,
     addCurrent,
@@ -27,12 +30,15 @@ export default function Pallete() {
   const isLocked = status === 'won' || status === 'loss'
   const isKeyLocked = isLocked || hintProgress >= 1
   const isModeLocked = isLocked || hintProgress >= 2
-  const paletteSectionsData = getPaletteSections(selectedKey, selectedMode)
   const sections: PaletteSection[] = [
-    { title: 'Diatonic', chords: paletteSectionsData.diatonic },
-    { title: 'Secondary/Dominant', chords: paletteSectionsData.secondaryDominant },
-    { title: 'Extensions', chords: paletteSectionsData.extensions },
+    { id: 'diatonic', title: 'Diatonic', chords: paletteSections.diatonic },
+    { id: 'secondaryDominant', title: 'Secondary/Dominant', chords: paletteSections.secondaryDominant },
+    { id: 'extensions', title: 'Extensions', chords: paletteSections.extensions },
   ]
+  const enabledPaletteSectionIdSet = useMemo(
+    () => new Set(enabledPaletteSectionIds),
+    [enabledPaletteSectionIds],
+  )
 
   const handleClickChord = useCallback((chord: string) => {
     addCurrent(chord)
@@ -79,23 +85,30 @@ export default function Pallete() {
           disabled={isModeLocked}
           onChange={event => handleSelectMode(event.currentTarget.value)}
         />
-        {sections.map(section => (
-          <Stack key={section.title} gap="xs">
-            <Text fw={700} size="sm" tt="uppercase" c="dimmed">{section.title}</Text>
-            <Group>
-              {section.chords.map((chord, chordIndex) => (
-                <PalleteButton
-                  key={`${section.title}-${chord}-${chordIndex}`}
-                  onClick={handleClickChord}
-                  text={chord}
-                  status={getGuessStatus(chord, guesses)}
-                  disabled={isLocked}
-                  variant="default"
-                />
-              ))}
-            </Group>
-          </Stack>
-        ))}
+        {sections.map((section) => {
+          const isSectionEnabled = enabledPaletteSectionIdSet.has(section.id)
+          const isSectionLocked = isLocked || !isSectionEnabled
+
+          return (
+            <Stack key={section.id} gap="xs">
+              <Group gap="xs" align="center">
+                <Text fw={700} size="sm" tt="uppercase" c={isSectionEnabled ? 'dimmed' : 'gray.5'}>{section.title}</Text>
+              </Group>
+              <Group>
+                {section.chords.map((chord, chordIndex) => (
+                  <PalleteButton
+                    key={`${section.title}-${chord}-${chordIndex}`}
+                    onClick={handleClickChord}
+                    text={chord}
+                    status={getGuessStatus(chord, guesses)}
+                    disabled={isSectionLocked}
+                    variant="default"
+                  />
+                ))}
+              </Group>
+            </Stack>
+          )
+        })}
         <Group>
           <PalleteButton onClick={handleClickUndo} text="Undo" variant="filled" disabled={isLocked} />
           <PalleteButton onClick={handleClickEnter} text="Enter" variant="filled" disabled={isLocked} />

@@ -40,6 +40,8 @@ export type PaletteSections = {
   extensions: string[]
 }
 
+export type PaletteSectionId = keyof PaletteSections
+
 export type ModeId
   = | 'ionian'
     | 'dorian'
@@ -293,6 +295,16 @@ export function getPaletteSections(key: string, mode: ModeId): PaletteSections {
 
 export function flattenPaletteSections(sections: PaletteSections): string[] {
   return [...sections.diatonic, ...sections.secondaryDominant, ...sections.extensions]
+}
+
+export function filterPaletteSections(sections: PaletteSections, enabledSectionIds: PaletteSectionId[]): PaletteSections {
+  const enabledSectionIdSet = new Set(enabledSectionIds)
+
+  return {
+    diatonic: enabledSectionIdSet.has('diatonic') ? sections.diatonic : [],
+    secondaryDominant: enabledSectionIdSet.has('secondaryDominant') ? sections.secondaryDominant : [],
+    extensions: enabledSectionIdSet.has('extensions') ? sections.extensions : [],
+  }
 }
 
 export function midiFromPitchClass(pitchClass: number, octave = 4): number {

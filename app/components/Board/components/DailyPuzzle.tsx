@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Button, Group, Stack, Text } from '@mantine/core'
 
+import { formatDisplayDate } from '~/utils/date'
+
 type DailyPuzzleProps = {
   date: string
   isHistorical: boolean
@@ -39,10 +41,10 @@ export function DailyPuzzle({ date, isHistorical, onOpenHistory }: DailyPuzzlePr
   return (
     <Group justify="space-between" align="center" wrap="wrap">
       <Stack gap={2}>
-        <Text fw={700}>{date}</Text>
+        <Text fw={700}>{formatDisplayDate(date)}</Text>
         <Text size="sm">Daily Puzzle</Text>
         {isHistorical && <Text size="sm" c="blue.6">Playing previous puzzle</Text>}
-        <Text size="sm" c="dimmed">{`Puzzle resets in ${formatCountdown(secondsUntilReset)}`}</Text>
+        {!isHistorical && <Text size="sm" c="dimmed">{`Puzzle resets in ${formatCountdown(secondsUntilReset)}`}</Text>}
       </Stack>
       <Button variant="light" onClick={onOpenHistory}>Puzzle History</Button>
     </Group>

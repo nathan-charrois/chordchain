@@ -6,9 +6,9 @@ import { createSubmittedGuess } from './logic/game'
 import { createEmptyGuess, createResetSessionState, isGameOverStatus } from './logic/session'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { endSequence, stopSequence } from '~/utils/chain'
-import { getCatalogDatesDesc, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
+import { getCatalogDatesDesc, getEnabledPaletteSectionIds, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
-import { DEFAULT_KEY, DEFAULT_MODE_ID, flattenPaletteSections, getPaletteSections, type ModeId, normalizeChordLabel, normalizeKey, normalizeModeId } from '~/utils/music'
+import { DEFAULT_KEY, DEFAULT_MODE_ID, filterPaletteSections, flattenPaletteSections, getPaletteSections, type ModeId, normalizeChordLabel, normalizeKey, normalizeModeId } from '~/utils/music'
 import {
   calculateCurrentStreak,
   markPuzzleCompleted,
@@ -60,15 +60,24 @@ export function GameProvider({ children }: Props) {
     () => getPaletteSections(selectedKey, selectedMode),
     [selectedKey, selectedMode],
   )
+  const enabledPaletteSectionIds = useMemo(
+    () => getEnabledPaletteSectionIds(activePuzzle.difficulty),
+    [activePuzzle.difficulty],
+  )
+  const enabledPaletteSections = useMemo(
+    () => filterPaletteSections(paletteSections, enabledPaletteSectionIds),
+    [paletteSections, enabledPaletteSectionIds],
+  )
   const paletteChords = useMemo(
-    () => flattenPaletteSections(paletteSections),
-    [paletteSections],
+    () => flattenPaletteSections(enabledPaletteSections),
+    [enabledPaletteSections],
   )
   const puzzlePaletteChords = useMemo(() => {
     const puzzlePaletteSections = getPaletteSections(activePuzzle.key, activePuzzle.mode)
+    const enabledPuzzlePaletteSections = filterPaletteSections(puzzlePaletteSections, enabledPaletteSectionIds)
 
-    return flattenPaletteSections(puzzlePaletteSections)
-  }, [activePuzzle.key, activePuzzle.mode])
+    return flattenPaletteSections(enabledPuzzlePaletteSections)
+  }, [activePuzzle.key, activePuzzle.mode, enabledPaletteSectionIds])
   const normalizedTarget = useMemo(
     () => activePuzzle.target.map(chord => normalizeChordLabel(chord)),
     [activePuzzle.target],
@@ -81,12 +90,12 @@ export function GameProvider({ children }: Props) {
     }
 
     console.warn(
-      `[game] Puzzle '${activePuzzle.date}' contains target chords missing from the generated palette: ${invalidTargetChords.join(', ')}. `
+      `[game] Puzzle '${activePuzzle.date}' contains target chords missing from the ${activePuzzle.difficulty} palette: ${invalidTargetChords.join(', ')}. `
       + `Falling back to first ${GAME_MAX_CHARS} palette chords.`,
     )
 
     return puzzlePaletteChords.slice(0, GAME_MAX_CHARS)
-  }, [activePuzzle.date, normalizedTarget, puzzlePaletteChords])
+  }, [activePuzzle.date, activePuzzle.difficulty, normalizedTarget, puzzlePaletteChords])
   const puzzleDates = useMemo(() => getCatalogDatesDesc(todayDate), [todayDate])
   const currentStreak = useMemo(
     () => calculateCurrentStreak(historyStore.entries, todayDate).current,
@@ -238,6 +247,8 @@ export function GameProvider({ children }: Props) {
       todayDate,
       selectedPuzzleDate,
       currentStreak,
+      paletteSections,
+      enabledPaletteSectionIds,
       paletteChords,
       target,
       guesses,

@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 
 import type { DailyPuzzle } from '~/utils/dailyPuzzle'
-import type { ModeId } from '~/utils/music'
+import type { ModeId, PaletteSectionId, PaletteSections } from '~/utils/music'
 import type { PuzzleHistoryEntry } from '~/utils/puzzleHistory'
 
 /* Game */
@@ -15,6 +15,8 @@ export type Game = {
   todayDate: string
   selectedPuzzleDate: string
   currentStreak: number
+  paletteSections: PaletteSections
+  enabledPaletteSectionIds: PaletteSectionId[]
   paletteChords: Chord[]
   target: Chord[]
   guesses: Guess[]

@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Badge, Button, Card, Divider, Group, Modal, Stack, Text } from '@mantine/core'
 
-import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
-
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, type GuessRow } from '../Game/logic/game'
@@ -17,6 +15,9 @@ import { Hints } from './components/Hints'
 import { PlaybackControls } from './components/PlaybackControls'
 import { Streak } from './components/Streak'
 import { useSequence } from './hooks/useSequence'
+import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
+import { resolveDailyPuzzle } from '~/utils/dailyPuzzle'
+import { formatDisplayDate, formatDisplayDateTime } from '~/utils/date'
 
 const TEMPO_PLAYBACK_RESTART_DELAY_MS = 300
 
@@ -77,7 +78,6 @@ export default function Board() {
     historyEntries,
     hintProgress,
     revealHint,
-    reset,
     selectPuzzleDate,
   } = useGame()
   const { target, activeIndex, isPlaying, play, stop, setLooping } = useSequence()
@@ -153,12 +153,6 @@ export default function Board() {
     setIsHistoryOpen(false)
   }, [])
 
-  const handlePlayAgain = useCallback(() => {
-    clearPendingTempoRestart()
-    stop()
-    reset()
-  }, [clearPendingTempoRestart, reset, stop])
-
   const handleSelectHistoryPuzzle = useCallback((date: string) => {
     clearPendingTempoRestart()
     stop()
@@ -190,8 +184,8 @@ export default function Board() {
 
     return puzzleDates.map((date) => {
       const entry = historyEntries[date]
-      const completedLabel = entry?.completed ? 'Complete' : 'Incomplete'
-      const completedAt = entry?.completedAt ? new Date(entry.completedAt).toLocaleString() : null
+      const puzzle = resolveDailyPuzzle(date)
+      const completedAt = entry?.completedAt ? formatDisplayDateTime(entry.completedAt) : null
       const isCompleted = entry?.completed === true
       const isSelected = date === selectedPuzzleDate
       const actionLabel = isSelected
@@ -200,43 +194,49 @@ export default function Board() {
 
       return (
         <Card key={date} withBorder>
-          <Group justify="space-between" align="center">
-            <Group gap="xs" align="center">
-              <Text fw={600}>{date}</Text>
-              {date === todayDate && <Badge color="blue">Today</Badge>}
-              {isSelected && <Badge color="violet">Current</Badge>}
-            </Group>
-            <Group gap="xs">
-              <Badge color={isCompleted ? 'green' : 'gray'}>{completedLabel}</Badge>
-              <Button
-                size="xs"
-                variant={isSelected ? 'light' : 'outline'}
-                disabled={isSelected}
-                onClick={() => handleSelectHistoryPuzzle(date)}
-              >
-                {actionLabel}
-              </Button>
-            </Group>
-          </Group>
-          {(entry?.completed || typeof entry?.hintsUsed === 'number') && (
-            <Stack gap={2} mt="xs">
-              {typeof entry.attemptsUsed === 'number' && (
-                <Text size="sm" c="dimmed">
-                  {`Attempts used: ${entry.attemptsUsed}`}
-                </Text>
-              )}
-              {typeof entry.hintsUsed === 'number' && (
-                <Text size="sm" c="dimmed">
-                  {`Hints used: ${entry.hintsUsed}`}
-                </Text>
-              )}
-              {completedAt && (
-                <Text size="sm" c="dimmed">
-                  {`Completed at: ${completedAt}`}
-                </Text>
-              )}
+          <Stack gap="sm">
+            <Stack gap={2}>
+              <Group gap="xs" justify="space-between">
+                <Text fw={700}>{puzzle.name}</Text>
+                {date === todayDate && <Badge color="blue">Today's Puzzle</Badge>}
+              </Group>
+              <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
             </Stack>
-          )}
+
+            <Group gap="xs">
+              <Badge color="cyan" variant="outline">{puzzle.difficulty}</Badge>
+              {isCompleted && <Badge color="green" variant="outline">Complete</Badge>}
+            </Group>
+
+            {(entry?.completed || typeof entry?.hintsUsed === 'number') && (
+              <Stack gap={2}>
+                {typeof entry.attemptsUsed === 'number' && (
+                  <Text size="sm" c="dimmed">
+                    {`Attempts used: ${entry.attemptsUsed}`}
+                  </Text>
+                )}
+                {typeof entry.hintsUsed === 'number' && (
+                  <Text size="sm" c="dimmed">
+                    {`Hints used: ${entry.hintsUsed}`}
+                  </Text>
+                )}
+                {completedAt && (
+                  <Text size="sm" c="dimmed">
+                    {`Completed at: ${completedAt}`}
+                  </Text>
+                )}
+              </Stack>
+            )}
+
+            <Button
+              size="xs"
+              variant={isSelected ? 'light' : 'outline'}
+              disabled={isSelected}
+              onClick={() => handleSelectHistoryPuzzle(date)}
+            >
+              {actionLabel}
+            </Button>
+          </Stack>
         </Card>
       )
     })
@@ -293,22 +293,14 @@ export default function Board() {
               <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
             )}
             <Text c="dimmed">Playback controls remain available for listening.</Text>
-            {isLoss
-              ? (
-                  <Group>
-                    <Button onClick={handlePlayAgain} variant="light">
-                      Play Again
-                    </Button>
-                  </Group>
-                )
-              : (
-                  <Text c="dimmed">This puzzle is complete.</Text>
-                )}
           </Stack>
         </Alert>
       )}
       <Card mb="lg" withBorder>
-        <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
+        <Stack gap={2}>
+          <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
+          <Text c="dimmed">{`Difficulty: ${activePuzzle.difficulty}`}</Text>
+        </Stack>
         <Divider my="md" />
         <Group gap="xs">
           <Text>Target:</Text>
