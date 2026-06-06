@@ -342,9 +342,12 @@ export function pitchClassesFromChord(chord: string): number[] {
   return intervals.map(i => (rootPitchClass + i) % 12)
 }
 
-export function playChord(chord: string, arpeggiate: boolean) {
+const DEFAULT_ARPEGGIO_INTERVAL_MS = 200
+const DEFAULT_SEQUENCE_GAP_MS = 1200
+
+export function playChord(chord: string, arpeggiate: boolean, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
   const pitchClasses = pitchClassesFromChord(chord)
-  const interval = arpeggiate ? 200 : 0
+  const interval = arpeggiate ? getArpeggioIntervalMs(sequenceGapMs) : 0
 
   pitchClasses.map((pitchClass, index) => {
     setTimeout(
@@ -352,6 +355,10 @@ export function playChord(chord: string, arpeggiate: boolean) {
       index * interval,
     )
   })
+}
+
+function getArpeggioIntervalMs(sequenceGapMs: number) {
+  return DEFAULT_ARPEGGIO_INTERVAL_MS * (sequenceGapMs / DEFAULT_SEQUENCE_GAP_MS)
 }
 
 export function playTone(pitchClass: number, octave: number) {

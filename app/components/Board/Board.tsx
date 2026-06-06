@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Badge, Button, Card, Divider, Group, Modal, Stack, Text } from '@mantine/core'
+
+import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
 
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
@@ -15,6 +17,8 @@ import { Hints } from './components/Hints'
 import { PlaybackControls } from './components/PlaybackControls'
 import { Streak } from './components/Streak'
 import { useSequence } from './hooks/useSequence'
+
+const TEMPO_PLAYBACK_RESTART_DELAY_MS = 300
 
 function getBadgeColor(status?: GuessStatus): string {
   switch (status) {
@@ -76,33 +80,70 @@ export default function Board() {
     reset,
     selectPuzzleDate,
   } = useGame()
-  const { target, activeIndex, play, stop, end } = useSequence()
+  const { target, activeIndex, isPlaying, play, stop, setLooping } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(false)
+  const [tempoBpm, setTempoBpm] = useState(DEFAULT_TEMPO_BPM)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const tempoRestartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const clearPendingTempoRestart = useCallback(() => {
+    if (!tempoRestartTimeoutRef.current) {
+      return
+    }
+
+    clearTimeout(tempoRestartTimeoutRef.current)
+    tempoRestartTimeoutRef.current = null
+  }, [])
 
   useEffect(() => {
-    if (!isLooping) {
-      end()
+    if (!isPlaying) {
+      clearPendingTempoRestart()
     }
-  }, [isLooping, end])
+  }, [isPlaying, clearPendingTempoRestart])
 
-  const handleClickPlay = useCallback(() => {
-    play(isArpeggiate, isLooping)
-  }, [play, isLooping, isArpeggiate])
+  useEffect(() => clearPendingTempoRestart, [clearPendingTempoRestart])
 
-  const handleClickStop = useCallback(() => {
-    stop()
-  }, [stop])
+  const handleTogglePlayback = useCallback(() => {
+    if (isPlaying) {
+      clearPendingTempoRestart()
+      stop()
+      return
+    }
+
+    play(isArpeggiate, isLooping, tempoBpm)
+  }, [isPlaying, clearPendingTempoRestart, stop, play, isLooping, isArpeggiate, tempoBpm])
 
   const handleToggleLooping = useCallback(() => {
-    setIsLooping(prev => !prev)
-  }, [setIsLooping])
+    const nextIsLooping = !isLooping
+
+    setIsLooping(nextIsLooping)
+    setLooping(nextIsLooping)
+  }, [isLooping, setLooping])
 
   const handleToggleArpeggiate = useCallback(() => {
-    setIsArpeggiate(prev => !prev)
-  }, [setIsArpeggiate])
+    const nextIsArpeggiate = !isArpeggiate
+
+    setIsArpeggiate(nextIsArpeggiate)
+
+    if (isPlaying) {
+      clearPendingTempoRestart()
+      play(nextIsArpeggiate, isLooping, tempoBpm)
+    }
+  }, [isArpeggiate, isPlaying, clearPendingTempoRestart, play, isLooping, tempoBpm])
+
+  const handleTempoChange = useCallback((nextTempoBpm: number) => {
+    setTempoBpm(nextTempoBpm)
+
+    if (isPlaying) {
+      clearPendingTempoRestart()
+      tempoRestartTimeoutRef.current = setTimeout(() => {
+        tempoRestartTimeoutRef.current = null
+        play(isArpeggiate, isLooping, nextTempoBpm)
+      }, TEMPO_PLAYBACK_RESTART_DELAY_MS)
+    }
+  }, [isPlaying, clearPendingTempoRestart, play, isLooping, isArpeggiate])
 
   const handleOpenHistory = useCallback(() => {
     setIsHistoryOpen(true)
@@ -113,14 +154,17 @@ export default function Board() {
   }, [])
 
   const handlePlayAgain = useCallback(() => {
+    clearPendingTempoRestart()
+    stop()
     reset()
-  }, [reset])
+  }, [clearPendingTempoRestart, reset, stop])
 
   const handleSelectHistoryPuzzle = useCallback((date: string) => {
+    clearPendingTempoRestart()
     stop()
     selectPuzzleDate(date)
     setIsHistoryOpen(false)
-  }, [selectPuzzleDate, stop])
+  }, [clearPendingTempoRestart, selectPuzzleDate, stop])
 
   const attemptsUsed = getAttemptsUsed(guesses)
   const isLoss = status === 'loss'
@@ -218,8 +262,10 @@ export default function Board() {
       </Card>
       <Card mb="lg" withBorder>
         <PlaybackControls
-          onPlay={handleClickPlay}
-          onStop={handleClickStop}
+          isPlaying={isPlaying}
+          onTogglePlayback={handleTogglePlayback}
+          tempoBpm={tempoBpm}
+          onTempoChange={handleTempoChange}
           isLooping={isLooping}
           onToggleLooping={handleToggleLooping}
           isArpeggiate={isArpeggiate}

@@ -2,6 +2,7 @@ import { playChord } from './music'
 import type { Chord } from '~/components/Game/context/GameContext'
 
 export const SEQUENCE_GAP_MS = 1200
+export const DEFAULT_TEMPO_BPM = 120
 
 type TimeoutHandle = ReturnType<typeof setTimeout>
 
@@ -24,13 +25,16 @@ let activeSession = 0
 type PlaySequence = {
   chords: Chord[]
   arpeggiate: boolean
-  loop?: boolean
+  shouldLoop: () => boolean
+  tempoBpm: number
   setIndex: (index: number | null) => void
+  onComplete?: () => void
 }
 
-export function playSequence({ chords, arpeggiate, setIndex, loop }: PlaySequence) {
+export function playSequence({ chords, arpeggiate, setIndex, shouldLoop, tempoBpm, onComplete }: PlaySequence) {
   const session = startNewSession()
-  const totalDuration = chords.length * SEQUENCE_GAP_MS
+  const sequenceGapMs = getSequenceGapMs(tempoBpm)
+  const totalDuration = chords.length * sequenceGapMs
 
   function playSequenceAndLoop(currentSession: number) {
     if (!isSessionActive(currentSession)) {
@@ -41,36 +45,40 @@ export function playSequence({ chords, arpeggiate, setIndex, loop }: PlaySequenc
       chords,
       arpeggiate,
       setIndex,
+      sequenceGapMs,
       session: currentSession,
     })
 
-    if (loop) {
-      replaceTimeout('loopRestart', setTimeout(() => {
-        if (!isSessionActive(currentSession)) {
-          return
-        }
-
-        playSequenceAndLoop(currentSession)
-      }, totalDuration))
-    }
-
-    replaceTimeout('loopEnd', setTimeout(() => {
+    replaceTimeout('loopRestart', setTimeout(() => {
       if (!isSessionActive(currentSession)) {
         return
       }
 
-      setIndex(null)
-    }, totalDuration + SEQUENCE_GAP_MS))
+      if (shouldLoop()) {
+        playSequenceAndLoop(currentSession)
+        return
+      }
+
+      replaceTimeout('loopEnd', setTimeout(() => {
+        if (!isSessionActive(currentSession)) {
+          return
+        }
+
+        setIndex(null)
+        onComplete?.()
+      }, sequenceGapMs))
+    }, totalDuration))
   }
 
   playSequenceAndLoop(session)
 }
 
 type PlaySequenceOnce = Pick<PlaySequence, 'chords' | 'arpeggiate' | 'setIndex'> & {
+  sequenceGapMs: number
   session: number
 }
 
-export function playSequenceOnce({ chords, arpeggiate, setIndex, session }: PlaySequenceOnce) {
+export function playSequenceOnce({ chords, arpeggiate, setIndex, sequenceGapMs, session }: PlaySequenceOnce) {
   clearChordTimeouts()
 
   for (let i = 0; i < chords.length; i++) {
@@ -80,10 +88,10 @@ export function playSequenceOnce({ chords, arpeggiate, setIndex, session }: Play
           return
         }
 
-        playChord(chords[i], arpeggiate)
+        playChord(chords[i], arpeggiate, sequenceGapMs)
         setIndex(i)
       },
-      i * SEQUENCE_GAP_MS,
+      i * sequenceGapMs,
     )
 
     sequenceTimeouts.chord = [...sequenceTimeouts.chord, timeout]
@@ -144,4 +152,8 @@ function clearAllTrackedTimeouts() {
 function replaceTimeout(key: Exclude<keyof SequenceTimeouts, 'chord'>, timeout: TimeoutHandle) {
   clearTimeoutByKey(key)
   sequenceTimeouts[key] = timeout
+}
+
+function getSequenceGapMs(tempoBpm: number) {
+  return SEQUENCE_GAP_MS * (DEFAULT_TEMPO_BPM / tempoBpm)
 }
