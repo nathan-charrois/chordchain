@@ -3,6 +3,7 @@ import { Alert, Badge, Button, Card, Divider, Group, Modal, Stack, Text } from '
 
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
+import { buildGuessRows, type GuessRow } from '../Game/logic/game'
 import {
   getAttemptsUsed,
   getEndStateMessage,
@@ -28,11 +29,40 @@ function getBadgeColor(status?: GuessStatus): string {
   }
 }
 
+function getGuessCellLabel(row: GuessRow, cellIndex: number): string {
+  return row.chords[cellIndex] ?? ' '
+}
+
+function getGuessCellColor(row: GuessRow, cellIndex: number): string {
+  if (row.kind === 'submitted') {
+    return getBadgeColor(row.status[cellIndex])
+  }
+
+  if (row.kind === 'active' && row.chords[cellIndex]) {
+    return 'gray.6'
+  }
+
+  return 'gray.4'
+}
+
+function getGuessCellVariant(row: GuessRow): 'filled' | 'light' | 'outline' {
+  if (row.kind === 'submitted') {
+    return 'filled'
+  }
+
+  if (row.kind === 'active') {
+    return 'outline'
+  }
+
+  return 'light'
+}
+
 export default function Board() {
   const {
     status,
     guesses,
     current,
+    maxLength,
     maxGuesses,
     isGameOver,
     activePuzzle,
@@ -168,49 +198,14 @@ export default function Board() {
     })
   }, [puzzleDates, historyEntries, todayDate, selectedPuzzleDate, handleSelectHistoryPuzzle])
 
-  const guessesList = useMemo(() => {
-    if (!guesses.length) {
-      return null
-    }
-
-    return (
-      guesses.map((guess, index) => (
-        <Group key={index} gap="xs" wrap="wrap">
-          {guess.chords.map((chord, chordIndex) => (
-            <Badge
-              key={`${index}-${chord}-${chordIndex}`}
-              color={getBadgeColor(guess.status[chordIndex])}
-              variant="filled"
-              size="lg"
-            >
-              {chord}
-            </Badge>
-          ))}
-        </Group>
-      ))
-    )
-  }, [guesses])
-
-  const currentList = useMemo(() => {
-    if (!current.chords.length) {
-      return null
-    }
-
-    return (
-      <Group gap="xs" wrap="wrap">
-        {current.chords.map((chord, index) => (
-          <Badge
-            key={`${chord}-${index}`}
-            color="gray.6"
-            variant="outline"
-            size="lg"
-          >
-            {chord}
-          </Badge>
-        ))}
-      </Group>
-    )
-  }, [current])
+  const guessRows = useMemo(() => {
+    return buildGuessRows({
+      guesses,
+      current,
+      status,
+      maxGuesses,
+    })
+  }, [guesses, current, status, maxGuesses])
 
   return (
     <Card bdrs="md" p="xl">
@@ -284,8 +279,26 @@ export default function Board() {
       </Card>
       <Card withBorder>
         <Stack>
-          {guessesList}
-          {currentList}
+          {guessRows.map(row => (
+            <Group
+              key={row.index}
+              gap="xs"
+              wrap="nowrap"
+              aria-label={`Guess ${row.index + 1} ${row.kind}`}
+            >
+              {Array.from({ length: maxLength }, (_, cellIndex) => (
+                <Badge
+                  key={`${row.index}-${cellIndex}`}
+                  color={getGuessCellColor(row, cellIndex)}
+                  variant={getGuessCellVariant(row)}
+                  size="lg"
+                  miw={64}
+                >
+                  {getGuessCellLabel(row, cellIndex)}
+                </Badge>
+              ))}
+            </Group>
+          ))}
         </Stack>
       </Card>
       <Modal

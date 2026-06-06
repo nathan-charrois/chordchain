@@ -3,6 +3,15 @@ import type { DefaultMantineColor } from '@mantine/core'
 import type { Chord, GameStatus, Guess, GuessStatus } from '../context/GameContext'
 import { GAME_MAX_GUESSES } from '~/constant'
 
+export type GuessRowKind = 'submitted' | 'active' | 'empty'
+
+export type GuessRow = {
+  index: number
+  kind: GuessRowKind
+  chords: Chord[]
+  status: GuessStatus[]
+}
+
 export function isChordSequenceEqual(guess: Chord[], solution: Chord[]): boolean {
   if (guess.length !== solution.length) {
     return false
@@ -21,6 +30,49 @@ export function isGameLoss(guesses: Guess[]): boolean {
 
 export function isGameRowActive(guesses: Guess[], status: GameStatus, index: number): boolean {
   return status === 'won' ? index === guesses.length - 1 : index === guesses.length
+}
+
+export function buildGuessRows({
+  guesses,
+  current,
+  status,
+  maxGuesses,
+}: {
+  guesses: Guess[]
+  current: Guess
+  status: GameStatus
+  maxGuesses: number
+}): GuessRow[] {
+  const isPlayable = status !== 'won' && status !== 'loss'
+
+  return Array.from({ length: maxGuesses }, (_, index) => {
+    const submittedGuess = guesses[index]
+
+    if (submittedGuess) {
+      return {
+        index,
+        kind: 'submitted',
+        chords: submittedGuess.chords,
+        status: submittedGuess.status,
+      }
+    }
+
+    if (isPlayable && index === guesses.length) {
+      return {
+        index,
+        kind: 'active',
+        chords: current.chords,
+        status: current.status,
+      }
+    }
+
+    return {
+      index,
+      kind: 'empty',
+      chords: [],
+      status: [],
+    }
+  })
 }
 
 export function buildGuessStatus(guess: Chord[], solution: Chord[]): GuessStatus[] {
