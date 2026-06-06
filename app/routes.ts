@@ -1,5 +1,6 @@
 import { route, type RouteConfig } from '@react-router/dev/routes'
 
 export default [
-  route('/', 'routes/Game/index.tsx'),
+  route('/', 'routes/Game/index.tsx', { id: 'game-root' }),
+  route('/:puzzleSlug', 'routes/Game/index.tsx', { id: 'game-puzzle-slug' }),
 ] satisfies RouteConfig

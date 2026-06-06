@@ -52,6 +52,12 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzleCatalogEntry> = {
   '2026-06-19': { date: '2026-06-19', name: 'Lantern Steps', target: ['Bdim', 'Em7', 'Fmaj', 'Cmaj'], key: 'B', mode: 'Locrian', difficulty: 'Hard' },
 }
 
+type PuzzleSlugEntry = {
+  date: string
+}
+
+let puzzleSlugEntries: Record<string, PuzzleSlugEntry> | null = null
+
 export function normalizeDifficulty(difficulty: string | undefined): DailyPuzzleDifficulty {
   if (difficulty === 'Easy' || difficulty === 'Medium' || difficulty === 'Hard') {
     return difficulty
@@ -69,6 +75,72 @@ export function getEnabledPaletteSectionIds(difficulty: DailyPuzzleDifficulty): 
     case 'Hard':
       return ['diatonic', 'secondaryDominant', 'extensions']
   }
+}
+
+function slugifyPuzzleName(name: string): string {
+  return name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export function getPuzzleSlug(puzzle: Pick<DailyPuzzle, 'date' | 'name'>): string {
+  return slugifyPuzzleName(puzzle.name) || `puzzle-${puzzle.date}`
+}
+
+export function encodePuzzleSlug(slug: string): string {
+  return encodeURIComponent(slug)
+}
+
+export function decodePuzzleSlug(value: string | undefined): string | null {
+  if (!value) {
+    return null
+  }
+
+  try {
+    const decoded = decodeURIComponent(value).trim()
+
+    if (!decoded) {
+      return null
+    }
+
+    return decoded
+  }
+  catch {
+    return null
+  }
+}
+
+function getPuzzleSlugEntries(): Record<string, PuzzleSlugEntry> {
+  if (puzzleSlugEntries) {
+    return puzzleSlugEntries
+  }
+
+  const slugEntries: Record<string, PuzzleSlugEntry> = {}
+
+  for (const date of Object.keys(DAILY_PUZZLE_CATALOG).sort((left, right) => left.localeCompare(right))) {
+    const entry = DAILY_PUZZLE_CATALOG[date]
+    const slug = getPuzzleSlug(entry)
+
+    if (slugEntries[slug]) {
+      console.warn(
+        `[dailyPuzzle] Duplicate puzzle slug '${slug}' for '${slugEntries[slug].date}' and '${date}'. `
+        + `Keeping '${slugEntries[slug].date}'.`,
+      )
+      continue
+    }
+
+    slugEntries[slug] = {
+      date,
+    }
+  }
+
+  puzzleSlugEntries = slugEntries
+
+  return slugEntries
 }
 
 function resolvePuzzleEntry(entry: DailyPuzzleCatalogEntry): DailyPuzzle {
@@ -92,6 +164,26 @@ export function getCatalogDatesDesc(maxDate?: string): string[] {
   return Object.keys(DAILY_PUZZLE_CATALOG)
     .filter(date => (maxDate ? date <= maxDate : true))
     .sort((left, right) => right.localeCompare(left))
+}
+
+export function resolveDailyPuzzleBySlug(slug: string): DailyPuzzle | null {
+  const slugEntry = getPuzzleSlugEntries()[slug]
+
+  if (!slugEntry) {
+    return null
+  }
+
+  return resolveDailyPuzzle(slugEntry.date)
+}
+
+export function getPuzzleSlugForDate(date: string): string {
+  const puzzle = resolveDailyPuzzle(date)
+
+  return getPuzzleSlug(puzzle)
+}
+
+export function getPuzzlePathForDate(date: string): string {
+  return `/${encodePuzzleSlug(getPuzzleSlugForDate(date))}`
 }
 
 export function resolveDailyPuzzle(date: string): DailyPuzzle {

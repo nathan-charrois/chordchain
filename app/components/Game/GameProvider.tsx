@@ -6,7 +6,7 @@ import { createSubmittedGuess } from './logic/game'
 import { createEmptyGuess, createResetSessionState, isGameOverStatus } from './logic/session'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { endSequence, stopSequence } from '~/utils/chain'
-import { getCatalogDatesDesc, getEnabledPaletteSectionIds, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
+import { decodePuzzleSlug, getCatalogDatesDesc, getEnabledPaletteSectionIds, resolveDailyPuzzle, resolveDailyPuzzleBySlug } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
 import { DEFAULT_KEY, DEFAULT_MODE_ID, filterPaletteSections, flattenPaletteSections, getPaletteSections, type ModeId, normalizeChordLabel, normalizeKey, normalizeModeId } from '~/utils/music'
 import {
@@ -21,9 +21,20 @@ import {
 
 type Props = {
   children: React.ReactNode
+  routePuzzleSlug?: string
 }
 
-export function GameProvider({ children }: Props) {
+function getSelectedPuzzleDateFromSlug(routePuzzleSlug: string | undefined, todayDate: string): string {
+  const slug = decodePuzzleSlug(routePuzzleSlug)
+
+  if (!slug) {
+    return todayDate
+  }
+
+  return resolveDailyPuzzleBySlug(slug)?.date ?? todayDate
+}
+
+export function GameProvider({ children, routePuzzleSlug }: Props) {
   const toHintProgress = (value?: number): HintProgress => {
     if (value === 1 || value === 2) {
       return value
@@ -33,7 +44,7 @@ export function GameProvider({ children }: Props) {
   }
 
   const todayDate = useMemo(() => formatLocalDate(new Date()), [])
-  const [selectedPuzzleDate, setSelectedPuzzleDate] = useState(todayDate)
+  const [selectedPuzzleDate, setSelectedPuzzleDate] = useState(() => getSelectedPuzzleDateFromSlug(routePuzzleSlug, todayDate))
   const activePuzzle = useMemo(() => resolveDailyPuzzle(selectedPuzzleDate), [selectedPuzzleDate])
   const [selectedKey, setSelectedKey] = useState(DEFAULT_KEY)
   const [selectedMode, setSelectedMode] = useState<ModeId>(DEFAULT_MODE_ID)
@@ -147,6 +158,17 @@ export function GameProvider({ children }: Props) {
     setSelectedPuzzleDate(date)
     resetSession(getStoredPuzzleStatus(date))
   }, [getStoredPuzzleStatus, puzzleDates, resetSession])
+
+  useEffect(() => {
+    const nextSelectedPuzzleDate = getSelectedPuzzleDateFromSlug(routePuzzleSlug, todayDate)
+
+    if (nextSelectedPuzzleDate === selectedPuzzleDate) {
+      return
+    }
+
+    setSelectedPuzzleDate(nextSelectedPuzzleDate)
+    resetSession(getStoredPuzzleStatus(nextSelectedPuzzleDate))
+  }, [getStoredPuzzleStatus, resetSession, routePuzzleSlug, selectedPuzzleDate, todayDate])
 
   const handleSetSelectedKey = useCallback((key: string) => {
     setSelectedKey(normalizeKey(key))

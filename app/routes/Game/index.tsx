@@ -1,4 +1,4 @@
-import type { MetaArgs } from 'react-router'
+import { type MetaArgs, useParams } from 'react-router'
 import { Stack } from '@mantine/core'
 
 import AppLayout from '~/components/App/AppLayout'
@@ -15,8 +15,10 @@ export function meta({ }: MetaArgs) {
 }
 
 export default function Game() {
+  const { puzzleSlug } = useParams()
+
   return (
-    <AppProvider>
+    <AppProvider puzzleSlug={puzzleSlug}>
       <AppLayout>
         <DebugPanel />
         <Stack align="center">

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { Alert, Badge, Button, Card, Divider, Group, Modal, Stack, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
@@ -16,7 +17,7 @@ import { PlaybackControls } from './components/PlaybackControls'
 import { Streak } from './components/Streak'
 import { useSequence } from './hooks/useSequence'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
-import { resolveDailyPuzzle } from '~/utils/dailyPuzzle'
+import { getPuzzlePathForDate, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatDisplayDate, formatDisplayDateTime } from '~/utils/date'
 
 const TEMPO_PLAYBACK_RESTART_DELAY_MS = 300
@@ -81,6 +82,7 @@ export default function Board() {
     selectPuzzleDate,
   } = useGame()
   const { target, activeIndex, isPlaying, play, stop, setLooping } = useSequence()
+  const navigate = useNavigate()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(false)
@@ -156,9 +158,10 @@ export default function Board() {
   const handleSelectHistoryPuzzle = useCallback((date: string) => {
     clearPendingTempoRestart()
     stop()
+    navigate(getPuzzlePathForDate(date))
     selectPuzzleDate(date)
     setIsHistoryOpen(false)
-  }, [clearPendingTempoRestart, selectPuzzleDate, stop])
+  }, [clearPendingTempoRestart, navigate, selectPuzzleDate, stop])
 
   const attemptsUsed = getAttemptsUsed(guesses)
   const isLoss = status === 'loss'

@@ -5,12 +5,13 @@ import theme from '~/utils/theme'
 
 type Props = {
   children: React.ReactNode
+  puzzleSlug?: string
 }
 
-export default function AppProvider({ children }: Props) {
+export default function AppProvider({ children, puzzleSlug }: Props) {
   return (
     <MantineProvider theme={theme}>
-      <GameProvider>
+      <GameProvider routePuzzleSlug={puzzleSlug}>
         {children}
       </GameProvider>
     </MantineProvider>
