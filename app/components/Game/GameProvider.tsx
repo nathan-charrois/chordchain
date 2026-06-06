@@ -12,6 +12,7 @@ import { DEFAULT_KEY, DEFAULT_MODE_ID, filterPaletteSections, flattenPaletteSect
 import {
   calculateCurrentStreak,
   markPuzzleCompleted,
+  markPuzzleFailed,
   readPuzzleHistory,
   removePuzzleHistoryEntry,
   revealPuzzleHint,
@@ -39,6 +40,7 @@ export function GameProvider({ children }: Props) {
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
   const hintProgress = toHintProgress(historyStore.entries[activePuzzle.date]?.hintsUsed)
   const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
+  const hasFailedActivePuzzle = historyStore.entries[activePuzzle.date]?.failed === true
 
   useEffect(() => {
     if (hintProgress >= 1) {
@@ -104,7 +106,11 @@ export function GameProvider({ children }: Props) {
 
   const initialState = createResetSessionState()
   const [guesses, setGuesses] = useState<Guess[]>(initialState.guesses)
-  const [status, setStatus] = useStatus(guesses, target, hasCompletedActivePuzzle ? 'won' : initialState.status)
+  const [status, setStatus] = useStatus(
+    guesses,
+    target,
+    hasCompletedActivePuzzle ? 'won' : hasFailedActivePuzzle ? 'loss' : initialState.status,
+  )
   const [current, setCurrent] = useState<Guess>(initialState.current)
   const prevStatusRef = useRef(status)
   const isGameOver = isGameOverStatus(status)
@@ -119,14 +125,28 @@ export function GameProvider({ children }: Props) {
     setCurrent(resetState.current)
   }, [setGuesses, setStatus, setCurrent])
 
+  const getStoredPuzzleStatus = useCallback((date: string): typeof initialState.status => {
+    const entry = historyStore.entries[date]
+
+    if (entry?.completed) {
+      return 'won'
+    }
+
+    if (entry?.failed) {
+      return 'loss'
+    }
+
+    return 'new'
+  }, [historyStore.entries])
+
   const handleSelectPuzzleDate = useCallback((date: string) => {
     if (!puzzleDates.includes(date)) {
       return
     }
 
     setSelectedPuzzleDate(date)
-    resetSession(historyStore.entries[date]?.completed ? 'won' : 'new')
-  }, [historyStore.entries, puzzleDates, resetSession])
+    resetSession(getStoredPuzzleStatus(date))
+  }, [getStoredPuzzleStatus, puzzleDates, resetSession])
 
   const handleSetSelectedKey = useCallback((key: string) => {
     setSelectedKey(normalizeKey(key))
@@ -154,6 +174,17 @@ export function GameProvider({ children }: Props) {
     if (status === 'won' && previousStatus !== 'won') {
       setHistoryStore((prev) => {
         const next = markPuzzleCompleted(prev, activePuzzle.date, guesses.length)
+
+        if (next !== prev) {
+          writePuzzleHistory(next)
+        }
+
+        return next
+      })
+    }
+    else if (status === 'loss' && previousStatus !== 'loss') {
+      setHistoryStore((prev) => {
+        const next = markPuzzleFailed(prev, activePuzzle.date, guesses.length)
 
         if (next !== prev) {
           writePuzzleHistory(next)
@@ -220,8 +251,8 @@ export function GameProvider({ children }: Props) {
   }, [isGameOver, setCurrent])
 
   const handleReset = useCallback(() => {
-    resetSession(historyStore.entries[activePuzzle.date]?.completed ? 'won' : 'new')
-  }, [activePuzzle.date, historyStore.entries, resetSession])
+    resetSession(getStoredPuzzleStatus(activePuzzle.date))
+  }, [activePuzzle.date, getStoredPuzzleStatus, resetSession])
 
   const handleResetToday = useCallback(() => {
     setHistoryStore((prev) => {

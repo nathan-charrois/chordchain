@@ -186,11 +186,15 @@ export default function Board() {
       const entry = historyEntries[date]
       const puzzle = resolveDailyPuzzle(date)
       const completedAt = entry?.completedAt ? formatDisplayDateTime(entry.completedAt) : null
+      const failedAt = entry?.failedAt ? formatDisplayDateTime(entry.failedAt) : null
       const isCompleted = entry?.completed === true
+      const isFailed = entry?.failed === true
       const isSelected = date === selectedPuzzleDate
       const actionLabel = isSelected
-        ? isCompleted ? 'Viewing' : 'Playing'
-        : isCompleted ? 'View' : 'Play'
+        ? isCompleted || isFailed ? 'Viewing' : 'Playing'
+        : isCompleted || isFailed ? 'View' : 'Play'
+      const statusLabel = isFailed ? 'Failed' : isCompleted ? 'Complete' : 'Incomplete'
+      const statusColor = isFailed ? 'red' : isCompleted ? 'green' : 'gray'
 
       return (
         <Card key={date} withBorder>
@@ -205,10 +209,10 @@ export default function Board() {
 
             <Group gap="xs">
               <Badge color="cyan" variant="outline">{puzzle.difficulty}</Badge>
-              {isCompleted && <Badge color="green" variant="outline">Complete</Badge>}
+              <Badge color={statusColor} variant="outline">{statusLabel}</Badge>
             </Group>
 
-            {(entry?.completed || typeof entry?.hintsUsed === 'number') && (
+            {(entry?.completed || entry?.failed || typeof entry?.hintsUsed === 'number') && (
               <Stack gap={2}>
                 {typeof entry.attemptsUsed === 'number' && (
                   <Text size="sm" c="dimmed">
@@ -223,6 +227,11 @@ export default function Board() {
                 {completedAt && (
                   <Text size="sm" c="dimmed">
                     {`Completed at: ${completedAt}`}
+                  </Text>
+                )}
+                {failedAt && (
+                  <Text size="sm" c="dimmed">
+                    {`Failed at: ${failedAt}`}
                   </Text>
                 )}
               </Stack>
@@ -261,6 +270,25 @@ export default function Board() {
         />
       </Card>
       <Card mb="lg" withBorder>
+        <Stack gap={2}>
+          <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
+          <Text c="dimmed">{`Difficulty: ${activePuzzle.difficulty}`}</Text>
+        </Stack>
+        <Divider my="md" />
+        <Group gap="xs">
+          <Text>Target:</Text>
+          {target.map((chord, index) => (
+            <Badge
+              key={`${chord}-${index}`}
+              color={index === activeIndex ? 'lime.6' : 'gray.6'}
+              variant={index === activeIndex ? 'filled' : 'light'}
+            >
+              {revealedTargetByIndex[index] ? chord : '?'}
+            </Badge>
+          ))}
+        </Group>
+      </Card>
+      <Card mb="lg" withBorder>
         <PlaybackControls
           isPlaying={isPlaying}
           onTogglePlayback={handleTogglePlayback}
@@ -296,25 +324,6 @@ export default function Board() {
           </Stack>
         </Alert>
       )}
-      <Card mb="lg" withBorder>
-        <Stack gap={2}>
-          <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
-          <Text c="dimmed">{`Difficulty: ${activePuzzle.difficulty}`}</Text>
-        </Stack>
-        <Divider my="md" />
-        <Group gap="xs">
-          <Text>Target:</Text>
-          {target.map((chord, index) => (
-            <Badge
-              key={`${chord}-${index}`}
-              color={index === activeIndex ? 'lime.6' : 'gray.6'}
-              variant={index === activeIndex ? 'filled' : 'light'}
-            >
-              {revealedTargetByIndex[index] ? chord : '?'}
-            </Badge>
-          ))}
-        </Group>
-      </Card>
       <Card withBorder>
         <Stack>
           {guessRows.map(row => (

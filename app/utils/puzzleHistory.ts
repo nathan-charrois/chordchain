@@ -4,6 +4,8 @@ import { formatLocalDate } from '~/utils/date'
 export type PuzzleHistoryEntry = {
   completed: boolean
   completedAt?: string
+  failed?: boolean
+  failedAt?: string
   attemptsUsed?: number
   hintsUsed?: number
 }
@@ -71,6 +73,14 @@ function isValidEntry(value: unknown): value is PuzzleHistoryEntry {
   }
 
   if (entry.completedAt !== undefined && typeof entry.completedAt !== 'string') {
+    return false
+  }
+
+  if (entry.failed !== undefined && typeof entry.failed !== 'boolean') {
+    return false
+  }
+
+  if (entry.failedAt !== undefined && typeof entry.failedAt !== 'string') {
     return false
   }
 
@@ -175,6 +185,35 @@ export function markPuzzleCompleted(
       [date]: {
         completed: true,
         completedAt: new Date().toISOString(),
+        failed: false,
+        failedAt: undefined,
+        attemptsUsed,
+        hintsUsed: currentEntry?.hintsUsed,
+      },
+    },
+  }
+}
+
+export function markPuzzleFailed(
+  store: PuzzleHistoryStore,
+  date: string,
+  attemptsUsed?: number,
+): PuzzleHistoryStore {
+  const currentEntry = store.entries[date]
+
+  if (currentEntry?.completed || currentEntry?.failed) {
+    return store
+  }
+
+  return {
+    version: 1,
+    entries: {
+      ...store.entries,
+      [date]: {
+        completed: false,
+        completedAt: currentEntry?.completedAt,
+        failed: true,
+        failedAt: new Date().toISOString(),
         attemptsUsed,
         hintsUsed: currentEntry?.hintsUsed,
       },
@@ -201,6 +240,8 @@ export function setPuzzleHintsUsed(
       [date]: {
         completed: currentEntry?.completed ?? false,
         completedAt: currentEntry?.completedAt,
+        failed: currentEntry?.failed,
+        failedAt: currentEntry?.failedAt,
         attemptsUsed: currentEntry?.attemptsUsed,
         hintsUsed: normalizedHintsUsed,
       },
