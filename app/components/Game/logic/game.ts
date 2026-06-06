@@ -1,15 +1,7 @@
 import type { DefaultMantineColor } from '@mantine/core'
 
 import type { Chord, GameStatus, Guess, GuessStatus } from '../context/GameContext'
-import evaluate from './evaluate'
 import { GAME_MAX_GUESSES } from '~/constant'
-
-export function isGuessValid(guess: string, target: number): boolean {
-  const value = evaluate(guess)
-  console.log('Guess evaluated to', value, 'and target is', target)
-
-  return value === target
-}
 
 export function isChordSequenceEqual(guess: Chord[], solution: Chord[]): boolean {
   if (guess.length !== solution.length) {

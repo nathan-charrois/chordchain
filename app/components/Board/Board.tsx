@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Alert, Badge, Card, Divider, Group, Modal, Stack, Text } from '@mantine/core'
+import { Alert, Badge, Button, Card, Divider, Group, Modal, Stack, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
@@ -42,6 +42,7 @@ export default function Board() {
     historyEntries,
     hintProgress,
     revealHint,
+    reset,
   } = useGame()
   const { target, activeIndex, play, stop, end } = useSequence()
 
@@ -78,6 +79,10 @@ export default function Board() {
   const handleCloseHistory = useCallback(() => {
     setIsHistoryOpen(false)
   }, [])
+
+  const handlePlayAgain = useCallback(() => {
+    reset()
+  }, [reset])
 
   const attemptsUsed = getAttemptsUsed(guesses)
   const isLoss = status === 'loss'
@@ -219,6 +224,11 @@ export default function Board() {
               <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
             )}
             <Text c="dimmed">Playback controls remain available for listening.</Text>
+            <Group>
+              <Button onClick={handlePlayAgain} variant="light">
+                Play Again
+              </Button>
+            </Group>
           </Stack>
         </Alert>
       )}

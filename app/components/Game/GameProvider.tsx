@@ -8,13 +8,13 @@ import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { endSequence, stopSequence } from '~/utils/chain'
 import { getCatalogDatesDesc, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
-import { flattenPaletteSections, getPaletteSections, normalizeChordLabel, normalizeKey, normalizeModeId, type ModeId } from '~/utils/music'
+import { DEFAULT_KEY, DEFAULT_MODE_ID, flattenPaletteSections, getPaletteSections, type ModeId, normalizeChordLabel, normalizeKey, normalizeModeId } from '~/utils/music'
 import {
   calculateCurrentStreak,
   markPuzzleCompleted,
   readPuzzleHistory,
-  revealPuzzleHint,
   removePuzzleHistoryEntry,
+  revealPuzzleHint,
   writePuzzleHistory,
 } from '~/utils/puzzleHistory'
 
@@ -33,24 +33,25 @@ export function GameProvider({ children }: Props) {
 
   const todayDate = useMemo(() => formatLocalDate(new Date()), [])
   const activePuzzle = useMemo(() => resolveDailyPuzzle(todayDate), [todayDate])
-  const [selectedKey, setSelectedKey] = useState(activePuzzle.key)
-  const [selectedMode, setSelectedMode] = useState<ModeId>(activePuzzle.mode)
+  const [selectedKey, setSelectedKey] = useState(DEFAULT_KEY)
+  const [selectedMode, setSelectedMode] = useState<ModeId>(DEFAULT_MODE_ID)
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
   const hintProgress = toHintProgress(historyStore.entries[activePuzzle.date]?.hintsUsed)
   const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
 
   useEffect(() => {
-    setSelectedKey(activePuzzle.key)
-    setSelectedMode(activePuzzle.mode)
-  }, [activePuzzle.date, activePuzzle.key, activePuzzle.mode])
-
-  useEffect(() => {
     if (hintProgress >= 1) {
       setSelectedKey(activePuzzle.key)
+    }
+    else {
+      setSelectedKey(DEFAULT_KEY)
     }
 
     if (hintProgress >= 2) {
       setSelectedMode(activePuzzle.mode)
+    }
+    else if (hintProgress === 0) {
+      setSelectedMode(DEFAULT_MODE_ID)
     }
   }, [hintProgress, activePuzzle.key, activePuzzle.mode])
 
