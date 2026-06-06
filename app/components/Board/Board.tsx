@@ -6,9 +6,7 @@ import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, type GuessRow } from '../Game/logic/game'
 import {
-  getAttemptsUsed,
   getEndStateMessage,
-  getLossTargetLabel,
   shouldRevealTarget,
 } from '../Game/logic/session'
 import { DailyPuzzle } from './components/DailyPuzzle'
@@ -163,7 +161,6 @@ export default function Board() {
     setIsHistoryOpen(false)
   }, [clearPendingTempoRestart, navigate, selectPuzzleDate, stop])
 
-  const attemptsUsed = getAttemptsUsed(guesses)
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
   const shouldShowTarget = shouldRevealTarget(status) || status === 'won'
@@ -319,11 +316,6 @@ export default function Board() {
         <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
           <Stack gap="xs">
             <Text>{endStateMessage}</Text>
-            <Text>{`Attempts used: ${attemptsUsed}/${maxGuesses}`}</Text>
-            {isLoss && (
-              <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
-            )}
-            <Text c="dimmed">Playback controls remain available for listening.</Text>
           </Stack>
         </Alert>
       )}

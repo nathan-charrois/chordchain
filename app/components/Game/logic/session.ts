@@ -1,4 +1,4 @@
-import type { Chord, GameStatus, Guess } from '../context/GameContext'
+import type { GameStatus, Guess } from '../context/GameContext'
 
 export type GameSessionState = {
   status: GameStatus
@@ -33,22 +33,14 @@ export function shouldRevealTarget(status: GameStatus): boolean {
   return status === 'loss'
 }
 
-export function getAttemptsUsed(guesses: Guess[]): number {
-  return guesses.length
-}
-
 export function getEndStateMessage(status: GameStatus): string | null {
   if (status === 'won') {
-    return 'You won the run.'
+    return 'You won!'
   }
 
   if (status === 'loss') {
-    return 'Run over. The target progression is now revealed.'
+    return 'You lost.'
   }
 
   return null
-}
-
-export function getLossTargetLabel(target: Chord[]): string {
-  return target.join(' -> ')
 }
