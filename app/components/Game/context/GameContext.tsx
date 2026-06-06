@@ -13,6 +13,7 @@ export type Game = {
   selectedMode: ModeId
   hintProgress: HintProgress
   todayDate: string
+  selectedPuzzleDate: string
   currentStreak: number
   paletteChords: Chord[]
   target: Chord[]
@@ -22,6 +23,7 @@ export type Game = {
   historyEntries: Record<string, PuzzleHistoryEntry>
   maxLength: number
   maxGuesses: number
+  selectPuzzleDate: (date: string) => void
   setSelectedKey: (key: string) => void
   setSelectedMode: (mode: ModeId) => void
   revealHint: () => void

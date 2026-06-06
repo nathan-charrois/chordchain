@@ -3,6 +3,7 @@ import { Button, Group, Stack, Text } from '@mantine/core'
 
 type DailyPuzzleProps = {
   date: string
+  isHistorical: boolean
   onOpenHistory: () => void
 }
 
@@ -22,7 +23,7 @@ function formatCountdown(totalSeconds: number): string {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
 }
 
-export function DailyPuzzle({ date, onOpenHistory }: DailyPuzzleProps) {
+export function DailyPuzzle({ date, isHistorical, onOpenHistory }: DailyPuzzleProps) {
   const [secondsUntilReset, setSecondsUntilReset] = useState(() => getSecondsUntilNextLocalMidnight(new Date()))
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export function DailyPuzzle({ date, onOpenHistory }: DailyPuzzleProps) {
       <Stack gap={2}>
         <Text fw={700}>{date}</Text>
         <Text size="sm">Daily Puzzle</Text>
+        {isHistorical && <Text size="sm" c="blue.6">Playing previous puzzle</Text>}
         <Text size="sm" c="dimmed">{`Puzzle resets in ${formatCountdown(secondsUntilReset)}`}</Text>
       </Stack>
       <Button variant="light" onClick={onOpenHistory}>Puzzle History</Button>

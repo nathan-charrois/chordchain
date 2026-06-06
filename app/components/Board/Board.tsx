@@ -37,12 +37,14 @@ export default function Board() {
     isGameOver,
     activePuzzle,
     todayDate,
+    selectedPuzzleDate,
     currentStreak,
     puzzleDates,
     historyEntries,
     hintProgress,
     revealHint,
     reset,
+    selectPuzzleDate,
   } = useGame()
   const { target, activeIndex, play, stop, end } = useSequence()
 
@@ -84,10 +86,16 @@ export default function Board() {
     reset()
   }, [reset])
 
+  const handleSelectHistoryPuzzle = useCallback((date: string) => {
+    stop()
+    selectPuzzleDate(date)
+    setIsHistoryOpen(false)
+  }, [selectPuzzleDate, stop])
+
   const attemptsUsed = getAttemptsUsed(guesses)
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
-  const shouldShowTarget = shouldRevealTarget(status)
+  const shouldShowTarget = shouldRevealTarget(status) || status === 'won'
   const revealedTargetByIndex = useMemo(() => {
     return target.map((_, index) => {
       if (shouldShowTarget) {
@@ -110,6 +118,11 @@ export default function Board() {
       const entry = historyEntries[date]
       const completedLabel = entry?.completed ? 'Complete' : 'Incomplete'
       const completedAt = entry?.completedAt ? new Date(entry.completedAt).toLocaleString() : null
+      const isCompleted = entry?.completed === true
+      const isSelected = date === selectedPuzzleDate
+      const actionLabel = isSelected
+        ? isCompleted ? 'Viewing' : 'Playing'
+        : isCompleted ? 'View' : 'Play'
 
       return (
         <Card key={date} withBorder>
@@ -117,8 +130,19 @@ export default function Board() {
             <Group gap="xs" align="center">
               <Text fw={600}>{date}</Text>
               {date === todayDate && <Badge color="blue">Today</Badge>}
+              {isSelected && <Badge color="violet">Current</Badge>}
             </Group>
-            <Badge color={entry?.completed ? 'green' : 'gray'}>{completedLabel}</Badge>
+            <Group gap="xs">
+              <Badge color={isCompleted ? 'green' : 'gray'}>{completedLabel}</Badge>
+              <Button
+                size="xs"
+                variant={isSelected ? 'light' : 'outline'}
+                disabled={isSelected}
+                onClick={() => handleSelectHistoryPuzzle(date)}
+              >
+                {actionLabel}
+              </Button>
+            </Group>
           </Group>
           {(entry?.completed || typeof entry?.hintsUsed === 'number') && (
             <Stack gap={2} mt="xs">
@@ -142,7 +166,7 @@ export default function Board() {
         </Card>
       )
     })
-  }, [puzzleDates, historyEntries, todayDate])
+  }, [puzzleDates, historyEntries, todayDate, selectedPuzzleDate, handleSelectHistoryPuzzle])
 
   const guessesList = useMemo(() => {
     if (!guesses.length) {
@@ -191,7 +215,11 @@ export default function Board() {
   return (
     <Card bdrs="md" p="xl">
       <Card mb="lg" withBorder>
-        <DailyPuzzle date={todayDate} onOpenHistory={handleOpenHistory} />
+        <DailyPuzzle
+          date={activePuzzle.date}
+          isHistorical={activePuzzle.date !== todayDate}
+          onOpenHistory={handleOpenHistory}
+        />
       </Card>
       <Card mb="lg" withBorder>
         <PlaybackControls
@@ -224,11 +252,17 @@ export default function Board() {
               <Text>{`Target progression: ${getLossTargetLabel(target)}`}</Text>
             )}
             <Text c="dimmed">Playback controls remain available for listening.</Text>
-            <Group>
-              <Button onClick={handlePlayAgain} variant="light">
-                Play Again
-              </Button>
-            </Group>
+            {isLoss
+              ? (
+                  <Group>
+                    <Button onClick={handlePlayAgain} variant="light">
+                      Play Again
+                    </Button>
+                  </Group>
+                )
+              : (
+                  <Text c="dimmed">This puzzle is complete.</Text>
+                )}
           </Stack>
         </Alert>
       )}

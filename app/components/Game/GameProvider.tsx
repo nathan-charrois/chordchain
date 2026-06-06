@@ -32,7 +32,8 @@ export function GameProvider({ children }: Props) {
   }
 
   const todayDate = useMemo(() => formatLocalDate(new Date()), [])
-  const activePuzzle = useMemo(() => resolveDailyPuzzle(todayDate), [todayDate])
+  const [selectedPuzzleDate, setSelectedPuzzleDate] = useState(todayDate)
+  const activePuzzle = useMemo(() => resolveDailyPuzzle(selectedPuzzleDate), [selectedPuzzleDate])
   const [selectedKey, setSelectedKey] = useState(DEFAULT_KEY)
   const [selectedMode, setSelectedMode] = useState<ModeId>(DEFAULT_MODE_ID)
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
@@ -98,6 +99,25 @@ export function GameProvider({ children }: Props) {
   const [current, setCurrent] = useState<Guess>(initialState.current)
   const prevStatusRef = useRef(status)
   const isGameOver = isGameOverStatus(status)
+
+  const resetSession = useCallback((nextStatus: typeof initialState.status = 'new') => {
+    const resetState = createResetSessionState()
+
+    stopSequence()
+    endSequence()
+    setStatus(nextStatus)
+    setGuesses(resetState.guesses)
+    setCurrent(resetState.current)
+  }, [setGuesses, setStatus, setCurrent])
+
+  const handleSelectPuzzleDate = useCallback((date: string) => {
+    if (!puzzleDates.includes(date)) {
+      return
+    }
+
+    setSelectedPuzzleDate(date)
+    resetSession(historyStore.entries[date]?.completed ? 'won' : 'new')
+  }, [historyStore.entries, puzzleDates, resetSession])
 
   const handleSetSelectedKey = useCallback((key: string) => {
     setSelectedKey(normalizeKey(key))
@@ -191,14 +211,8 @@ export function GameProvider({ children }: Props) {
   }, [isGameOver, setCurrent])
 
   const handleReset = useCallback(() => {
-    const resetState = createResetSessionState()
-
-    stopSequence()
-    endSequence()
-    setStatus(resetState.status)
-    setGuesses(resetState.guesses)
-    setCurrent(resetState.current)
-  }, [setGuesses, setStatus, setCurrent])
+    resetSession(historyStore.entries[activePuzzle.date]?.completed ? 'won' : 'new')
+  }, [activePuzzle.date, historyStore.entries, resetSession])
 
   const handleResetToday = useCallback(() => {
     setHistoryStore((prev) => {
@@ -210,8 +224,8 @@ export function GameProvider({ children }: Props) {
 
       return next
     })
-    handleReset()
-  }, [activePuzzle.date, handleReset])
+    resetSession()
+  }, [activePuzzle.date, resetSession])
 
   return (
     <GameContext.Provider value={{
@@ -222,6 +236,7 @@ export function GameProvider({ children }: Props) {
       selectedMode,
       hintProgress,
       todayDate,
+      selectedPuzzleDate,
       currentStreak,
       paletteChords,
       target,
@@ -231,6 +246,7 @@ export function GameProvider({ children }: Props) {
       historyEntries: historyStore.entries,
       maxLength: GAME_MAX_CHARS,
       maxGuesses: GAME_MAX_GUESSES,
+      selectPuzzleDate: handleSelectPuzzleDate,
       setSelectedKey: handleSetSelectedKey,
       setSelectedMode: handleSetSelectedMode,
       revealHint: handleRevealHint,

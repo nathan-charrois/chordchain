@@ -13,6 +13,11 @@ export function useSequence() {
     }
   }, [guesses.length])
 
+  useEffect(() => {
+    stopSequence()
+    setIndex(null)
+  }, [target])
+
   const handlePlay = useCallback((arpeggiate: boolean, loop: boolean) => {
     playSequence({ chords: target, arpeggiate, loop, setIndex })
   }, [target, setIndex])
