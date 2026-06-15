@@ -10,7 +10,6 @@ import {
   shouldRevealTarget,
 } from '../Game/logic/session'
 import { DailyPuzzle } from './components/DailyPuzzle'
-import { Hints } from './components/Hints'
 import { PlaybackControls } from './components/PlaybackControls'
 import { Streak } from './components/Streak'
 import { useSequence } from './hooks/useSequence'
@@ -75,8 +74,6 @@ export default function Board() {
     currentStreak,
     puzzleDates,
     historyEntries,
-    hintProgress,
-    revealHint,
     selectPuzzleDate,
   } = useGame()
   const { target, activeIndex, isPlaying, play, stop, setLooping } = useSequence()
@@ -173,10 +170,6 @@ export default function Board() {
       return guesses.some(guess => guess.status[index] === 'correct')
     })
   }, [guesses, shouldShowTarget, target])
-
-  const hintText = `${hintProgress}/2`
-  const hintButtonLabel = `Reveal Hint`
-
   const historyRows = useMemo(() => {
     if (!puzzleDates.length) {
       return <Text c="dimmed">No daily puzzles available.</Text>
@@ -212,16 +205,11 @@ export default function Board() {
               <Badge color={statusColor} variant="outline">{statusLabel}</Badge>
             </Group>
 
-            {(entry?.completed || entry?.failed || typeof entry?.hintsUsed === 'number') && (
+            {(entry?.completed || entry?.failed) && (
               <Stack gap={2}>
                 {typeof entry.attemptsUsed === 'number' && (
                   <Text size="sm" c="dimmed">
                     {`Attempts used: ${entry.attemptsUsed}`}
-                  </Text>
-                )}
-                {typeof entry.hintsUsed === 'number' && (
-                  <Text size="sm" c="dimmed">
-                    {`Hints used: ${entry.hintsUsed}`}
                   </Text>
                 )}
                 {completedAt && (
@@ -301,13 +289,6 @@ export default function Board() {
         />
       </Card>
       <Group grow align="stretch">
-        <Card mb="lg" withBorder>
-          <Hints
-            onRevealHint={revealHint}
-            label={hintButtonLabel}
-            text={hintText}
-          />
-        </Card>
         <Card mb="lg" withBorder>
           <Streak value={currentStreak} />
         </Card>

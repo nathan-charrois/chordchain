@@ -18,7 +18,6 @@ export default function Pallete() {
     guesses,
     selectedKey,
     selectedMode,
-    hintProgress,
     paletteSections,
     enabledPaletteSectionIds,
     setSelectedKey,
@@ -28,8 +27,6 @@ export default function Pallete() {
     submitGuess,
   } = useGame()
   const isLocked = status === 'won' || status === 'loss'
-  const isKeyLocked = isLocked || hintProgress >= 1
-  const isModeLocked = isLocked || hintProgress >= 2
   const sections: PaletteSection[] = [
     { id: 'diatonic', title: 'Diatonic', chords: paletteSections.diatonic },
     { id: 'secondaryDominant', title: 'Secondary/Dominant', chords: paletteSections.secondaryDominant },
@@ -75,14 +72,14 @@ export default function Pallete() {
           label="Palette key"
           data={[...PITCH_CLASSES]}
           value={selectedKey}
-          disabled={isKeyLocked}
+          disabled={isLocked}
           onChange={event => handleSelectKey(event.currentTarget.value)}
         />
         <NativeSelect
           label="Palette mode"
           data={MODE_IDS.map(mode => ({ value: mode, label: formatModeLabel(mode) }))}
           value={selectedMode}
-          disabled={isModeLocked}
+          disabled={isLocked}
           onChange={event => handleSelectMode(event.currentTarget.value)}
         />
         {sections.map((section) => {

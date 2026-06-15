@@ -7,7 +7,6 @@ export type PuzzleHistoryEntry = {
   failed?: boolean
   failedAt?: string
   attemptsUsed?: number
-  hintsUsed?: number
 }
 
 export type PuzzleHistoryStore = {
@@ -22,10 +21,6 @@ export type StreakResult = {
 const EMPTY_STORE: PuzzleHistoryStore = {
   version: 1,
   entries: {},
-}
-
-function clampHintsUsed(value: number): number {
-  return Math.max(0, Math.min(2, value))
 }
 
 function parseDateKey(date: string): Date | null {
@@ -88,16 +83,6 @@ function isValidEntry(value: unknown): value is PuzzleHistoryEntry {
     return false
   }
 
-  if (entry.hintsUsed !== undefined) {
-    if (!Number.isInteger(entry.hintsUsed)) {
-      return false
-    }
-
-    if (entry.hintsUsed < 0 || entry.hintsUsed > 2) {
-      return false
-    }
-  }
-
   return true
 }
 
@@ -146,6 +131,10 @@ export function readPuzzleHistory(): PuzzleHistoryStore {
       return EMPTY_STORE
     }
 
+    if (JSON.stringify(store) !== raw) {
+      writePuzzleHistory(store)
+    }
+
     return store
   }
   catch {
@@ -188,7 +177,6 @@ export function markPuzzleCompleted(
         failed: false,
         failedAt: undefined,
         attemptsUsed,
-        hintsUsed: currentEntry?.hintsUsed,
       },
     },
   }
@@ -215,49 +203,9 @@ export function markPuzzleFailed(
         failed: true,
         failedAt: new Date().toISOString(),
         attemptsUsed,
-        hintsUsed: currentEntry?.hintsUsed,
       },
     },
   }
-}
-
-export function setPuzzleHintsUsed(
-  store: PuzzleHistoryStore,
-  date: string,
-  hintsUsed: number,
-): PuzzleHistoryStore {
-  const normalizedHintsUsed = clampHintsUsed(hintsUsed)
-  const currentEntry = store.entries[date]
-
-  if (currentEntry?.hintsUsed === normalizedHintsUsed) {
-    return store
-  }
-
-  return {
-    version: 1,
-    entries: {
-      ...store.entries,
-      [date]: {
-        completed: currentEntry?.completed ?? false,
-        completedAt: currentEntry?.completedAt,
-        failed: currentEntry?.failed,
-        failedAt: currentEntry?.failedAt,
-        attemptsUsed: currentEntry?.attemptsUsed,
-        hintsUsed: normalizedHintsUsed,
-      },
-    },
-  }
-}
-
-export function revealPuzzleHint(store: PuzzleHistoryStore, date: string): PuzzleHistoryStore {
-  const currentHintsUsed = store.entries[date]?.hintsUsed ?? 0
-  const nextHintsUsed = clampHintsUsed(currentHintsUsed + 1)
-
-  if (nextHintsUsed === currentHintsUsed) {
-    return store
-  }
-
-  return setPuzzleHintsUsed(store, date, nextHintsUsed)
 }
 
 export function removePuzzleHistoryEntry(store: PuzzleHistoryStore, date: string): PuzzleHistoryStore {

@@ -4,9 +4,9 @@ import { useGame } from '../Game/hooks/useGame'
 import { formatModeLabel } from '~/utils/music'
 
 export default function Scale() {
-  const { activePuzzle, hintProgress } = useGame()
-  const keyLabel = hintProgress >= 1 ? activePuzzle.key : '?'
-  const modeLabel = hintProgress >= 2 ? formatModeLabel(activePuzzle.mode) : '?'
+  const { activePuzzle } = useGame()
+  const keyLabel = activePuzzle.key
+  const modeLabel = formatModeLabel(activePuzzle.mode)
 
   return (
     <Text>

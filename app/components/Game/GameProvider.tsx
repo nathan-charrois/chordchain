@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { type Chord, GameContext, type Guess, type HintProgress } from './context/GameContext'
+import { type Chord, GameContext, type Guess } from './context/GameContext'
 import { useStatus } from './hooks/useStatus'
 import { createSubmittedGuess } from './logic/game'
 import { createEmptyGuess, createResetSessionState, isGameOverStatus } from './logic/session'
@@ -15,7 +15,6 @@ import {
   markPuzzleFailed,
   readPuzzleHistory,
   removePuzzleHistoryEntry,
-  revealPuzzleHint,
   writePuzzleHistory,
 } from '~/utils/puzzleHistory'
 
@@ -35,39 +34,19 @@ function getSelectedPuzzleDateFromSlug(routePuzzleSlug: string | undefined, toda
 }
 
 export function GameProvider({ children, routePuzzleSlug }: Props) {
-  const toHintProgress = (value?: number): HintProgress => {
-    if (value === 1 || value === 2) {
-      return value
-    }
-
-    return 0
-  }
-
   const todayDate = useMemo(() => formatLocalDate(new Date()), [])
   const [selectedPuzzleDate, setSelectedPuzzleDate] = useState(() => getSelectedPuzzleDateFromSlug(routePuzzleSlug, todayDate))
   const activePuzzle = useMemo(() => resolveDailyPuzzle(selectedPuzzleDate), [selectedPuzzleDate])
-  const [selectedKey, setSelectedKey] = useState(DEFAULT_KEY)
-  const [selectedMode, setSelectedMode] = useState<ModeId>(DEFAULT_MODE_ID)
+  const [selectedKey, setSelectedKey] = useState(activePuzzle.key)
+  const [selectedMode, setSelectedMode] = useState<ModeId>(activePuzzle.mode)
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
-  const hintProgress = toHintProgress(historyStore.entries[activePuzzle.date]?.hintsUsed)
   const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
   const hasFailedActivePuzzle = historyStore.entries[activePuzzle.date]?.failed === true
 
   useEffect(() => {
-    if (hintProgress >= 1) {
-      setSelectedKey(activePuzzle.key)
-    }
-    else {
-      setSelectedKey(DEFAULT_KEY)
-    }
-
-    if (hintProgress >= 2) {
-      setSelectedMode(activePuzzle.mode)
-    }
-    else if (hintProgress === 0) {
-      setSelectedMode(DEFAULT_MODE_ID)
-    }
-  }, [hintProgress, activePuzzle.key, activePuzzle.mode])
+    setSelectedKey(activePuzzle.key)
+    setSelectedMode(activePuzzle.mode)
+  }, [activePuzzle.key, activePuzzle.mode])
 
   const paletteSections = useMemo(
     () => getPaletteSections(selectedKey, selectedMode),
@@ -178,18 +157,6 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
     setSelectedMode(normalizeModeId(mode))
   }, [])
 
-  const handleRevealHint = useCallback(() => {
-    setHistoryStore((prev) => {
-      const next = revealPuzzleHint(prev, activePuzzle.date)
-
-      if (next !== prev) {
-        writePuzzleHistory(next)
-      }
-
-      return next
-    })
-  }, [activePuzzle.date])
-
   useEffect(() => {
     const previousStatus = prevStatusRef.current
 
@@ -296,7 +263,6 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
       activePuzzle,
       selectedKey,
       selectedMode,
-      hintProgress,
       todayDate,
       selectedPuzzleDate,
       currentStreak,
@@ -313,7 +279,6 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
       selectPuzzleDate: handleSelectPuzzleDate,
       setSelectedKey: handleSetSelectedKey,
       setSelectedMode: handleSetSelectedMode,
-      revealHint: handleRevealHint,
       addCurrent: handleAddCurrent,
       removeCurrent: handleRemoveCurrent,
       submitGuess: handleSubmitGuess,

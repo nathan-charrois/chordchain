@@ -11,7 +11,6 @@ export type Game = {
   activePuzzle: DailyPuzzle
   selectedKey: string
   selectedMode: ModeId
-  hintProgress: HintProgress
   todayDate: string
   selectedPuzzleDate: string
   currentStreak: number
@@ -28,15 +27,12 @@ export type Game = {
   selectPuzzleDate: (date: string) => void
   setSelectedKey: (key: string) => void
   setSelectedMode: (mode: ModeId) => void
-  revealHint: () => void
   addCurrent: (chord: Chord) => void
   removeCurrent: () => void
   submitGuess: () => void
   reset: () => void
   resetToday: () => void
 }
-
-export type HintProgress = 0 | 1 | 2
 
 export type GameStatus = 'new' | 'started' | 'loss' | 'won'
 
