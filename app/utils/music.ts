@@ -354,34 +354,94 @@ export function pitchClassesFromChord(chord: string): number[] {
   return intervals.map(i => (rootPitchClass + i) % 12)
 }
 
+export type VoicedTone = {
+  pitchClass: number
+  octave: number
+}
+
+export function intervalsFromChord(chord: string): number[] {
+  const quality = qualityFromChord(chord)
+  const intervals = CHORD_INTERVALS[quality]
+
+  if (!intervals) {
+    return CHORD_INTERVALS.major
+  }
+
+  return [...intervals]
+}
+
+export function voicedTonesFromChord(chord: string): VoicedTone[] {
+  const root = rootFromChord(chord)
+  const rootPitchClass = PITCH_CLASS_TO_NUM[root]
+
+  if (rootPitchClass === undefined) {
+    console.warn(`[music] Could not resolve chord root '${root}' from '${chord}'.`)
+    return []
+  }
+
+  const intervals = intervalsFromChord(chord)
+  const bassTone = {
+    pitchClass: rootPitchClass,
+    octave: BASS_OCTAVE,
+  }
+  const chordTones = intervals.map(interval => toneFromRootInterval(rootPitchClass, MAIN_CHORD_OCTAVE, interval))
+
+  return [bassTone, ...chordTones]
+}
+
 const DEFAULT_ARPEGGIO_INTERVAL_MS = 200
 const DEFAULT_SEQUENCE_GAP_MS = 1200
+const DEFAULT_TONE_VOLUME = 4
+const MAIN_CHORD_OCTAVE = 4
+const BASS_OCTAVE = MAIN_CHORD_OCTAVE - 1
 
 export function playChord(chord: string, arpeggiate: boolean, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
-  const pitchClasses = pitchClassesFromChord(chord)
+  const tones = voicedTonesFromChord(chord)
   const interval = arpeggiate ? getArpeggioIntervalMs(sequenceGapMs) : 0
+  const volume = getChordToneVolume(tones.length)
 
-  pitchClasses.map((pitchClass, index) => {
+  tones.forEach((tone, index) => {
     setTimeout(
-      () => playTone(pitchClass, 4),
+      () => playTone(tone.pitchClass, tone.octave, volume),
       index * interval,
     )
   })
+}
+
+function toneFromRootInterval(rootPitchClass: number, octave: number, interval: number): VoicedTone {
+  const midi = midiFromPitchClass(rootPitchClass, octave) + interval
+
+  return {
+    pitchClass: ((midi % 12) + 12) % 12,
+    octave: Math.floor(midi / 12) - 1,
+  }
+}
+
+function getChordToneVolume(toneCount: number): number {
+  if (toneCount >= 5) {
+    return 3.1
+  }
+
+  if (toneCount === 4) {
+    return 3.4
+  }
+
+  return DEFAULT_TONE_VOLUME
 }
 
 function getArpeggioIntervalMs(sequenceGapMs: number) {
   return DEFAULT_ARPEGGIO_INTERVAL_MS * (sequenceGapMs / DEFAULT_SEQUENCE_GAP_MS)
 }
 
-export function playTone(pitchClass: number, octave: number) {
+export function playTone(pitchClass: number, octave: number, volume = DEFAULT_TONE_VOLUME) {
   const frequency = hzFromPitchClass(pitchClass, octave)
 
   zzfx({
-    volume: 4,
+    volume,
     randomness: 0,
     frequency,
-    attack: 0.01,
-    sustain: 0.30,
-    release: 0.30,
+    attack: 0.02,
+    sustain: 0.40,
+    release: 0.40,
   })
 }
