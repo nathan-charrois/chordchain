@@ -23,7 +23,7 @@ export default function DebugPanel() {
     <Box
       style={{
         position: 'fixed',
-        top: 88,
+        top: 202,
         right: 12,
         zIndex: 200,
         maxWidth: 'calc(100vw - 24px)',

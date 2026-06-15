@@ -1,4 +1,4 @@
-import { AppShell, Center } from '@mantine/core'
+import { Container } from '@mantine/core'
 
 import DebugPanel from '~/components/DebugPanel/DebugPanel'
 import Footer from '~/components/Footer/Footer'
@@ -10,15 +10,11 @@ type Props = {
 
 export default function AppLayout({ children }: Props) {
   return (
-    <Center>
-      <AppShell withBorder={false} offsetScrollbars={false}>
-        <AppShell.Main>
-          <DebugPanel />
-          <Header />
-          {children}
-          <Footer />
-        </AppShell.Main>
-      </AppShell>
-    </Center>
+    <Container>
+      <Header />
+      {children}
+      <Footer />
+      <DebugPanel />
+    </Container>
   )
 }

@@ -4,10 +4,7 @@ import { Alert, Badge, Card, Group, Stack, Text } from '@mantine/core'
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, type GuessRow } from '../Game/logic/game'
-import {
-  getEndStateMessage,
-  shouldRevealTarget,
-} from '../Game/logic/session'
+import { getEndStateMessage } from '../Game/logic/session'
 import { PlaybackControls } from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
@@ -29,9 +26,13 @@ function getGuessCellLabel(row: GuessRow, cellIndex: number): string {
   return row.chords[cellIndex] ?? ' '
 }
 
-function getGuessCellColor(row: GuessRow, cellIndex: number): string {
+function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex: number | null): string {
   if (row.kind === 'submitted') {
     return getBadgeColor(row.status[cellIndex])
+  }
+
+  if (row.kind === 'active' && cellIndex === activeIndex) {
+    return 'lime.6'
   }
 
   if (row.kind === 'active' && row.chords[cellIndex]) {
@@ -104,16 +105,6 @@ export default function Board() {
 
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
-  const shouldShowTarget = shouldRevealTarget(status) || status === 'won'
-  const revealedTargetByIndex = useMemo(() => {
-    return target.map((_, index) => {
-      if (shouldShowTarget) {
-        return true
-      }
-
-      return guesses.some(guess => guess.status[index] === 'correct')
-    })
-  }, [guesses, shouldShowTarget, target])
 
   const guessRows = useMemo(() => {
     return buildGuessRows({
@@ -122,24 +113,10 @@ export default function Board() {
       status,
       maxGuesses,
     })
-  }, [guesses, current, status, maxGuesses])
+  }, [guesses, current, status, maxGuesses, target])
 
   return (
     <>
-      <Card mb="lg" withBorder>
-        <Group gap="xs">
-          <Text>Target:</Text>
-          {target.map((chord, index) => (
-            <Badge
-              key={`${chord}-${index}`}
-              color={index === activeIndex ? 'lime.6' : 'gray.6'}
-              variant={index === activeIndex ? 'filled' : 'light'}
-            >
-              {revealedTargetByIndex[index] ? chord : '?'}
-            </Badge>
-          ))}
-        </Group>
-      </Card>
       <Card mb="lg" withBorder>
         <PlaybackControls
           isPlaying={isPlaying}
@@ -173,7 +150,7 @@ export default function Board() {
               {Array.from({ length: maxLength }, (_, cellIndex) => (
                 <Badge
                   key={`${row.index}-${cellIndex}`}
-                  color={getGuessCellColor(row, cellIndex)}
+                  color={getGuessCellColor(row, cellIndex, activeIndex)}
                   variant={getGuessCellVariant(row)}
                   size="lg"
                   miw={64}

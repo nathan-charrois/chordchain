@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Clock01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ActionIcon, Badge, Button, Card, Group, Modal, Stack, Text } from '@mantine/core'
+import { Badge, Button, Card, Group, Modal, Stack, Text } from '@mantine/core'
 
 import { useSequence } from '~/components/Board/hooks/useSequence'
 import { useGame } from '~/components/Game/hooks/useGame'
+import Icon from '~/components/Icon/Icon'
 import { getPuzzlePathForDate, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatDisplayDate, formatDisplayDateTime } from '~/utils/date'
 
@@ -106,15 +106,7 @@ export default function History() {
 
   return (
     <>
-      <ActionIcon
-        variant="filled"
-        size="xl"
-        radius="xl"
-        aria-label="History"
-        onClick={handleOnClick}
-      >
-        <HugeiconsIcon icon={Clock01Icon} />
-      </ActionIcon>
+      <Icon label="History" icon={Clock01Icon} onClick={handleOnClick} />
       <Modal
         opened={isOpen}
         onClose={handleOnClose}
