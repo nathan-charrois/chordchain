@@ -80,7 +80,7 @@ export default function Board() {
   const navigate = useNavigate()
 
   const [isLooping, setIsLooping] = useState(true)
-  const [isArpeggiate, setIsArpeggiate] = useState(false)
+  const [isArpeggiate, setIsArpeggiate] = useState(true)
   const [tempoBpm, setTempoBpm] = useState(DEFAULT_TEMPO_BPM)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const tempoRestartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
