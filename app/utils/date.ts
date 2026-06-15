@@ -40,3 +40,19 @@ export function formatDisplayDateTime(dateTime: string): string {
 
   return `${formattedDate} at ${formattedTime}`
 }
+
+export function formatCountdown(totalSeconds: number): string {
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+export function getSecondsToNextMidnight(now: Date): number {
+  const nextMidnight = new Date(now)
+
+  nextMidnight.setHours(24, 0, 0, 0)
+
+  return Math.max(0, Math.floor((nextMidnight.getTime() - now.getTime()) / 1000))
+}

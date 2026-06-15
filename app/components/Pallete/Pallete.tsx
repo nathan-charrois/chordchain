@@ -66,7 +66,7 @@ export default function Pallete() {
   }, [setSelectedMode])
 
   return (
-    <Card bdrs="md" p="xl">
+    <Card bdrs="md" mt="md" withBorder>
       <Stack gap="md">
         <NativeSelect
           label="Palette key"

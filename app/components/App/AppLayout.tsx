@@ -1,7 +1,8 @@
 import { AppShell, Center } from '@mantine/core'
 
-import Footer from '../Footer/Footer'
-import Header from '../Header/Header'
+import DebugPanel from '~/components/DebugPanel/DebugPanel'
+import Footer from '~/components/Footer/Footer'
+import Header from '~/components/Header/Header'
 
 type Props = {
   children: React.ReactNode
@@ -12,15 +13,10 @@ export default function AppLayout({ children }: Props) {
     <Center>
       <AppShell withBorder={false} offsetScrollbars={false}>
         <AppShell.Main>
-          <Center mt="xl">
-            <Header />
-          </Center>
-          <Center>
-            {children}
-          </Center>
-          <Center mt="lg">
-            <Footer />
-          </Center>
+          <DebugPanel />
+          <Header />
+          {children}
+          <Footer />
         </AppShell.Main>
       </AppShell>
     </Center>

@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
-import { Alert, Badge, Button, Card, Divider, Group, Modal, Stack, Text } from '@mantine/core'
+import { useCallback, useMemo, useState } from 'react'
+import { Alert, Badge, Card, Group, Stack, Text } from '@mantine/core'
 
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
@@ -9,15 +8,9 @@ import {
   getEndStateMessage,
   shouldRevealTarget,
 } from '../Game/logic/session'
-import { DailyPuzzle } from './components/DailyPuzzle'
 import { PlaybackControls } from './components/PlaybackControls'
-import { Streak } from './components/Streak'
 import { useSequence } from './hooks/useSequence'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
-import { getPuzzlePathForDate, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
-import { formatDisplayDate, formatDisplayDateTime } from '~/utils/date'
-
-const TEMPO_PLAYBACK_RESTART_DELAY_MS = 300
 
 function getBadgeColor(status?: GuessStatus): string {
   switch (status) {
@@ -68,49 +61,21 @@ export default function Board() {
     maxLength,
     maxGuesses,
     isGameOver,
-    activePuzzle,
-    todayDate,
-    selectedPuzzleDate,
-    currentStreak,
-    puzzleDates,
-    historyEntries,
-    selectPuzzleDate,
   } = useGame()
-  const { target, activeIndex, isPlaying, play, stop, setLooping } = useSequence()
-  const navigate = useNavigate()
+  const { target, activeIndex, isPlaying, play, stop, setLooping, restartAfterTempoChange } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(true)
   const [tempoBpm, setTempoBpm] = useState(DEFAULT_TEMPO_BPM)
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
-  const tempoRestartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const clearPendingTempoRestart = useCallback(() => {
-    if (!tempoRestartTimeoutRef.current) {
-      return
-    }
-
-    clearTimeout(tempoRestartTimeoutRef.current)
-    tempoRestartTimeoutRef.current = null
-  }, [])
-
-  useEffect(() => {
-    if (!isPlaying) {
-      clearPendingTempoRestart()
-    }
-  }, [isPlaying, clearPendingTempoRestart])
-
-  useEffect(() => clearPendingTempoRestart, [clearPendingTempoRestart])
 
   const handleTogglePlayback = useCallback(() => {
     if (isPlaying) {
-      clearPendingTempoRestart()
       stop()
       return
     }
 
     play(isArpeggiate, isLooping, tempoBpm)
-  }, [isPlaying, clearPendingTempoRestart, stop, play, isLooping, isArpeggiate, tempoBpm])
+  }, [isPlaying, stop, play, isLooping, isArpeggiate, tempoBpm])
 
   const handleToggleLooping = useCallback(() => {
     const nextIsLooping = !isLooping
@@ -125,38 +90,17 @@ export default function Board() {
     setIsArpeggiate(nextIsArpeggiate)
 
     if (isPlaying) {
-      clearPendingTempoRestart()
       play(nextIsArpeggiate, isLooping, tempoBpm)
     }
-  }, [isArpeggiate, isPlaying, clearPendingTempoRestart, play, isLooping, tempoBpm])
+  }, [isArpeggiate, isPlaying, play, isLooping, tempoBpm])
 
   const handleTempoChange = useCallback((nextTempoBpm: number) => {
     setTempoBpm(nextTempoBpm)
 
     if (isPlaying) {
-      clearPendingTempoRestart()
-      tempoRestartTimeoutRef.current = setTimeout(() => {
-        tempoRestartTimeoutRef.current = null
-        play(isArpeggiate, isLooping, nextTempoBpm)
-      }, TEMPO_PLAYBACK_RESTART_DELAY_MS)
+      restartAfterTempoChange(isArpeggiate, isLooping, nextTempoBpm)
     }
-  }, [isPlaying, clearPendingTempoRestart, play, isLooping, isArpeggiate])
-
-  const handleOpenHistory = useCallback(() => {
-    setIsHistoryOpen(true)
-  }, [])
-
-  const handleCloseHistory = useCallback(() => {
-    setIsHistoryOpen(false)
-  }, [])
-
-  const handleSelectHistoryPuzzle = useCallback((date: string) => {
-    clearPendingTempoRestart()
-    stop()
-    navigate(getPuzzlePathForDate(date))
-    selectPuzzleDate(date)
-    setIsHistoryOpen(false)
-  }, [clearPendingTempoRestart, navigate, selectPuzzleDate, stop])
+  }, [isPlaying, restartAfterTempoChange, isLooping, isArpeggiate])
 
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
@@ -170,74 +114,6 @@ export default function Board() {
       return guesses.some(guess => guess.status[index] === 'correct')
     })
   }, [guesses, shouldShowTarget, target])
-  const historyRows = useMemo(() => {
-    if (!puzzleDates.length) {
-      return <Text c="dimmed">No daily puzzles available.</Text>
-    }
-
-    return puzzleDates.map((date) => {
-      const entry = historyEntries[date]
-      const puzzle = resolveDailyPuzzle(date)
-      const completedAt = entry?.completedAt ? formatDisplayDateTime(entry.completedAt) : null
-      const failedAt = entry?.failedAt ? formatDisplayDateTime(entry.failedAt) : null
-      const isCompleted = entry?.completed === true
-      const isFailed = entry?.failed === true
-      const isSelected = date === selectedPuzzleDate
-      const actionLabel = isSelected
-        ? isCompleted || isFailed ? 'Viewing' : 'Playing'
-        : isCompleted || isFailed ? 'View' : 'Play'
-      const statusLabel = isFailed ? 'Failed' : isCompleted ? 'Complete' : 'Incomplete'
-      const statusColor = isFailed ? 'red' : isCompleted ? 'green' : 'gray'
-
-      return (
-        <Card key={date} withBorder>
-          <Stack gap="sm">
-            <Stack gap={2}>
-              <Group gap="xs" justify="space-between">
-                <Text fw={700}>{puzzle.name}</Text>
-                {date === todayDate && <Badge color="blue">Today's Puzzle</Badge>}
-              </Group>
-              <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
-            </Stack>
-
-            <Group gap="xs">
-              <Badge color="cyan" variant="outline">{puzzle.difficulty}</Badge>
-              <Badge color={statusColor} variant="outline">{statusLabel}</Badge>
-            </Group>
-
-            {(entry?.completed || entry?.failed) && (
-              <Stack gap={2}>
-                {typeof entry.attemptsUsed === 'number' && (
-                  <Text size="sm" c="dimmed">
-                    {`Attempts used: ${entry.attemptsUsed}`}
-                  </Text>
-                )}
-                {completedAt && (
-                  <Text size="sm" c="dimmed">
-                    {`Completed at: ${completedAt}`}
-                  </Text>
-                )}
-                {failedAt && (
-                  <Text size="sm" c="dimmed">
-                    {`Failed at: ${failedAt}`}
-                  </Text>
-                )}
-              </Stack>
-            )}
-
-            <Button
-              size="xs"
-              variant={isSelected ? 'light' : 'outline'}
-              disabled={isSelected}
-              onClick={() => handleSelectHistoryPuzzle(date)}
-            >
-              {actionLabel}
-            </Button>
-          </Stack>
-        </Card>
-      )
-    })
-  }, [puzzleDates, historyEntries, todayDate, selectedPuzzleDate, handleSelectHistoryPuzzle])
 
   const guessRows = useMemo(() => {
     return buildGuessRows({
@@ -249,20 +125,8 @@ export default function Board() {
   }, [guesses, current, status, maxGuesses])
 
   return (
-    <Card bdrs="md" p="xl">
+    <>
       <Card mb="lg" withBorder>
-        <DailyPuzzle
-          date={activePuzzle.date}
-          isHistorical={activePuzzle.date !== todayDate}
-          onOpenHistory={handleOpenHistory}
-        />
-      </Card>
-      <Card mb="lg" withBorder>
-        <Stack gap={2}>
-          <Text>{`Puzzle Name: ${activePuzzle.name}`}</Text>
-          <Text c="dimmed">{`Difficulty: ${activePuzzle.difficulty}`}</Text>
-        </Stack>
-        <Divider my="md" />
         <Group gap="xs">
           <Text>Target:</Text>
           {target.map((chord, index) => (
@@ -289,9 +153,6 @@ export default function Board() {
         />
       </Card>
       <Group grow align="stretch">
-        <Card mb="lg" withBorder>
-          <Streak value={currentStreak} />
-        </Card>
       </Group>
       {isGameOver && endStateMessage && (
         <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
@@ -324,17 +185,6 @@ export default function Board() {
           ))}
         </Stack>
       </Card>
-      <Modal
-        opened={isHistoryOpen}
-        onClose={handleCloseHistory}
-        title="Puzzle History"
-        closeOnEscape
-        centered
-      >
-        <Stack>
-          {historyRows}
-        </Stack>
-      </Modal>
-    </Card>
+    </>
   )
 }

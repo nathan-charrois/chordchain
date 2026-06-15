@@ -1,12 +1,11 @@
 import { type MetaArgs, useParams } from 'react-router'
-import { Stack } from '@mantine/core'
+import { Grid } from '@mantine/core'
 
 import AppLayout from '~/components/App/AppLayout'
 import AppProvider from '~/components/App/AppProvider'
 import Board from '~/components/Board/Board'
-import DebugPanel from '~/components/DebugPanel/DebugPanel'
 import Pallete from '~/components/Pallete/Pallete'
-import Scale from '~/components/Scale/Scale'
+import Sidebar from '~/components/Sidebar/Sidebar'
 
 export function meta({ }: MetaArgs) {
   return [
@@ -20,12 +19,15 @@ export default function Game() {
   return (
     <AppProvider puzzleSlug={puzzleSlug}>
       <AppLayout>
-        <DebugPanel />
-        <Stack align="center">
-          <Scale />
-          <Board />
-          <Pallete />
-        </Stack>
+        <Grid overflow="hidden">
+          <Grid.Col span={3}>
+            <Sidebar />
+          </Grid.Col>
+          <Grid.Col span={9}>
+            <Board />
+            <Pallete />
+          </Grid.Col>
+        </Grid>
       </AppLayout>
     </AppProvider>
   )
