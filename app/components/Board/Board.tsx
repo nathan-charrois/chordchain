@@ -1,58 +1,12 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Alert, Badge, Card, Group, Stack, Text } from '@mantine/core'
 
-import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
-import { buildGuessRows, type GuessRow } from '../Game/logic/game'
+import { buildGuessRows, getGuessCellColor, getGuessCellVariant } from '../Game/logic/game'
 import { getEndStateMessage, shouldRevealTarget } from '../Game/logic/session'
 import { PlaybackControls } from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
-
-function getBadgeColor(status?: GuessStatus): string {
-  switch (status) {
-    case 'correct':
-      return 'green.7'
-    case 'present':
-      return 'yellow.7'
-    case 'absent':
-      return 'gray.7'
-    default:
-      return 'gray.5'
-  }
-}
-
-function getGuessCellLabel(row: GuessRow, cellIndex: number): string {
-  return row.chords[cellIndex] ?? ' '
-}
-
-function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex: number | null): string {
-  if (row.kind === 'submitted') {
-    return getBadgeColor(row.status[cellIndex])
-  }
-
-  if (row.kind === 'active' && cellIndex === activeIndex) {
-    return 'lime.6'
-  }
-
-  if (row.kind === 'active' && row.chords[cellIndex]) {
-    return 'gray.6'
-  }
-
-  return 'gray.4'
-}
-
-function getGuessCellVariant(row: GuessRow): 'filled' | 'light' | 'outline' {
-  if (row.kind === 'submitted') {
-    return 'filled'
-  }
-
-  if (row.kind === 'active') {
-    return 'outline'
-  }
-
-  return 'light'
-}
 
 export default function Board() {
   const {
@@ -168,7 +122,7 @@ export default function Board() {
                   size="lg"
                   miw={64}
                 >
-                  {getGuessCellLabel(row, cellIndex)}
+                  {row.chords[cellIndex]}
                 </Badge>
               ))}
             </Group>

@@ -212,3 +212,44 @@ export function getKeyClassName(status?: GuessStatus): string {
       return 'key key-default'
   }
 }
+
+export function getBadgeColor(status?: GuessStatus): string {
+  switch (status) {
+    case 'correct':
+      return 'green.7'
+    case 'present':
+      return 'yellow.7'
+    case 'absent':
+      return 'gray.7'
+    default:
+      return 'gray.5'
+  }
+}
+
+export function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex: number | null): string {
+  if (row.kind === 'submitted') {
+    return getBadgeColor(row.status[cellIndex])
+  }
+
+  if (row.kind === 'active' && cellIndex === activeIndex) {
+    return 'lime.6'
+  }
+
+  if (row.kind === 'active' && row.chords[cellIndex]) {
+    return 'gray.6'
+  }
+
+  return 'gray.4'
+}
+
+export function getGuessCellVariant(row: GuessRow): 'filled' | 'light' | 'outline' {
+  if (row.kind === 'submitted') {
+    return 'filled'
+  }
+
+  if (row.kind === 'active') {
+    return 'outline'
+  }
+
+  return 'light'
+}
