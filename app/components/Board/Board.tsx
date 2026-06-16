@@ -3,7 +3,7 @@ import { Alert, Badge, Card, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor, getGuessCellVariant } from '../Game/logic/game'
-import { getEndStateMessage, shouldRevealTarget } from '../Game/logic/session'
+import { getEndStateMessage, isGameOverStatus, shouldRevealTarget } from '../Game/logic/session'
 import { PlaybackControls } from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
@@ -15,7 +15,6 @@ export default function Board() {
     current,
     maxLength,
     maxGuesses,
-    isGameOver,
   } = useGame()
   const { target, activeIndex, isPlaying, play, stop, setLooping, restartAfterTempoChange } = useSequence()
 
@@ -86,7 +85,7 @@ export default function Board() {
       </Card>
       <Group grow align="stretch">
       </Group>
-      {isGameOver && endStateMessage && (
+      {isGameOverStatus(status) && endStateMessage && (
         <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
           <Stack gap="xs">
             <Text>{endStateMessage}</Text>

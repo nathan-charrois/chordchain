@@ -7,7 +7,6 @@ import type { PuzzleHistoryEntry } from '~/utils/puzzleHistory'
 /* Game */
 export type Game = {
   status: GameStatus
-  isGameOver: boolean
   activePuzzle: DailyPuzzle
   selectedKey: string
   selectedMode: ModeId
