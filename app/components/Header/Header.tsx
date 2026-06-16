@@ -1,7 +1,8 @@
 import { Grid, Group } from '@mantine/core'
 
+import About from '~/components/About/About'
+import Card from '~/components/Card/Card'
 import History from '~/components/History/History'
-import HowToPlay from '~/components/HowToPlay/HowToPlay'
 
 export default function Header() {
   return (
@@ -11,8 +12,12 @@ export default function Header() {
       </Grid.Col>
       <Grid.Col span={5}>
         <Group justify="flex-end">
-          <History />
-          <HowToPlay />
+          <Card>
+            <History />
+          </Card>
+          <Card>
+            <About />
+          </Card>
         </Group>
       </Grid.Col>
     </Grid>

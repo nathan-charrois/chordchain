@@ -1,5 +1,6 @@
-import { Card, Group, Stack, Text } from '@mantine/core'
+import { Group, Stack, Text } from '@mantine/core'
 
+import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 
 export default function SidebarDetails() {

@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Clock01Icon } from '@hugeicons/core-free-icons'
-import { Badge, Button, Card, Group, Modal, Stack, Text } from '@mantine/core'
+import { Badge, Button, Group, Modal, Stack, Text } from '@mantine/core'
 
 import { useSequence } from '~/components/Board/hooks/useSequence'
+import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
 import { getPuzzlePathForDate, resolveDailyPuzzle } from '~/utils/dailyPuzzle'

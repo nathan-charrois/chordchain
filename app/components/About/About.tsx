@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react'
-import { HelpCircleIcon } from '@hugeicons/core-free-icons'
+import { Cards01Icon } from '@hugeicons/core-free-icons'
 import { Modal, Text } from '@mantine/core'
 
 import Icon from '~/components/Icon/Icon'
 
-export default function HowToPlay() {
+export default function About() {
   const [isOpen, setIsOpen] = useState(false)
 
   const handleOnClick = useCallback(() => {
@@ -17,11 +17,11 @@ export default function HowToPlay() {
 
   return (
     <>
-      <Icon label="How to Play" icon={HelpCircleIcon} onClick={handleOnClick} />
+      <Icon label="About" icon={Cards01Icon} onClick={handleOnClick} />
       <Modal
         opened={isOpen}
         onClose={handleOnClose}
-        title="How to Play"
+        title="About"
         closeOnEscape
         centered
       >

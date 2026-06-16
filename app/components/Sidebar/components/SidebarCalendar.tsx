@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Card, Group, Stack, Text } from '@mantine/core'
+import { Group, Stack, Text } from '@mantine/core'
 
+import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import { formatCountdown, formatDisplayDate, getSecondsToNextMidnight } from '~/utils/date'
 

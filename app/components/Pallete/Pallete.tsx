@@ -1,9 +1,10 @@
 import { useCallback, useMemo } from 'react'
-import { Card, Group, NativeSelect, Stack, Text } from '@mantine/core'
+import { Group, NativeSelect, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
 import PalleteButton from '../PalleteButton/PalleteButton'
+import Card from '~/components/Card/Card'
 import { formatModeLabel, MODE_IDS, normalizeModeId, type PaletteSectionId, PITCH_CLASSES } from '~/utils/music'
 
 type PaletteSection = {

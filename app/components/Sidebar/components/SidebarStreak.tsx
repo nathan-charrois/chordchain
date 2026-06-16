@@ -1,5 +1,6 @@
-import { Card, Text } from '@mantine/core'
+import { Text } from '@mantine/core'
 
+import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import { formatModeLabel } from '~/utils/music'
 

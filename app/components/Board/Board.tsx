@@ -1,11 +1,12 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Alert, Badge, Card, Group, Stack, Text } from '@mantine/core'
+import { Alert, Badge, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor, getGuessCellVariant } from '../Game/logic/game'
 import { getEndStateMessage, isGameOverStatus, shouldRevealTarget } from '../Game/logic/session'
 import { PlaybackControls } from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
+import Card from '~/components/Card/Card'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
 
 export default function Board() {
@@ -71,7 +72,7 @@ export default function Board() {
 
   return (
     <>
-      <Card mb="lg" withBorder>
+      <Card mb="lg">
         <PlaybackControls
           isPlaying={isPlaying}
           onTogglePlayback={handleTogglePlayback}
