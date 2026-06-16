@@ -1,7 +1,9 @@
 import type { DefaultMantineColor } from '@mantine/core'
 
 import type { Chord, GameStatus, Guess, GuessStatus } from '../context/GameContext'
-import { GAME_MAX_GUESSES } from '~/constant'
+import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
+import { type DailyPuzzle, getEnabledPaletteSectionIds } from '~/utils/dailyPuzzle'
+import { filterPaletteSections, flattenPaletteSections, getPaletteSections, normalizeChordLabel } from '~/utils/music'
 
 export type GuessRowKind = 'submitted' | 'active' | 'empty'
 
@@ -10,6 +12,26 @@ export type GuessRow = {
   kind: GuessRowKind
   chords: Chord[]
   status: GuessStatus[]
+}
+
+export function getPuzzleTarget(puzzle: DailyPuzzle): Chord[] {
+  const enabledPaletteSectionIds = getEnabledPaletteSectionIds(puzzle.difficulty)
+  const puzzlePaletteSections = getPaletteSections(puzzle.key, puzzle.mode)
+  const enabledPuzzlePaletteSections = filterPaletteSections(puzzlePaletteSections, enabledPaletteSectionIds)
+  const puzzlePaletteChords = flattenPaletteSections(enabledPuzzlePaletteSections)
+  const normalizedTarget = puzzle.target.map(chord => normalizeChordLabel(chord))
+  const invalidTargetChords = normalizedTarget.filter(chord => !puzzlePaletteChords.includes(chord))
+
+  if (!invalidTargetChords.length) {
+    return normalizedTarget
+  }
+
+  console.warn(
+    `[game] Puzzle '${puzzle.date}' contains target chords missing from the ${puzzle.difficulty} palette: ${invalidTargetChords.join(', ')}. `
+    + `Falling back to first ${GAME_MAX_CHARS} palette chords.`,
+  )
+
+  return puzzlePaletteChords.slice(0, GAME_MAX_CHARS)
 }
 
 export function isChordSequenceEqual(guess: Chord[], solution: Chord[]): boolean {

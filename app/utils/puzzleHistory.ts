@@ -1,5 +1,12 @@
-import { PUZZLE_HISTORY_STORAGE_KEY } from '~/constant'
+import { GAME_MAX_CHARS, GAME_MAX_GUESSES, PUZZLE_HISTORY_STORAGE_KEY } from '~/constant'
 import { formatLocalDate } from '~/utils/date'
+
+export type PuzzleHistoryGuessStatus = 'absent' | 'present' | 'correct'
+
+export type PuzzleHistoryGuess = {
+  chords: string[]
+  status: PuzzleHistoryGuessStatus[]
+}
 
 export type PuzzleHistoryEntry = {
   completed: boolean
@@ -7,6 +14,7 @@ export type PuzzleHistoryEntry = {
   failed?: boolean
   failedAt?: string
   attemptsUsed?: number
+  guesses?: PuzzleHistoryGuess[]
 }
 
 export type PuzzleHistoryStore = {
@@ -21,6 +29,51 @@ export type StreakResult = {
 const EMPTY_STORE: PuzzleHistoryStore = {
   version: 1,
   entries: {},
+}
+
+const VALID_GUESS_STATUSES = new Set<PuzzleHistoryGuessStatus>(['absent', 'present', 'correct'])
+
+function clonePuzzleHistoryGuesses(guesses: PuzzleHistoryGuess[]): PuzzleHistoryGuess[] {
+  return guesses.slice(0, GAME_MAX_GUESSES).map(guess => ({
+    chords: [...guess.chords],
+    status: [...guess.status],
+  }))
+}
+
+export function arePuzzleHistoryGuessesEqual(
+  currentGuesses: PuzzleHistoryGuess[] | undefined,
+  nextGuesses: PuzzleHistoryGuess[] | undefined,
+): boolean {
+  if ((currentGuesses?.length ?? 0) !== (nextGuesses?.length ?? 0)) {
+    return false
+  }
+
+  return (nextGuesses ?? []).every((guess, guessIndex) => {
+    const currentGuess = currentGuesses?.[guessIndex]
+
+    if (!currentGuess || currentGuess.chords.length !== guess.chords.length || currentGuess.status.length !== guess.status.length) {
+      return false
+    }
+
+    return guess.chords.every((chord, chordIndex) => chord === currentGuess.chords[chordIndex])
+      && guess.status.every((status, statusIndex) => status === currentGuess.status[statusIndex])
+  })
+}
+
+function arePuzzleHistoryEntriesEqual(
+  currentEntry: PuzzleHistoryEntry | undefined,
+  nextEntry: PuzzleHistoryEntry,
+): boolean {
+  if (!currentEntry) {
+    return false
+  }
+
+  return currentEntry.completed === nextEntry.completed
+    && currentEntry.completedAt === nextEntry.completedAt
+    && currentEntry.failed === nextEntry.failed
+    && currentEntry.failedAt === nextEntry.failedAt
+    && currentEntry.attemptsUsed === nextEntry.attemptsUsed
+    && arePuzzleHistoryGuessesEqual(currentEntry.guesses, nextEntry.guesses)
 }
 
 function parseDateKey(date: string): Date | null {
@@ -56,34 +109,93 @@ function getPreviousDateKey(date: string): string | null {
   return formatLocalDate(parsed)
 }
 
-function isValidEntry(value: unknown): value is PuzzleHistoryEntry {
+function sanitizeStoredGuess(value: unknown): PuzzleHistoryGuess | null {
   if (!value || typeof value !== 'object') {
-    return false
+    return null
+  }
+
+  const guess = value as Partial<PuzzleHistoryGuess>
+
+  if (!Array.isArray(guess.chords) || !Array.isArray(guess.status)) {
+    return null
+  }
+
+  if (!guess.chords.length || guess.chords.length > GAME_MAX_CHARS) {
+    return null
+  }
+
+  if (guess.chords.length !== guess.status.length) {
+    return null
+  }
+
+  if (!guess.chords.every(chord => typeof chord === 'string')) {
+    return null
+  }
+
+  if (!guess.status.every(status => VALID_GUESS_STATUSES.has(status as PuzzleHistoryGuessStatus))) {
+    return null
+  }
+
+  return {
+    chords: [...guess.chords],
+    status: [...guess.status] as PuzzleHistoryGuessStatus[],
+  }
+}
+
+function sanitizeStoredGuesses(value: unknown): PuzzleHistoryGuess[] | undefined {
+  if (value === undefined) {
+    return undefined
+  }
+
+  if (!Array.isArray(value)) {
+    return undefined
+  }
+
+  const guesses = value
+    .slice(0, GAME_MAX_GUESSES)
+    .map(sanitizeStoredGuess)
+    .filter((guess): guess is PuzzleHistoryGuess => guess !== null)
+
+  return guesses.length ? guesses : undefined
+}
+
+function sanitizeEntry(value: unknown): PuzzleHistoryEntry | null {
+  if (!value || typeof value !== 'object') {
+    return null
   }
 
   const entry = value as Partial<PuzzleHistoryEntry>
 
   if (typeof entry.completed !== 'boolean') {
-    return false
+    return null
   }
 
   if (entry.completedAt !== undefined && typeof entry.completedAt !== 'string') {
-    return false
+    return null
   }
 
   if (entry.failed !== undefined && typeof entry.failed !== 'boolean') {
-    return false
+    return null
   }
 
   if (entry.failedAt !== undefined && typeof entry.failedAt !== 'string') {
-    return false
+    return null
   }
 
   if (entry.attemptsUsed !== undefined && typeof entry.attemptsUsed !== 'number') {
-    return false
+    return null
   }
 
-  return true
+  const guesses = sanitizeStoredGuesses(entry.guesses)
+
+  return {
+    completed: entry.completed,
+    completedAt: entry.completedAt,
+    failed: entry.failed,
+    failedAt: entry.failedAt,
+    attemptsUsed: entry.attemptsUsed,
+    guesses,
+  }
 }
 
 function parsePuzzleHistoryStore(value: unknown): PuzzleHistoryStore | null {
@@ -100,8 +212,10 @@ function parsePuzzleHistoryStore(value: unknown): PuzzleHistoryStore | null {
   const entries: Record<string, PuzzleHistoryEntry> = {}
 
   for (const [date, entry] of Object.entries(maybeStore.entries)) {
-    if (isValidEntry(entry)) {
-      entries[date] = entry
+    const sanitizedEntry = sanitizeEntry(entry)
+
+    if (sanitizedEntry) {
+      entries[date] = sanitizedEntry
     }
   }
 
@@ -160,11 +274,31 @@ export function markPuzzleCompleted(
   store: PuzzleHistoryStore,
   date: string,
   attemptsUsed?: number,
+  guesses?: PuzzleHistoryGuess[],
 ): PuzzleHistoryStore {
   const currentEntry = store.entries[date]
+  const nextGuesses = guesses ? clonePuzzleHistoryGuesses(guesses) : currentEntry?.guesses
 
   if (currentEntry?.completed) {
-    return store
+    const nextEntry: PuzzleHistoryEntry = {
+      ...currentEntry,
+      failed: false,
+      failedAt: undefined,
+      attemptsUsed: attemptsUsed ?? currentEntry.attemptsUsed,
+      guesses: nextGuesses,
+    }
+
+    if (arePuzzleHistoryEntriesEqual(currentEntry, nextEntry)) {
+      return store
+    }
+
+    return {
+      version: 1,
+      entries: {
+        ...store.entries,
+        [date]: nextEntry,
+      },
+    }
   }
 
   return {
@@ -177,6 +311,7 @@ export function markPuzzleCompleted(
         failed: false,
         failedAt: undefined,
         attemptsUsed,
+        guesses: nextGuesses,
       },
     },
   }
@@ -186,11 +321,33 @@ export function markPuzzleFailed(
   store: PuzzleHistoryStore,
   date: string,
   attemptsUsed?: number,
+  guesses?: PuzzleHistoryGuess[],
 ): PuzzleHistoryStore {
   const currentEntry = store.entries[date]
+  const nextGuesses = guesses ? clonePuzzleHistoryGuesses(guesses) : currentEntry?.guesses
 
-  if (currentEntry?.completed || currentEntry?.failed) {
+  if (currentEntry?.completed) {
     return store
+  }
+
+  if (currentEntry?.failed) {
+    const nextEntry: PuzzleHistoryEntry = {
+      ...currentEntry,
+      attemptsUsed: attemptsUsed ?? currentEntry.attemptsUsed,
+      guesses: nextGuesses,
+    }
+
+    if (arePuzzleHistoryEntriesEqual(currentEntry, nextEntry)) {
+      return store
+    }
+
+    return {
+      version: 1,
+      entries: {
+        ...store.entries,
+        [date]: nextEntry,
+      },
+    }
   }
 
   return {
@@ -203,7 +360,37 @@ export function markPuzzleFailed(
         failed: true,
         failedAt: new Date().toISOString(),
         attemptsUsed,
+        guesses: nextGuesses,
       },
+    },
+  }
+}
+
+export function savePuzzleGuesses(
+  store: PuzzleHistoryStore,
+  date: string,
+  guesses: PuzzleHistoryGuess[],
+): PuzzleHistoryStore {
+  const currentEntry = store.entries[date]
+  const nextGuesses = clonePuzzleHistoryGuesses(guesses)
+  const nextEntry: PuzzleHistoryEntry = {
+    completed: currentEntry?.completed ?? false,
+    completedAt: currentEntry?.completedAt,
+    failed: currentEntry?.failed,
+    failedAt: currentEntry?.failedAt,
+    attemptsUsed: currentEntry?.attemptsUsed,
+    guesses: nextGuesses.length ? nextGuesses : undefined,
+  }
+
+  if (arePuzzleHistoryEntriesEqual(currentEntry, nextEntry)) {
+    return store
+  }
+
+  return {
+    version: 1,
+    entries: {
+      ...store.entries,
+      [date]: nextEntry,
     },
   }
 }

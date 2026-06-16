@@ -4,7 +4,7 @@ import { Alert, Badge, Card, Group, Stack, Text } from '@mantine/core'
 import type { GuessStatus } from '../Game/context/GameContext'
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, type GuessRow } from '../Game/logic/game'
-import { getEndStateMessage } from '../Game/logic/session'
+import { getEndStateMessage, shouldRevealTarget } from '../Game/logic/session'
 import { PlaybackControls } from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
@@ -105,6 +105,7 @@ export default function Board() {
 
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
+  const revealTarget = shouldRevealTarget(status)
 
   const guessRows = useMemo(() => {
     return buildGuessRows({
@@ -135,6 +136,18 @@ export default function Board() {
         <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
           <Stack gap="xs">
             <Text>{endStateMessage}</Text>
+            {revealTarget && (
+              <Stack gap={4}>
+                <Text size="sm" fw={600}>Correct progression</Text>
+                <Group gap="xs" wrap="wrap">
+                  {target.map((chord, index) => (
+                    <Badge key={`${chord}-${index}`} color="green.7" variant="filled" size="lg" miw={64}>
+                      {chord}
+                    </Badge>
+                  ))}
+                </Group>
+              </Stack>
+            )}
           </Stack>
         </Alert>
       )}

@@ -176,6 +176,16 @@ export function resolveDailyPuzzleBySlug(slug: string): DailyPuzzle | null {
   return resolveDailyPuzzle(slugEntry.date)
 }
 
+export function resolvePuzzleDateFromSlug(routePuzzleSlug: string | undefined, fallbackDate: string): string {
+  const slug = decodePuzzleSlug(routePuzzleSlug)
+
+  if (!slug) {
+    return fallbackDate
+  }
+
+  return resolveDailyPuzzleBySlug(slug)?.date ?? fallbackDate
+}
+
 export function getPuzzleSlugForDate(date: string): string {
   const puzzle = resolveDailyPuzzle(date)
 

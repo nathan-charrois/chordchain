@@ -2,19 +2,22 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { type Chord, GameContext, type Guess } from './context/GameContext'
 import { useStatus } from './hooks/useStatus'
-import { createSubmittedGuess } from './logic/game'
-import { createEmptyGuess, createResetSessionState, isGameOverStatus } from './logic/session'
+import { createSubmittedGuess, getPuzzleTarget } from './logic/game'
+import { createEmptyGuess, createSessionStateFromHistory, isGameOverStatus } from './logic/session'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { endSequence, stopSequence } from '~/utils/chain'
-import { decodePuzzleSlug, getCatalogDatesDesc, getEnabledPaletteSectionIds, resolveDailyPuzzle, resolveDailyPuzzleBySlug } from '~/utils/dailyPuzzle'
+import { getCatalogDatesDesc, getEnabledPaletteSectionIds, resolveDailyPuzzle, resolvePuzzleDateFromSlug } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
-import { DEFAULT_KEY, DEFAULT_MODE_ID, filterPaletteSections, flattenPaletteSections, getPaletteSections, type ModeId, normalizeChordLabel, normalizeKey, normalizeModeId } from '~/utils/music'
+import { filterPaletteSections, flattenPaletteSections, getPaletteSections, type ModeId, normalizeKey, normalizeModeId } from '~/utils/music'
 import {
+  arePuzzleHistoryGuessesEqual,
   calculateCurrentStreak,
   markPuzzleCompleted,
   markPuzzleFailed,
+  type PuzzleHistoryStore,
   readPuzzleHistory,
   removePuzzleHistoryEntry,
+  savePuzzleGuesses,
   writePuzzleHistory,
 } from '~/utils/puzzleHistory'
 
@@ -23,25 +26,13 @@ type Props = {
   routePuzzleSlug?: string
 }
 
-function getSelectedPuzzleDateFromSlug(routePuzzleSlug: string | undefined, todayDate: string): string {
-  const slug = decodePuzzleSlug(routePuzzleSlug)
-
-  if (!slug) {
-    return todayDate
-  }
-
-  return resolveDailyPuzzleBySlug(slug)?.date ?? todayDate
-}
-
 export function GameProvider({ children, routePuzzleSlug }: Props) {
   const todayDate = useMemo(() => formatLocalDate(new Date()), [])
-  const [selectedPuzzleDate, setSelectedPuzzleDate] = useState(() => getSelectedPuzzleDateFromSlug(routePuzzleSlug, todayDate))
+  const [selectedPuzzleDate, setSelectedPuzzleDate] = useState(() => resolvePuzzleDateFromSlug(routePuzzleSlug, todayDate))
   const activePuzzle = useMemo(() => resolveDailyPuzzle(selectedPuzzleDate), [selectedPuzzleDate])
   const [selectedKey, setSelectedKey] = useState(activePuzzle.key)
   const [selectedMode, setSelectedMode] = useState<ModeId>(activePuzzle.mode)
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
-  const hasCompletedActivePuzzle = historyStore.entries[activePuzzle.date]?.completed === true
-  const hasFailedActivePuzzle = historyStore.entries[activePuzzle.date]?.failed === true
 
   useEffect(() => {
     setSelectedKey(activePuzzle.key)
@@ -64,90 +55,79 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
     () => flattenPaletteSections(enabledPaletteSections),
     [enabledPaletteSections],
   )
-  const puzzlePaletteChords = useMemo(() => {
-    const puzzlePaletteSections = getPaletteSections(activePuzzle.key, activePuzzle.mode)
-    const enabledPuzzlePaletteSections = filterPaletteSections(puzzlePaletteSections, enabledPaletteSectionIds)
-
-    return flattenPaletteSections(enabledPuzzlePaletteSections)
-  }, [activePuzzle.key, activePuzzle.mode, enabledPaletteSectionIds])
-  const normalizedTarget = useMemo(
-    () => activePuzzle.target.map(chord => normalizeChordLabel(chord)),
-    [activePuzzle.target],
-  )
-  const target: Chord[] = useMemo(() => {
-    const invalidTargetChords = normalizedTarget.filter(chord => !puzzlePaletteChords.includes(chord))
-
-    if (!invalidTargetChords.length) {
-      return normalizedTarget
-    }
-
-    console.warn(
-      `[game] Puzzle '${activePuzzle.date}' contains target chords missing from the ${activePuzzle.difficulty} palette: ${invalidTargetChords.join(', ')}. `
-      + `Falling back to first ${GAME_MAX_CHARS} palette chords.`,
-    )
-
-    return puzzlePaletteChords.slice(0, GAME_MAX_CHARS)
-  }, [activePuzzle.date, activePuzzle.difficulty, normalizedTarget, puzzlePaletteChords])
+  const target: Chord[] = useMemo(() => getPuzzleTarget(activePuzzle), [activePuzzle])
   const puzzleDates = useMemo(() => getCatalogDatesDesc(todayDate), [todayDate])
   const currentStreak = useMemo(
     () => calculateCurrentStreak(historyStore.entries, todayDate).current,
     [historyStore.entries, todayDate],
   )
 
-  const initialState = createResetSessionState()
-  const [guesses, setGuesses] = useState<Guess[]>(initialState.guesses)
-  const [status, setStatus] = useStatus(
-    guesses,
-    target,
-    hasCompletedActivePuzzle ? 'won' : hasFailedActivePuzzle ? 'loss' : initialState.status,
-  )
-  const [current, setCurrent] = useState<Guess>(initialState.current)
-  const prevStatusRef = useRef(status)
+  const initialSessionState = createSessionStateFromHistory(historyStore.entries[activePuzzle.date], target)
+  const [guesses, setGuesses] = useState<Guess[]>(initialSessionState.guesses)
+  const [status, setStatus] = useStatus(guesses, target, initialSessionState.status)
+  const [current, setCurrent] = useState<Guess>(initialSessionState.current)
+  const activePuzzleDateRef = useRef(activePuzzle.date)
   const isGameOver = isGameOverStatus(status)
 
-  const resetSession = useCallback((nextStatus: typeof initialState.status = 'new') => {
-    const resetState = createResetSessionState()
+  const commitHistoryStore = useCallback((getNextStore: (prev: PuzzleHistoryStore) => PuzzleHistoryStore) => {
+    setHistoryStore((prev) => {
+      const next = getNextStore(prev)
+
+      if (next !== prev) {
+        writePuzzleHistory(next)
+      }
+
+      return next
+    })
+  }, [])
+
+  const loadSessionForDate = useCallback((date: string, nextTarget: Chord[]) => {
+    const entry = historyStore.entries[date]
+    const nextSessionState = createSessionStateFromHistory(entry, nextTarget)
 
     stopSequence()
     endSequence()
-    setStatus(nextStatus)
-    setGuesses(resetState.guesses)
-    setCurrent(resetState.current)
-  }, [setGuesses, setStatus, setCurrent])
+    setStatus(nextSessionState.status)
+    setGuesses(nextSessionState.guesses)
+    setCurrent(nextSessionState.current)
 
-  const getStoredPuzzleStatus = useCallback((date: string): typeof initialState.status => {
-    const entry = historyStore.entries[date]
-
-    if (entry?.completed) {
-      return 'won'
+    if (entry?.guesses && !arePuzzleHistoryGuessesEqual(entry.guesses, nextSessionState.guesses)) {
+      commitHistoryStore(prev => savePuzzleGuesses(prev, date, nextSessionState.guesses))
     }
-
-    if (entry?.failed) {
-      return 'loss'
-    }
-
-    return 'new'
-  }, [historyStore.entries])
+  }, [commitHistoryStore, historyStore.entries])
 
   const handleSelectPuzzleDate = useCallback((date: string) => {
     if (!puzzleDates.includes(date)) {
       return
     }
 
+    const nextPuzzle = resolveDailyPuzzle(date)
+
     setSelectedPuzzleDate(date)
-    resetSession(getStoredPuzzleStatus(date))
-  }, [getStoredPuzzleStatus, puzzleDates, resetSession])
+    loadSessionForDate(date, getPuzzleTarget(nextPuzzle))
+  }, [loadSessionForDate, puzzleDates])
 
   useEffect(() => {
-    const nextSelectedPuzzleDate = getSelectedPuzzleDateFromSlug(routePuzzleSlug, todayDate)
+    const nextSelectedPuzzleDate = resolvePuzzleDateFromSlug(routePuzzleSlug, todayDate)
 
     if (nextSelectedPuzzleDate === selectedPuzzleDate) {
       return
     }
 
+    const nextPuzzle = resolveDailyPuzzle(nextSelectedPuzzleDate)
+
     setSelectedPuzzleDate(nextSelectedPuzzleDate)
-    resetSession(getStoredPuzzleStatus(nextSelectedPuzzleDate))
-  }, [getStoredPuzzleStatus, resetSession, routePuzzleSlug, selectedPuzzleDate, todayDate])
+    loadSessionForDate(nextSelectedPuzzleDate, getPuzzleTarget(nextPuzzle))
+  }, [loadSessionForDate, routePuzzleSlug, selectedPuzzleDate, todayDate])
+
+  useEffect(() => {
+    if (activePuzzleDateRef.current === activePuzzle.date) {
+      return
+    }
+
+    activePuzzleDateRef.current = activePuzzle.date
+    loadSessionForDate(activePuzzle.date, target)
+  }, [activePuzzle.date, loadSessionForDate, target])
 
   const handleSetSelectedKey = useCallback((key: string) => {
     setSelectedKey(normalizeKey(key))
@@ -158,33 +138,41 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
   }, [])
 
   useEffect(() => {
-    const previousStatus = prevStatusRef.current
+    commitHistoryStore((prev) => {
+      const entry = prev.entries[activePuzzle.date]
 
-    if (status === 'won' && previousStatus !== 'won') {
-      setHistoryStore((prev) => {
-        const next = markPuzzleCompleted(prev, activePuzzle.date, guesses.length)
+      if (!entry?.guesses || arePuzzleHistoryGuessesEqual(entry.guesses, guesses)) {
+        return prev
+      }
 
-        if (next !== prev) {
-          writePuzzleHistory(next)
+      return savePuzzleGuesses(prev, activePuzzle.date, guesses)
+    })
+  }, [activePuzzle.date, commitHistoryStore, guesses])
+
+  useEffect(() => {
+    if (status === 'won') {
+      commitHistoryStore((prev) => {
+        const entry = prev.entries[activePuzzle.date]
+
+        if (entry?.completed && (!guesses.length || entry.guesses)) {
+          return prev
         }
 
-        return next
+        return markPuzzleCompleted(prev, activePuzzle.date, guesses.length, guesses)
       })
     }
-    else if (status === 'loss' && previousStatus !== 'loss') {
-      setHistoryStore((prev) => {
-        const next = markPuzzleFailed(prev, activePuzzle.date, guesses.length)
+    else if (status === 'loss') {
+      commitHistoryStore((prev) => {
+        const entry = prev.entries[activePuzzle.date]
 
-        if (next !== prev) {
-          writePuzzleHistory(next)
+        if (entry?.failed && (!guesses.length || entry.guesses)) {
+          return prev
         }
 
-        return next
+        return markPuzzleFailed(prev, activePuzzle.date, guesses.length, guesses)
       })
     }
-
-    prevStatusRef.current = status
-  }, [status, activePuzzle.date, guesses.length])
+  }, [status, activePuzzle.date, commitHistoryStore, guesses])
 
   const handleSubmitGuess = useCallback(() => {
     if (isGameOver) {
@@ -204,11 +192,13 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
     }
 
     const submittedGuess = createSubmittedGuess(current.chords, target)
+    const nextGuesses = [...guesses, submittedGuess]
 
-    setGuesses(prev => ([...prev, submittedGuess]))
+    setGuesses(nextGuesses)
+    commitHistoryStore(prev => savePuzzleGuesses(prev, activePuzzle.date, nextGuesses))
     setStatus(prev => (prev === 'new' ? 'started' : prev))
     setCurrent(createEmptyGuess())
-  }, [isGameOver, current.chords, guesses.length, setGuesses, setStatus, setCurrent, target])
+  }, [isGameOver, current.chords, guesses, setGuesses, setStatus, setCurrent, target, activePuzzle.date, commitHistoryStore])
 
   const handleAddCurrent = useCallback((chord: Chord) => {
     if (isGameOver || current.chords.length >= GAME_MAX_CHARS) {
@@ -240,21 +230,17 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
   }, [isGameOver, setCurrent])
 
   const handleReset = useCallback(() => {
-    resetSession(getStoredPuzzleStatus(activePuzzle.date))
-  }, [activePuzzle.date, getStoredPuzzleStatus, resetSession])
+    loadSessionForDate(activePuzzle.date, target)
+  }, [activePuzzle.date, loadSessionForDate, target])
 
   const handleResetToday = useCallback(() => {
-    setHistoryStore((prev) => {
-      const next = removePuzzleHistoryEntry(prev, activePuzzle.date)
-
-      if (next !== prev) {
-        writePuzzleHistory(next)
-      }
-
-      return next
-    })
-    resetSession()
-  }, [activePuzzle.date, resetSession])
+    commitHistoryStore(prev => removePuzzleHistoryEntry(prev, activePuzzle.date))
+    stopSequence()
+    endSequence()
+    setStatus('new')
+    setGuesses([])
+    setCurrent(createEmptyGuess())
+  }, [activePuzzle.date, commitHistoryStore, setStatus])
 
   return (
     <GameContext.Provider value={{
