@@ -3,6 +3,7 @@ import { createSubmittedGuess, isGameLoss, isGameWon } from './game'
 import type { PuzzleHistoryEntry } from '~/utils/puzzleHistory'
 
 export type GameSessionState = {
+  puzzleDate: string
   status: GameStatus
   guesses: Guess[]
   current: Guess
@@ -15,15 +16,37 @@ export function createEmptyGuess(): Guess {
   }
 }
 
-export function createResetSessionState(): GameSessionState {
+export function createResetSessionState(puzzleDate: string): GameSessionState {
   return {
+    puzzleDate,
     status: 'new',
     guesses: [],
     current: createEmptyGuess(),
   }
 }
 
+export function getNextStatusFromGuesses(
+  currentStatus: GameStatus,
+  guesses: Guess[],
+  target: Chord[],
+): GameStatus {
+  if (!guesses.length || isGameOverStatus(currentStatus)) {
+    return currentStatus
+  }
+
+  if (isGameWon(guesses, target)) {
+    return 'won'
+  }
+
+  if (isGameLoss(guesses)) {
+    return 'loss'
+  }
+
+  return currentStatus === 'new' ? 'started' : currentStatus
+}
+
 export function createSessionStateFromHistory(
+  puzzleDate: string,
   entry: PuzzleHistoryEntry | undefined,
   target: Chord[],
 ): GameSessionState {
@@ -44,6 +67,7 @@ export function createSessionStateFromHistory(
   }
 
   return {
+    puzzleDate,
     status,
     guesses,
     current: createEmptyGuess(),
