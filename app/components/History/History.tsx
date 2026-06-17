@@ -48,8 +48,8 @@ export default function History() {
       const isCompleted = entry?.completed === true
       const isFailed = entry?.failed === true
       const isSelected = date === selectedPuzzleDate
-      const actionLabel = isSelected ? 'Viewing' : 'View'
-      const statusLabel = isFailed ? 'Failed' : isCompleted ? 'Complete' : undefined
+      const actionLabel = isSelected ? 'Playing' : 'Play'
+      const statusLabel = isFailed ? 'Loss' : isCompleted ? 'Win' : undefined
       const statusColor = isFailed ? 'red' : isCompleted ? 'green' : 'gray'
 
       return (

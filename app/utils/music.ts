@@ -147,6 +147,10 @@ function getTriadQuality(thirdOffset: number, fifthOffset: number): 'major' | 'm
 }
 
 function getChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug'): string {
+  if (quality === 'major') {
+    return `${root}maj`
+  }
+
   if (quality === 'minor') {
     return `${root}m`
   }
@@ -160,14 +164,6 @@ function getChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug')
   }
 
   return root
-}
-
-function getPolicyChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug'): string {
-  if (quality === 'major') {
-    return `${root}`
-  }
-
-  return getChordLabel(root, quality)
 }
 
 function getSeventhQuality(
@@ -254,7 +250,7 @@ export function getDiatonicTriadsByPolicy(key: string, mode: ModeId): string[] {
     const quality = getTriadQuality(thirdOffset, fifthOffset)
     const rootLabel = PITCH_CLASSES[rootPitchClass]
 
-    return getPolicyChordLabel(rootLabel, quality)
+    return getChordLabel(rootLabel, quality)
   })
 }
 

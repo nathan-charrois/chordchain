@@ -37,7 +37,7 @@ export default function PalleteButton({
         bg={status === 'absent' ? 'gray.1' : status === 'correct' ? 'green.0' : status === 'present' ? 'orange.0' : undefined}
       >
         <Stack gap={0}>
-          <Text size="xl" c={getBadgeColor(status)}>
+          <Text size="lg" c={getBadgeColor(status)}>
             {text}
           </Text>
           {subtext && (

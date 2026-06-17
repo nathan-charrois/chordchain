@@ -88,11 +88,11 @@ export function shouldRevealTarget(status: GameStatus): boolean {
 
 export function getEndStateMessage(status: GameStatus): string | null {
   if (status === 'won') {
-    return 'You won!'
+    return 'You entered the correct chord chain for this puzzle. Wait for the next puzzle or choose a puzzle from a different date.'
   }
 
   if (status === 'loss') {
-    return 'You lost.'
+    return 'You reached the maximum number of guesses without guessing the correct chain of chords. Try again tomorrow or choose a puzzle from a different date.'
   }
 
   return null

@@ -75,15 +75,15 @@ export default function Board() {
   return (
     <>
       {isGameOverStatus(status) && endStateMessage && (
-        <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
+        <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Game Loss' : 'Game Win'} role="status" bdrs="md">
           <Stack gap="xs">
             <Text>{endStateMessage}</Text>
             {revealTarget && (
               <Stack gap={4}>
-                <Text size="sm" fw={600}>Correct progression</Text>
+                <Text size="md">Answer:</Text>
                 <Group gap="xs" wrap="wrap">
                   {target.map((chord, index) => (
-                    <Badge key={`${chord}-${index}`} color="green.7" variant="filled" size="lg" miw={64}>
+                    <Badge key={`${chord}-${index}`} color="green.7" variant="filled" size="lg" miw={64} bdrs="md">
                       {chord}
                     </Badge>
                   ))}
