@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert, Badge, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
-import { buildGuessRows, getGuessCellColor, getGuessCellVariant } from '../Game/logic/game'
+import { buildGuessRows, getGuessCellColor } from '../Game/logic/game'
 import { getEndStateMessage, isGameOverStatus, shouldRevealTarget } from '../Game/logic/session'
 import PlaybackControls from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
@@ -97,15 +97,6 @@ export default function Board() {
         <Stack>
           {guessRows.map(row => (
             <>
-              {row.index === 0 && (
-                <Group grow my="sm">
-                  {Array.from({ length: maxLength }, (_, cellIndex) => (
-                    <Group justify="center" align="center">
-                      <Text c="dimmed">{cellIndex + 1}</Text>
-                    </Group>
-                  ))}
-                </Group>
-              )}
               <Group
                 key={row.index}
                 gap="xs"
@@ -115,15 +106,15 @@ export default function Board() {
                 {Array.from({ length: maxLength }, (_, cellIndex) => (
                   <Badge
                     key={`${row.index}-${cellIndex}`}
-                    color={getGuessCellColor(row, cellIndex, activeIndex)}
-                    variant={getGuessCellVariant(row)}
-                    size="xl"
-                    fw={400}
+                    bg={getGuessCellColor(row, cellIndex, activeIndex).background}
+                    c={getGuessCellColor(row, cellIndex, activeIndex).color}
+                    variant="filled"
                     w="25%"
-                    h={100}
+                    h={120}
                     radius="lg"
+                    tt="capitalize"
                   >
-                    {row.chords[cellIndex]}
+                    <Text size="xl" fw={500}>{row.chords[cellIndex]}</Text>
                   </Badge>
                 ))}
               </Group>

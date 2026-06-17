@@ -1,8 +1,9 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { Button, type ButtonVariant, Stack, Text } from '@mantine/core'
 
 import Card from '../Card/Card'
 import type { GuessStatus } from '../Game/context/GameContext'
+import { getBadgeColor } from '../Game/logic/game'
 
 type Props = {
   text: string
@@ -20,27 +21,6 @@ export default function PalleteButton({
   disabled,
   onClick,
 }: Props) {
-  const statusPalette = useMemo(() => {
-    switch (status) {
-      case 'correct':
-        return {
-          textColor: '#2b8a3e',
-        }
-      case 'present':
-        return {
-          textColor: '#e67700',
-        }
-      case 'absent':
-        return {
-          textColor: '#495057',
-        }
-      default:
-        return {
-          textColor: undefined,
-        }
-    }
-  }, [status])
-
   const handleOnClick = useCallback((text: string) => {
     onClick(text)
   }, [onClick])
@@ -54,9 +34,10 @@ export default function PalleteButton({
         disabled={disabled}
         aria-disabled={disabled}
         h={80}
+        bg={status === 'absent' ? 'gray.1' : status === 'correct' ? 'green.0' : status === 'present' ? 'orange.0' : undefined}
       >
         <Stack gap={0}>
-          <Text size="xl" c={!!disabled ? undefined : statusPalette.textColor}>
+          <Text size="xl" c={getBadgeColor(status)}>
             {text}
           </Text>
           {subtext && (

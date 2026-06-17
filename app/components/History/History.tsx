@@ -49,7 +49,7 @@ export default function History() {
       const isFailed = entry?.failed === true
       const isSelected = date === selectedPuzzleDate
       const actionLabel = isSelected ? 'Viewing' : 'View'
-      const statusLabel = isFailed ? 'Failed' : isCompleted ? 'Complete' : 'Incomplete'
+      const statusLabel = isFailed ? 'Failed' : isCompleted ? 'Complete' : undefined
       const statusColor = isFailed ? 'red' : isCompleted ? 'green' : 'gray'
 
       return (
@@ -63,8 +63,9 @@ export default function History() {
               <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
             </Stack>
             <Group gap="xs">
-              <Badge color="cyan" variant="outline">{puzzle.difficulty}</Badge>
-              <Badge color={statusColor} variant="outline">{statusLabel}</Badge>
+              <Badge color="gray.6" variant="outline">{puzzle.difficulty}</Badge>
+              {statusLabel && (<Badge color={statusColor} variant="outline">{statusLabel}</Badge>)}
+
             </Group>
             {(entry?.completed || entry?.failed) && (
               <Stack gap={2}>

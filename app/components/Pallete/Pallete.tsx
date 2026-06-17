@@ -103,7 +103,7 @@ export default function Pallete() {
           size="lg"
           radius="md"
         >
-          Enter
+          Submit Chain
         </Button>
       </Group>
     </>

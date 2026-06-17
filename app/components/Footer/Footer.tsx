@@ -4,7 +4,7 @@ const href = 'https://nathansoftware.ca'
 
 export default function Footer() {
   return (
-    <Text size="md" ta="center">
+    <Text size="md" ta="center" my="xl">
       <Anchor href={href} pl="xs" target="_blank">
         Nathan Software © 2025
       </Anchor>

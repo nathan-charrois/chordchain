@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Calendar03Icon, Fire02Icon, PuzzleFreeIcons } from '@hugeicons/core-free-icons'
+import { Calendar03Icon, CheckmarkCircle04Icon, Fire02Icon, PuzzleFreeIcons } from '@hugeicons/core-free-icons'
 import { Divider, Group, Stack, Text } from '@mantine/core'
 
 import Card from '~/components/Card/Card'
@@ -11,6 +11,7 @@ export default function SidebarCalendar() {
   const {
     activePuzzle,
     currentStreak,
+    status,
   } = useGame()
 
   const [secondsUntilReset, setSecondsUntilReset] = useState(() =>
@@ -41,17 +42,24 @@ export default function SidebarCalendar() {
       <Divider my="md" variant="dashed" />
       <Group align="center" justify="space-between" mb="lg">
         <Stack gap={2}>
-          <Text size="sm">Next Puzzle</Text>
-          <Text fw={500} size="md">{formatCountdown(secondsUntilReset)}</Text>
+          <Text size="sm">Status</Text>
+          <Text fw={500} size="md" tt="capitalize">{status}</Text>
         </Stack>
-        <Icon icon={PuzzleFreeIcons} onClick={() => { }} />
+        <Icon icon={CheckmarkCircle04Icon} onClick={() => { }} />
       </Group>
-      <Group align="center" justify="space-between">
+      <Group align="center" justify="space-between" mb="lg">
         <Stack gap={2}>
           <Text size="sm">Streak</Text>
           <Text fw={500} size="md">{`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}</Text>
         </Stack>
         <Icon icon={Fire02Icon} onClick={() => { }} />
+      </Group>
+      <Group align="center" justify="space-between">
+        <Stack gap={2}>
+          <Text size="sm">Next Puzzle</Text>
+          <Text fw={500} size="md">{formatCountdown(secondsUntilReset)}</Text>
+        </Stack>
+        <Icon icon={PuzzleFreeIcons} onClick={() => { }} />
       </Group>
     </Card>
   )

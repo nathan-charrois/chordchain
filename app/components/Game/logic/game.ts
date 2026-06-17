@@ -216,40 +216,39 @@ export function getKeyClassName(status?: GuessStatus): string {
 export function getBadgeColor(status?: GuessStatus): string {
   switch (status) {
     case 'correct':
-      return 'green.7'
+      return 'green.8'
     case 'present':
-      return 'yellow.7'
+      return 'yellow.6'
     case 'absent':
     default:
-      return 'dark.3'
-      return 'gray.5'
+      return 'gray.6'
   }
 }
 
-export function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex: number | null): string {
+export function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex: number | null) {
   if (row.kind === 'submitted') {
-    return getBadgeColor(row.status[cellIndex])
+    return {
+      background: getBadgeColor(row.status[cellIndex]),
+      color: 'gray.0',
+    }
   }
 
   if (row.kind === 'active' && cellIndex === activeIndex) {
-    return 'lime.6'
+    return {
+      background: 'gray.2',
+      color: 'gray.9',
+    }
   }
 
   if (row.kind === 'active' && row.chords[cellIndex]) {
-    return 'gray.4'
+    return {
+      background: 'gray.1',
+      color: 'gray.9',
+    }
   }
 
-  return 'gray.4'
-}
-
-export function getGuessCellVariant(row: GuessRow): 'filled' | 'light' | 'outline' {
-  if (row.kind === 'submitted') {
-    return 'filled'
+  return {
+    background: 'gray.0',
+    color: 'gray.9',
   }
-
-  if (row.kind === 'active') {
-    return 'light'
-  }
-
-  return 'light'
 }

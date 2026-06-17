@@ -23,8 +23,8 @@ export default function DebugPanel() {
     <Box
       style={{
         position: 'fixed',
-        top: 202,
-        right: 12,
+        top: 20,
+        right: 0,
         zIndex: 200,
         maxWidth: 'calc(100vw - 24px)',
       }}
@@ -35,7 +35,7 @@ export default function DebugPanel() {
           variant={isExpanded ? 'filled' : 'light'}
           onClick={() => setIsExpanded(prev => !prev)}
         >
-          {isExpanded ? 'Hide Debug' : 'Show Debug'}
+          Debug
         </Button>
       </Group>
 
