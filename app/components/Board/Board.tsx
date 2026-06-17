@@ -1,10 +1,12 @@
 import { useCallback, useMemo, useState } from 'react'
+import { Idea01Icon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert, Badge, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor, getGuessCellVariant } from '../Game/logic/game'
 import { getEndStateMessage, isGameOverStatus, shouldRevealTarget } from '../Game/logic/session'
-import { PlaybackControls } from './components/PlaybackControls'
+import PlaybackControls from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import Card from '~/components/Card/Card'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
@@ -84,8 +86,6 @@ export default function Board() {
           onToggleArpeggiate={handleToggleArpeggiate}
         />
       </Card>
-      <Group grow align="stretch">
-      </Group>
       {isGameOverStatus(status) && endStateMessage && (
         <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
           <Stack gap="xs">
@@ -105,29 +105,47 @@ export default function Board() {
           </Stack>
         </Alert>
       )}
-      <Card withBorder>
+      <Card>
         <Stack>
           {guessRows.map(row => (
-            <Group
-              key={row.index}
-              gap="xs"
-              wrap="nowrap"
-              aria-label={`Guess ${row.index + 1} ${row.kind}`}
-            >
-              {Array.from({ length: maxLength }, (_, cellIndex) => (
-                <Badge
-                  key={`${row.index}-${cellIndex}`}
-                  color={getGuessCellColor(row, cellIndex, activeIndex)}
-                  variant={getGuessCellVariant(row)}
-                  size="lg"
-                  miw={64}
-                >
-                  {row.chords[cellIndex]}
-                </Badge>
-              ))}
-            </Group>
+            <>
+              {row.index === 0 && (
+                <Group grow my="sm">
+                  {Array.from({ length: maxLength }, (_, cellIndex) => (
+                    <Group justify="center" align="center">
+                      <Text c="dimmed">{cellIndex + 1}</Text>
+                    </Group>
+                  ))}
+                </Group>
+              )}
+              <Group
+                key={row.index}
+                gap="xs"
+                wrap="nowrap"
+                aria-label={`Guess ${row.index + 1} ${row.kind}`}
+              >
+                {Array.from({ length: maxLength }, (_, cellIndex) => (
+                  <Badge
+                    key={`${row.index}-${cellIndex}`}
+                    color={getGuessCellColor(row, cellIndex, activeIndex)}
+                    variant={getGuessCellVariant(row)}
+                    size="xl"
+                    fw={400}
+                    w="25%"
+                    h={100}
+                    radius="lg"
+                  >
+                    {row.chords[cellIndex]}
+                  </Badge>
+                ))}
+              </Group>
+            </>
           ))}
         </Stack>
+        <Group mt="xl" mb="lg" justify="center">
+          <HugeiconsIcon icon={Idea01Icon} aria-label="Play" color="#228be6" />
+          <Text c="dimmed">Tap a chord below to create a chain.</Text>
+        </Group>
       </Card>
     </>
   )

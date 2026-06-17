@@ -8,8 +8,8 @@ export default function Sidebar() {
   return (
     <Stack gap="md">
       <SidebarCalendar />
-      <SidebarDetails />
       <SidebarStreak />
+      <SidebarDetails />
     </Stack>
   )
 }

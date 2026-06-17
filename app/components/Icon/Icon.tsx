@@ -2,7 +2,7 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Button, Stack, Text } from '@mantine/core'
 
 type IconProps = {
-  label: string
+  label?: string
   icon: IconSvgElement
   onClick: () => void
 }
@@ -10,9 +10,13 @@ type IconProps = {
 export default function Icon({ onClick, label, icon }: IconProps) {
   return (
     <Button variant="transparent" onClick={onClick} h="auto" size="compact-sm">
-      <Stack align="center" gap={5}>
+      <Stack align="center" gap={8}>
         <HugeiconsIcon icon={icon} aria-label={label} />
-        <Text>{label}</Text>
+        {label && (
+          <Text c="dark.8">
+            {label}
+          </Text>
+        )}
       </Stack>
     </Button>
   )

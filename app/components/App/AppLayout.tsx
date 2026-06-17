@@ -10,7 +10,7 @@ type Props = {
 
 export default function AppLayout({ children }: Props) {
   return (
-    <Container>
+    <Container size="lg">
       <Header />
       {children}
       <Footer />

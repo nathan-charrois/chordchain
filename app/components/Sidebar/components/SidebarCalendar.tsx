@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Group, Stack, Text } from '@mantine/core'
+import { Calendar03Icon } from '@hugeicons/core-free-icons'
+import { Divider, Group, Stack, Text } from '@mantine/core'
 
 import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
+import Icon from '~/components/Icon/Icon'
 import { formatCountdown, formatDisplayDate, getSecondsToNextMidnight } from '~/utils/date'
 
 export default function SidebarCalendar() {
@@ -26,16 +28,22 @@ export default function SidebarCalendar() {
   }, [])
 
   return (
-    <Card withBorder>
-      <Group justify="space-between" align="center" wrap="wrap">
-        <Stack gap={2}>
-          <Text fw={700}>{formatDisplayDate(activePuzzle.date)}</Text>
-          <Text size="sm">Daily Puzzle</Text>
-          {activePuzzle.date !== todayDate
-            ? (<Text size="sm" c="blue.6">Playing previous puzzle</Text>)
-            : (<Text size="sm" c="dimmed">{`Puzzle resets in ${formatCountdown(secondsUntilReset)}`}</Text>)}
-        </Stack>
-      </Group>
+    <Card>
+      <Stack>
+        <Group align="center" wrap="wrap">
+          <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
+            <Icon icon={Calendar03Icon} onClick={() => { }} />
+          </Stack>
+          <Stack gap={4}>
+            <Text fw={500} size="md">{formatDisplayDate(activePuzzle.date)}</Text>
+            <Text size="sm">Daily Puzzle</Text>
+          </Stack>
+        </Group>
+        <Divider variant="dashed" />
+        {activePuzzle.date !== todayDate
+          ? (<Text c="dimmed">Playing previous puzzle</Text>)
+          : (<Text c="dimmed">{`New puzzle in ${formatCountdown(secondsUntilReset)}`}</Text>)}
+      </Stack>
     </Card>
   )
 }

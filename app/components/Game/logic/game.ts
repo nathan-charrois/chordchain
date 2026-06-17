@@ -220,8 +220,8 @@ export function getBadgeColor(status?: GuessStatus): string {
     case 'present':
       return 'yellow.7'
     case 'absent':
-      return 'gray.7'
     default:
+      return 'dark.3'
       return 'gray.5'
   }
 }
@@ -236,7 +236,7 @@ export function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex:
   }
 
   if (row.kind === 'active' && row.chords[cellIndex]) {
-    return 'gray.6'
+    return 'gray.8'
   }
 
   return 'gray.4'
@@ -248,7 +248,7 @@ export function getGuessCellVariant(row: GuessRow): 'filled' | 'light' | 'outlin
   }
 
   if (row.kind === 'active') {
-    return 'outline'
+    return 'light'
   }
 
   return 'light'

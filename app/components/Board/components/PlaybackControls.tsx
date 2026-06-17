@@ -1,4 +1,7 @@
-import { Button, Checkbox, Group, Slider, Stack, Text } from '@mantine/core'
+import { useMemo } from 'react'
+import { PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Button, Checkbox, Group, Slider, Text } from '@mantine/core'
 
 type PlaybackControlsProps = {
   isPlaying: boolean
@@ -11,7 +14,7 @@ type PlaybackControlsProps = {
   onToggleArpeggiate: () => void
 }
 
-export function PlaybackControls({
+export default function PlaybackControls({
   isPlaying,
   onTogglePlayback,
   tempoBpm,
@@ -21,24 +24,36 @@ export function PlaybackControls({
   isArpeggiate,
   onToggleArpeggiate,
 }: PlaybackControlsProps) {
+  const leftSection = useMemo(() => {
+    if (isPlaying) {
+      return <HugeiconsIcon icon={PauseIcon} aria-label="Pause" />
+    }
+
+    return <HugeiconsIcon icon={PlayIcon} aria-label="Play" />
+  }, [isPlaying])
+
   return (
-    <Stack gap="md">
-      <Group>
-        <Button onClick={onTogglePlayback}>{isPlaying ? 'Stop' : 'Play'}</Button>
+    <Group>
+      <Group flex="4" mr="xl">
+        <Button size="lg" mr="sm" radius="md" leftSection={leftSection} onClick={onTogglePlayback}>
+          {isPlaying ? 'Stop' : 'Play'}
+        </Button>
         <Checkbox label="Loop" checked={isLooping} onChange={onToggleLooping} />
         <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={onToggleArpeggiate} />
       </Group>
-      <Stack gap="xs">
-        <Text size="sm" fw={600}>{`Tempo: ${tempoBpm} BPM`}</Text>
+      <Group flex="2" grow>
         <Slider
           aria-label="Tempo"
-          min={60}
-          max={200}
-          step={5}
+          min={20}
+          max={180}
+          step={1}
           value={tempoBpm}
           onChange={onTempoChange}
         />
-      </Stack>
-    </Stack>
+      </Group>
+      <Text size="sm" w={60}>
+        {`${tempoBpm} BPM`}
+      </Text>
+    </Group>
   )
 }

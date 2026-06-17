@@ -1,10 +1,12 @@
 import { useCallback, useMemo } from 'react'
-import { Button, type ButtonVariant, Text } from '@mantine/core'
+import { Button, type ButtonVariant, Stack, Text } from '@mantine/core'
 
+import Card from '../Card/Card'
 import type { GuessStatus } from '../Game/context/GameContext'
 
 type Props = {
   text: string
+  subtext?: string
   variant?: ButtonVariant
   status?: GuessStatus
   disabled?: boolean
@@ -13,7 +15,7 @@ type Props = {
 
 export default function PalleteButton({
   text,
-  variant,
+  subtext,
   status,
   disabled,
   onClick,
@@ -37,29 +39,33 @@ export default function PalleteButton({
           textColor: undefined,
         }
     }
-  }, [status, variant])
+  }, [status])
 
   const handleOnClick = useCallback((text: string) => {
     onClick(text)
   }, [onClick])
 
-  const buttonStyle = useMemo(() => ({
-    cursor: disabled ? 'not-allowed' : 'pointer',
-    opacity: disabled ? 0.55 : 1,
-  }), [disabled])
-
   return (
-    <Button
-      variant={variant}
-      size="xl"
-      style={buttonStyle}
-      onClick={() => handleOnClick(text)}
-      disabled={disabled}
-      aria-disabled={disabled}
-    >
-      <Text c={statusPalette.textColor}>
-        {text}
-      </Text>
-    </Button>
+    <Card p={0} shadow="xs">
+      <Button
+        variant="subtle"
+        size="lg"
+        onClick={() => handleOnClick(text)}
+        disabled={disabled}
+        aria-disabled={disabled}
+        h={80}
+      >
+        <Stack gap={0}>
+          <Text size="xl" c={!!disabled ? undefined : statusPalette.textColor}>
+            {text}
+          </Text>
+          {subtext && (
+            <Text size="sm" c="dimmed">
+              iv
+            </Text>
+          )}
+        </Stack>
+      </Button>
+    </Card>
   )
 }

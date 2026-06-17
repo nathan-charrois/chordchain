@@ -164,7 +164,7 @@ function getChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug')
 
 function getPolicyChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug'): string {
   if (quality === 'major') {
-    return `${root}maj`
+    return `${root}`
   }
 
   return getChordLabel(root, quality)
@@ -191,7 +191,6 @@ function getSeventhQuality(
     return 'm7b5'
   }
 
-  // Fallback keeps generation deterministic for malformed input.
   return 'dom7'
 }
 
