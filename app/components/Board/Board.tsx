@@ -74,18 +74,6 @@ export default function Board() {
 
   return (
     <>
-      <Card mb="lg">
-        <PlaybackControls
-          isPlaying={isPlaying}
-          onTogglePlayback={handleTogglePlayback}
-          tempoBpm={tempoBpm}
-          onTempoChange={handleTempoChange}
-          isLooping={isLooping}
-          onToggleLooping={handleToggleLooping}
-          isArpeggiate={isArpeggiate}
-          onToggleArpeggiate={handleToggleArpeggiate}
-        />
-      </Card>
       {isGameOverStatus(status) && endStateMessage && (
         <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Run complete: Loss' : 'Run complete: Win'} role="status">
           <Stack gap="xs">
@@ -146,6 +134,18 @@ export default function Board() {
           <HugeiconsIcon icon={Idea01Icon} aria-label="Play" color="#228be6" />
           <Text c="dimmed">Tap a chord below to create a chain.</Text>
         </Group>
+      </Card>
+      <Card mt="lg">
+        <PlaybackControls
+          isPlaying={isPlaying}
+          onTogglePlayback={handleTogglePlayback}
+          tempoBpm={tempoBpm}
+          onTempoChange={handleTempoChange}
+          isLooping={isLooping}
+          onToggleLooping={handleToggleLooping}
+          isArpeggiate={isArpeggiate}
+          onToggleArpeggiate={handleToggleArpeggiate}
+        />
       </Card>
     </>
   )

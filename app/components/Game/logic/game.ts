@@ -236,7 +236,7 @@ export function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex:
   }
 
   if (row.kind === 'active' && row.chords[cellIndex]) {
-    return 'gray.8'
+    return 'gray.4'
   }
 
   return 'gray.4'

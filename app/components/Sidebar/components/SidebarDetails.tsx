@@ -48,32 +48,25 @@ export default function SidebarDetails() {
               <Icon icon={PuzzleIcon} onClick={() => { }} />
             </Stack>
             <Stack gap={2}>
-              <Text size="sm">Puzzle</Text>
+              <Text size="sm">Puzzle Name</Text>
               <Text fw={500} size="md">{activePuzzle.name}</Text>
             </Stack>
           </Group>
         </Stack>
-        <Divider my="lg" variant="dashed" />
-        <Stack>
-          <Group align="center" wrap="wrap">
-            <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
-              <Icon icon={difficultyIcon} onClick={() => { }} />
-            </Stack>
-            <Stack gap={2}>
-              <Text size="sm">Difficulty</Text>
-              <Text fw={500} size="md" c={difficultyTextColor}>{activePuzzle.difficulty}</Text>
-            </Stack>
-          </Group>
-        </Stack>
-        <Divider my="lg" variant="dashed" />
-        <Group align="center" wrap="wrap">
-          <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
-            <Icon icon={MusicNote02Icon} onClick={() => { }} />
+        <Divider my="md" variant="dashed" />
+        <Group align="center" justify="space-between" mb="lg">
+          <Stack gap={2}>
+            <Text size="sm">Difficulty</Text>
+            <Text fw={500} size="md" c={difficultyTextColor}>{activePuzzle.difficulty}</Text>
           </Stack>
+          <Icon icon={difficultyIcon} onClick={() => { }} />
+        </Group>
+        <Group align="center" justify="space-between">
           <Stack gap={4}>
-            <Text size="sm">Key & Mode</Text>
+            <Text size="sm">Key / Mode</Text>
             <Text fw={500} size="md">{`${keyLabel} ${modeLabel}`}</Text>
           </Stack>
+          <Icon icon={MusicNote02Icon} onClick={() => { }} />
         </Group>
       </Card>
     </>
