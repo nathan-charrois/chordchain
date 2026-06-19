@@ -10,7 +10,7 @@ import PlaybackControls from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import Card from '~/components/Card/Card'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
-import { buildChord, buildDisplayProgression, buildScale, chordIdKey } from '~/utils/music'
+import { buildChord, buildChords, buildScale, chordIdKey } from '~/utils/music'
 
 export default function Board() {
   const {
@@ -68,8 +68,8 @@ export default function Board() {
     () => buildScale(activePuzzle.key, activePuzzle.mode),
     [activePuzzle.key, activePuzzle.mode],
   )
-  const displayProgression = useMemo(
-    () => buildDisplayProgression(activePuzzle.key, activePuzzle.mode, progression),
+  const chords = useMemo(
+    () => buildChords(activePuzzle.key, activePuzzle.mode, progression),
     [activePuzzle.key, activePuzzle.mode, progression],
   )
 
@@ -93,7 +93,7 @@ export default function Board() {
               <Stack gap={4}>
                 <Text size="md">Answer:</Text>
                 <Group gap="xs" wrap="wrap">
-                  {displayProgression.map((chord, index) => (
+                  {chords.map((chord, index) => (
                     <Badge key={`${chordIdKey(chord)}-${index}`} color="green.7" variant="filled" size="lg" miw={64} bdrs="md">
                       {chord.name}
                     </Badge>

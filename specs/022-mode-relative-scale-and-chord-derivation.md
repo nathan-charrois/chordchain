@@ -391,7 +391,7 @@ buildChord(
 - Components that need concrete answer data may locally call a pure helper equivalent to:
 
 ```ts
-buildDisplayProgression(
+buildChords(
   key: string,
   mode: ModeId,
   progression: ChordId[],

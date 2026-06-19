@@ -1,7 +1,7 @@
-import { playChord } from './music'
+import { type ArpeggiateType, playChord } from './music'
 
 export const SEQUENCE_GAP_MS = 1200
-export const DEFAULT_TEMPO_BPM = 120
+export const DEFAULT_TEMPO_BPM = 110
 
 type TimeoutHandle = ReturnType<typeof setTimeout>
 
@@ -24,13 +24,14 @@ let activeSession = 0
 type PlaySequence = {
   chords: string[][]
   arpeggiate: boolean
+  arpeggiateType: ArpeggiateType
   shouldLoop: () => boolean
   tempoBpm: number
   setIndex: (index: number | null) => void
   onComplete?: () => void
 }
 
-export function playSequence({ chords, arpeggiate, setIndex, shouldLoop, tempoBpm, onComplete }: PlaySequence) {
+export function playSequence({ chords, arpeggiate, arpeggiateType, setIndex, shouldLoop, tempoBpm, onComplete }: PlaySequence) {
   const session = startNewSession()
   const sequenceGapMs = getSequenceGapMs(tempoBpm)
   const totalDuration = chords.length * sequenceGapMs
@@ -43,6 +44,7 @@ export function playSequence({ chords, arpeggiate, setIndex, shouldLoop, tempoBp
     playSequenceOnce({
       chords,
       arpeggiate,
+      arpeggiateType,
       setIndex,
       sequenceGapMs,
       session: currentSession,
@@ -72,12 +74,12 @@ export function playSequence({ chords, arpeggiate, setIndex, shouldLoop, tempoBp
   playSequenceAndLoop(session)
 }
 
-type PlaySequenceOnce = Pick<PlaySequence, 'chords' | 'arpeggiate' | 'setIndex'> & {
+type PlaySequenceOnce = Pick<PlaySequence, 'chords' | 'arpeggiate' | 'arpeggiateType' | 'setIndex'> & {
   sequenceGapMs: number
   session: number
 }
 
-export function playSequenceOnce({ chords, arpeggiate, setIndex, sequenceGapMs, session }: PlaySequenceOnce) {
+export function playSequenceOnce({ chords, arpeggiate, arpeggiateType, setIndex, sequenceGapMs, session }: PlaySequenceOnce) {
   clearChordTimeouts()
 
   for (let i = 0; i < chords.length; i++) {
@@ -87,7 +89,7 @@ export function playSequenceOnce({ chords, arpeggiate, setIndex, sequenceGapMs, 
           return
         }
 
-        playChord(chords[i], arpeggiate, sequenceGapMs)
+        playChord(chords[i], arpeggiate, arpeggiateType, sequenceGapMs)
         setIndex(i)
       },
       i * sequenceGapMs,

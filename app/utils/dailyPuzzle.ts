@@ -1,5 +1,5 @@
 import { GAME_MAX_CHARS } from '~/constant'
-import type { ChordId, ModeId, PuzzleDifficulty } from '~/utils/music'
+import type { ArpeggiateType, ChordId, ModeId, PuzzleDifficulty } from '~/utils/music'
 import {
   formatModeLabel,
   isChordAllowedForDifficulty,
@@ -13,6 +13,7 @@ export type PuzzleDefinition = {
   name: string
   key: string
   mode: ModeId
+  arpeggiateType: ArpeggiateType
   difficulty: PuzzleDifficulty
   progression: ChordId[]
 }
@@ -26,6 +27,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'C',
     mode: 'mixolydian',
     difficulty: 'easy',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 7, type: 'triad' },
@@ -39,6 +41,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'E',
     mode: 'phrygian',
     difficulty: 'medium',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'triad' },
@@ -52,6 +55,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'C',
     mode: 'ionian',
     difficulty: 'medium',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -65,6 +69,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'F',
     mode: 'lydian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'triad' },
@@ -78,6 +83,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'G',
     mode: 'mixolydian',
     difficulty: 'medium',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 7, type: 'triad' },
@@ -91,6 +97,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'A',
     mode: 'aeolian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -104,6 +111,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'B',
     mode: 'locrian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 2, type: 'triad' },
       { degree: 3, type: 'triad' },
@@ -117,6 +125,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'C',
     mode: 'ionian',
     difficulty: 'medium',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 6, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -130,6 +139,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'D',
     mode: 'dorian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'seventh' },
@@ -143,6 +153,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'E',
     mode: 'phrygian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'seventh' },
@@ -156,6 +167,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'F',
     mode: 'lydian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 7, type: 'seventh' },
@@ -169,6 +181,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'G',
     mode: 'mixolydian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 5, type: 'seventh' },
@@ -182,6 +195,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'A',
     mode: 'aeolian',
     difficulty: 'medium',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 6, type: 'triad' },
@@ -195,6 +209,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'B',
     mode: 'locrian',
     difficulty: 'hard',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 3, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -208,10 +223,11 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'C',
     mode: 'ionian',
     difficulty: 'medium',
+    arpeggiateType: 'inside_out',
     progression: [
-      { degree: 1, type: 'triad' },
-      { degree: 6, type: 'triad' },
-      { degree: 2, type: 'triad' },
+      { degree: 1, type: 'seventh' },
+      { degree: 6, type: 'seventh' },
+      { degree: 2, type: 'seventh' },
       { degree: 5, type: 'seventh' },
     ],
   },
@@ -221,24 +237,26 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'D',
     mode: 'dorian',
     difficulty: 'hard',
+    arpeggiateType: 'broken_chord',
     progression: [
-      { degree: 1, type: 'triad' },
-      { degree: 5, type: 'triad' },
+      { degree: 1, type: 'seventh' },
+      { degree: 5, type: 'seventh' },
       { degree: 7, type: 'seventh' },
-      { degree: 1, type: 'triad' },
+      { degree: 1, type: 'seventh' },
     ],
   },
   '2026-06-08': {
     date: '2026-06-08',
-    name: 'Brick Lane Glow',
+    name: 'Scooter Lane High',
     key: 'E',
     mode: 'phrygian',
     difficulty: 'hard',
+    arpeggiateType: 'full_sweep',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 7, type: 'seventh' },
       { degree: 6, type: 'triad' },
-      { degree: 1, type: 'triad' },
+      { degree: 1, type: 'seventh' },
     ],
   },
   '2026-06-09': {
@@ -247,11 +265,12 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'F',
     mode: 'lydian',
     difficulty: 'hard',
+    arpeggiateType: 'skip_thirds_up',
     progression: [
       { degree: 1, type: 'seventh' },
-      { degree: 3, type: 'triad' },
-      { degree: 2, type: 'triad' },
-      { degree: 1, type: 'triad' },
+      { degree: 3, type: 'seventh' },
+      { degree: 2, type: 'seventh' },
+      { degree: 1, type: 'seventh' },
     ],
   },
   '2026-06-10': {
@@ -260,11 +279,12 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'G',
     mode: 'mixolydian',
     difficulty: 'medium',
+    arpeggiateType: 'spiral_down',
     progression: [
       { degree: 1, type: 'seventh' },
-      { degree: 6, type: 'triad' },
-      { degree: 5, type: 'triad' },
-      { degree: 1, type: 'triad' },
+      { degree: 6, type: 'seventh' },
+      { degree: 5, type: 'seventh' },
+      { degree: 1, type: 'seventh' },
     ],
   },
   '2026-06-11': {
@@ -273,11 +293,12 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'A',
     mode: 'aeolian',
     difficulty: 'hard',
+    arpeggiateType: 'seventh_rythmic_feel',
     progression: [
       { degree: 1, type: 'seventh' },
-      { degree: 3, type: 'triad' },
+      { degree: 3, type: 'seventh' },
       { degree: 7, type: 'triad' },
-      { degree: 1, type: 'triad' },
+      { degree: 1, type: 'seventh' },
     ],
   },
   '2026-06-12': {
@@ -286,8 +307,9 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'B',
     mode: 'locrian',
     difficulty: 'hard',
+    arpeggiateType: 'seventh_pop_ostinato',
     progression: [
-      { degree: 2, type: 'triad' },
+      { degree: 2, type: 'seventh' },
       { degree: 6, type: 'triad' },
       { degree: 7, type: 'seventh' },
       { degree: 3, type: 'triad' },
@@ -299,6 +321,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'C',
     mode: 'ionian',
     difficulty: 'medium',
+    arpeggiateType: 'seventh_ascend',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'seventh' },
@@ -311,10 +334,11 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     name: 'City Lullaby',
     key: 'D',
     mode: 'dorian',
-    difficulty: 'medium',
+    difficulty: 'easy',
+    arpeggiateType: 'triad_alberti',
     progression: [
       { degree: 1, type: 'triad' },
-      { degree: 5, type: 'seventh' },
+      { degree: 5, type: 'triad' },
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'triad' },
     ],
@@ -324,10 +348,11 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     name: 'Low Horizon',
     key: 'E',
     mode: 'phrygian',
-    difficulty: 'medium',
+    difficulty: 'easy',
+    arpeggiateType: 'triad_downup',
     progression: [
       { degree: 1, type: 'triad' },
-      { degree: 5, type: 'seventh' },
+      { degree: 5, type: 'triad' },
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'triad' },
     ],
@@ -337,12 +362,13 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     name: 'Glass Garden',
     key: 'F',
     mode: 'lydian',
-    difficulty: 'medium',
+    difficulty: 'hard',
+    arpeggiateType: 'seventh_pop_ostinato',
     progression: [
-      { degree: 1, type: 'triad' },
+      { degree: 1, type: 'seventh' },
       { degree: 5, type: 'seventh' },
-      { degree: 1, type: 'triad' },
-      { degree: 2, type: 'triad' },
+      { degree: 1, type: 'seventh' },
+      { degree: 2, type: 'seventh' },
     ],
   },
   '2026-06-17': {
@@ -350,10 +376,11 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     name: 'Old Radio',
     key: 'G',
     mode: 'mixolydian',
-    difficulty: 'medium',
+    difficulty: 'easy',
+    arpeggiateType: 'triad_descend',
     progression: [
       { degree: 1, type: 'triad' },
-      { degree: 5, type: 'seventh' },
+      { degree: 5, type: 'triad' },
       { degree: 1, type: 'triad' },
       { degree: 7, type: 'triad' },
     ],
@@ -363,10 +390,11 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     name: 'Slow Comet',
     key: 'A',
     mode: 'aeolian',
-    difficulty: 'medium',
+    difficulty: 'easy',
+    arpeggiateType: 'triad_ascend',
     progression: [
       { degree: 1, type: 'triad' },
-      { degree: 5, type: 'seventh' },
+      { degree: 5, type: 'triad' },
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'triad' },
     ],
@@ -377,11 +405,12 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'B',
     mode: 'locrian',
     difficulty: 'hard',
+    arpeggiateType: 'seventh_rythmic_feel',
     progression: [
-      { degree: 1, type: 'triad' },
+      { degree: 1, type: 'seventh' },
       { degree: 4, type: 'seventh' },
-      { degree: 5, type: 'triad' },
-      { degree: 2, type: 'triad' },
+      { degree: 5, type: 'seventh' },
+      { degree: 2, type: 'seventh' },
     ],
   },
 }
@@ -509,6 +538,7 @@ function resolvePuzzleEntry(entry: PuzzleDefinition): DailyPuzzle {
   return {
     date: entry.date,
     name: entry.name,
+    arpeggiateType: entry.arpeggiateType,
     key,
     mode,
     difficulty,

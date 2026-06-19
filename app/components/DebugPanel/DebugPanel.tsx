@@ -4,7 +4,7 @@ import { Badge, Box, Button, Group, Paper, Stack, Text } from '@mantine/core'
 import { useGame } from '../Game/hooks/useGame'
 import {
   buildChord,
-  buildDisplayProgression,
+  buildChords,
   buildPaletteChordIds,
   buildScale,
 } from '~/utils/music'
@@ -32,7 +32,7 @@ export default function DebugPanel() {
   }), [activePuzzle])
   const puzzleMusic = useMemo(() => {
     const scale = buildScale(activePuzzle.key, activePuzzle.mode)
-    const progression = buildDisplayProgression(
+    const progression = buildChords(
       activePuzzle.key,
       activePuzzle.mode,
       activePuzzle.progression,

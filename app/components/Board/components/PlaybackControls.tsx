@@ -44,8 +44,8 @@ export default function PlaybackControls({
       <Group flex="2" grow>
         <Slider
           aria-label="Tempo"
-          min={20}
-          max={180}
+          min={10}
+          max={160}
           step={1}
           value={tempoBpm}
           onChange={onTempoChange}

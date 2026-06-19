@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import { FullSignalIcon, LowSignalIcon, MediumSignalIcon, MusicNote02Icon, PuzzleIcon } from '@hugeicons/core-free-icons'
+import { ConstellationIcon, FullSignalIcon, LowSignalIcon, MediumSignalIcon, MusicNote02Icon, PuzzleIcon } from '@hugeicons/core-free-icons'
 import { Divider, Group, Stack, Text } from '@mantine/core'
 
 import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
-import { buildScale, formatModeLabel, formatPuzzleDifficulty } from '~/utils/music'
+import { formatArpeggiateType, formatModeLabel, formatPuzzleDifficulty } from '~/utils/music'
 
 export default function SidebarDetails() {
   const {
@@ -15,10 +15,7 @@ export default function SidebarDetails() {
   const keyLabel = activePuzzle.key
   const modeLabel = formatModeLabel(activePuzzle.mode)
   const difficultyLabel = formatPuzzleDifficulty(activePuzzle.difficulty)
-  const scale = useMemo(
-    () => buildScale(activePuzzle.key, activePuzzle.mode),
-    [activePuzzle.key, activePuzzle.mode],
-  )
+  const arpeggiateType = formatArpeggiateType(activePuzzle.arpeggiateType)
 
   const difficultyIcon = useMemo(() => {
     if (activePuzzle.difficulty === 'easy') {
@@ -66,11 +63,17 @@ export default function SidebarDetails() {
           </Stack>
           <Icon icon={difficultyIcon} onClick={() => { }} />
         </Group>
+        <Group align="center" justify="space-between" mb="lg">
+          <Stack gap={4}>
+            <Text size="sm">Pattern</Text>
+            <Text fw={500} size="md">{arpeggiateType}</Text>
+          </Stack>
+          <Icon icon={ConstellationIcon} onClick={() => { }} />
+        </Group>
         <Group align="center" justify="space-between">
           <Stack gap={4}>
             <Text size="sm">Key / Mode</Text>
             <Text fw={500} size="md">{`${keyLabel} ${modeLabel}`}</Text>
-            <Text size="sm" c="dimmed">{scale.join(', ')}</Text>
           </Stack>
           <Icon icon={MusicNote02Icon} onClick={() => { }} />
         </Group>

@@ -4,7 +4,7 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState } from
 import { useGame } from '~/components/Game/hooks/useGame'
 import { endSequence, playSequence, stopSequence } from '~/utils/chain'
 import type { ChordId } from '~/utils/music'
-import { buildDisplayProgression } from '~/utils/music'
+import { buildChords } from '~/utils/music'
 
 const TEMPO_PLAYBACK_RESTART_DELAY_MS = 300
 
@@ -31,8 +31,13 @@ export function SequenceProvider({ children }: SequenceProviderProps) {
   const tempoRestartTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [activeIndex, setIndex] = useState<number | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const progressionNotes = useMemo(() => {
-    return buildDisplayProgression(
+
+  const arpeggiateType = useMemo(() => {
+    return activePuzzle.arpeggiateType
+  }, [activePuzzle.arpeggiateType])
+
+  const chords = useMemo(() => {
+    return buildChords(
       activePuzzle.key,
       activePuzzle.mode,
       activePuzzle.progression,
@@ -68,8 +73,9 @@ export function SequenceProvider({ children }: SequenceProviderProps) {
     shouldLoopRef.current = loop
     setIsPlaying(true)
     playSequence({
-      chords: progressionNotes,
+      chords,
       arpeggiate,
+      arpeggiateType,
       shouldLoop: () => shouldLoopRef.current,
       tempoBpm,
       setIndex,
@@ -78,7 +84,7 @@ export function SequenceProvider({ children }: SequenceProviderProps) {
         setIsPlaying(false)
       },
     })
-  }, [progressionNotes, setIndex, clearPendingTempoRestart])
+  }, [chords, arpeggiateType, setIndex, clearPendingTempoRestart])
 
   const handleStop = useCallback(() => {
     clearPendingTempoRestart()

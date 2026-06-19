@@ -48,6 +48,41 @@ export const MODE_INTERVALS: Record<ModeId, readonly number[]> = {
   locrian: [0, 1, 3, 5, 6, 8, 10],
 }
 
+export type ArpeggiateType
+  = 'triad_ascend'
+    | 'triad_descend'
+    | 'triad_alberti'
+    | 'triad_updown'
+    | 'triad_downup'
+    | 'seventh_ascend'
+    | 'seventh_descend'
+    | 'seventh_pop_ostinato'
+    | 'seventh_rythmic_feel'
+    | 'full_sweep'
+    | 'cascade_up'
+    | 'skip_thirds_up'
+    | 'spiral_down'
+    | 'inside_out'
+    | 'broken_chord'
+
+export const ARPEGGIATE_RECIPES: Record<ArpeggiateType, readonly number[]> = {
+  triad_ascend: [1, 2, 3],
+  triad_descend: [3, 2, 1],
+  triad_alberti: [1, 2, 3, 2, 3],
+  triad_updown: [1, 3, 2],
+  triad_downup: [3, 1, 2],
+  seventh_ascend: [1, 2, 3, 4],
+  seventh_descend: [4, 3, 2, 1],
+  seventh_pop_ostinato: [1, 1, 3, 1, 4, 1, 3, 1],
+  seventh_rythmic_feel: [1, 2, 3, 2, 3, 4, 3, 4],
+  full_sweep: [1, 3, 2, 4, 3, 5, 4, 2],
+  cascade_up: [1, 2, 1, 3, 1, 4, 1, 5],
+  skip_thirds_up: [1, 3, 2, 4, 3, 5, 2, 4],
+  spiral_down: [4, 5, 3, 4, 2, 3, 1, 2],
+  inside_out: [3, 2, 4, 1, 5, 1, 4, 2, 3],
+  broken_chord: [1, 4, 2, 4, 3, 4, 2, 4],
+}
+
 export const CHORD_RECIPES: Record<ChordType, readonly number[]> = {
   triad: [0, 2, 4],
   seventh: [0, 2, 4, 6],
@@ -278,6 +313,13 @@ export function formatPuzzleDifficulty(difficulty: PuzzleDifficulty): string {
   return DIFFICULTY_LABELS[difficulty]
 }
 
+export function formatArpeggiateType(arpeggiateType: ArpeggiateType): string {
+  return arpeggiateType
+    .split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
+}
+
 export function formatKeyModeLabel(key: string, mode: ModeId): string {
   return `${key} ${formatModeLabel(mode)}`
 }
@@ -341,7 +383,7 @@ export function buildChord(scale: string[], chord: ChordId): DisplayChord {
   }
 }
 
-export function buildDisplayProgression(
+export function buildChords(
   key: string,
   mode: ModeId,
   progression: ChordId[],
@@ -392,34 +434,66 @@ export type VoicedTone = {
   octave: number
 }
 
-const DEFAULT_ARPEGGIO_INTERVAL_MS = 200
+const DEFAULT_TONE_INTERVAL_MS = 10
+const DEFAULT_ARPEGGIATED_TONE_INTERVAL_MS = 200
 const DEFAULT_SEQUENCE_GAP_MS = 1200
-const DEFAULT_TONE_VOLUME = 4
+const DEFAULT_TONE_VOLUME = 1
 const MAIN_CHORD_OCTAVE = 4
 const BASS_OCTAVE = MAIN_CHORD_OCTAVE - 1
 
-export function voicedTonesFromNotes(notes: string[]): VoicedTone[] {
+function sortNotesByArpeggiateType(
+  notes: string[],
+  arpeggiateType: ArpeggiateType,
+): string[] {
+  const recipe = ARPEGGIATE_RECIPES[arpeggiateType]
+
+  if (!recipe) {
+    return notes
+  }
+
+  return recipe
+    .filter((degree) => {
+      const tone = notes[degree - 1]
+
+      if (!tone) {
+        console.warn(`[music] Arpeggiator recipe references tone ${degree}, but chord only has ${notes.length} tones.`)
+        return false
+      }
+
+      return true
+    })
+    .map((degree) => {
+      const tone = notes[degree - 1]
+
+      return tone
+    })
+}
+
+export function voicedTonesFromNotes(notes: string[], arpeggiateType: ArpeggiateType): VoicedTone[] {
   if (!notes.length) {
     throw new Error('[music] Cannot voice a chord without notes.')
   }
 
   const rootPitchClass = getNotePitchClass(notes[0])
+
   const bassTone = {
     pitchClass: rootPitchClass,
     octave: BASS_OCTAVE,
   }
-  const chordTones = notes.map((note) => {
-    const interval = mod(getNotePitchClass(note) - rootPitchClass, 12)
 
+  const sortedNotes = sortNotesByArpeggiateType(notes, arpeggiateType)
+
+  const chordTones = sortedNotes.map((note) => {
+    const interval = mod(getNotePitchClass(note) - rootPitchClass, 12)
     return toneFromRootInterval(rootPitchClass, MAIN_CHORD_OCTAVE, interval)
   })
 
   return [bassTone, ...chordTones]
 }
 
-export function playChord(notes: string[], arpeggiate: boolean, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
-  const tones = voicedTonesFromNotes(notes)
-  const interval = arpeggiate ? getArpeggioIntervalMs(sequenceGapMs) : 0
+export function playChord(notes: string[], arpeggiate: boolean, arpeggiateType: ArpeggiateType, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
+  const tones = voicedTonesFromNotes(notes, arpeggiateType)
+  const interval = getToneIntervalMs(sequenceGapMs, arpeggiate)
   const volume = getChordToneVolume(tones.length)
 
   tones.forEach((tone, index) => {
@@ -440,30 +514,38 @@ function toneFromRootInterval(rootPitchClass: number, octave: number, interval: 
 }
 
 function getChordToneVolume(toneCount: number): number {
-  if (toneCount >= 5) {
-    return 3.1
+  if (toneCount > 5) {
+    return DEFAULT_TONE_VOLUME - 0.60
   }
-
-  if (toneCount === 4) {
-    return 3.4
+  else if (toneCount === 5) {
+    return DEFAULT_TONE_VOLUME - 0.50
   }
 
   return DEFAULT_TONE_VOLUME
 }
 
+function getToneIntervalMs(sequenceGapMs: number, arpeggiate: boolean) {
+  if (arpeggiate) {
+    return getArpeggioIntervalMs(sequenceGapMs)
+  }
+
+  return DEFAULT_TONE_INTERVAL_MS
+}
+
 function getArpeggioIntervalMs(sequenceGapMs: number) {
-  return DEFAULT_ARPEGGIO_INTERVAL_MS * (sequenceGapMs / DEFAULT_SEQUENCE_GAP_MS)
+  return DEFAULT_ARPEGGIATED_TONE_INTERVAL_MS * (sequenceGapMs / DEFAULT_SEQUENCE_GAP_MS)
 }
 
 export function playTone(pitchClass: number, octave: number, volume = DEFAULT_TONE_VOLUME) {
   const frequency = hzFromPitchClass(pitchClass, octave)
+  const sustainMultiplier = octave <= BASS_OCTAVE ? 1.2 : 1
 
   zzfx({
-    volume,
+    volume: volume,
     randomness: 0,
     frequency,
-    attack: 0.02,
-    sustain: 0.40,
-    release: 0.40,
+    attack: 0.015,
+    sustain: 0.40 * sustainMultiplier,
+    release: 0.25,
   })
 }
