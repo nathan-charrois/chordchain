@@ -469,7 +469,7 @@ function sortNotesByArpeggiateType(
     })
 }
 
-export function voicedTonesFromNotes(notes: string[], arpeggiateType: ArpeggiateType): VoicedTone[] {
+export function voicedTonesFromNotes(notes: string[], arpeggiate: boolean, arpeggiateType: ArpeggiateType): VoicedTone[] {
   if (!notes.length) {
     throw new Error('[music] Cannot voice a chord without notes.')
   }
@@ -481,7 +481,7 @@ export function voicedTonesFromNotes(notes: string[], arpeggiateType: Arpeggiate
     octave: BASS_OCTAVE,
   }
 
-  const sortedNotes = sortNotesByArpeggiateType(notes, arpeggiateType)
+  const sortedNotes = arpeggiate ? sortNotesByArpeggiateType(notes, arpeggiateType) : notes
 
   const chordTones = sortedNotes.map((note) => {
     const interval = mod(getNotePitchClass(note) - rootPitchClass, 12)
@@ -492,11 +492,12 @@ export function voicedTonesFromNotes(notes: string[], arpeggiateType: Arpeggiate
 }
 
 export function playChord(notes: string[], arpeggiate: boolean, arpeggiateType: ArpeggiateType, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
-  const tones = voicedTonesFromNotes(notes, arpeggiateType)
+  const tones = voicedTonesFromNotes(notes, arpeggiate, arpeggiateType)
   const interval = getToneIntervalMs(sequenceGapMs, arpeggiate)
   const volume = getChordToneVolume(tones.length)
 
   tones.forEach((tone, index) => {
+    console.log(tone, 'volume', volume)
     setTimeout(
       () => playTone(tone.pitchClass, tone.octave, volume),
       index * interval,
@@ -514,11 +515,8 @@ function toneFromRootInterval(rootPitchClass: number, octave: number, interval: 
 }
 
 function getChordToneVolume(toneCount: number): number {
-  if (toneCount > 5) {
-    return DEFAULT_TONE_VOLUME - 0.60
-  }
-  else if (toneCount === 5) {
-    return DEFAULT_TONE_VOLUME - 0.50
+  if (toneCount >= 5) {
+    return DEFAULT_TONE_VOLUME - 0.25
   }
 
   return DEFAULT_TONE_VOLUME
@@ -536,12 +534,16 @@ function getArpeggioIntervalMs(sequenceGapMs: number) {
   return DEFAULT_ARPEGGIATED_TONE_INTERVAL_MS * (sequenceGapMs / DEFAULT_SEQUENCE_GAP_MS)
 }
 
+function getBassOctaveMultiplier(octave: number): number {
+  return octave <= BASS_OCTAVE ? 1.1 : 1
+}
+
 export function playTone(pitchClass: number, octave: number, volume = DEFAULT_TONE_VOLUME) {
   const frequency = hzFromPitchClass(pitchClass, octave)
-  const sustainMultiplier = octave <= BASS_OCTAVE ? 1.2 : 1
+  const sustainMultiplier = getBassOctaveMultiplier(octave)
 
   zzfx({
-    volume: volume,
+    volume: volume / sustainMultiplier,
     randomness: 0,
     frequency,
     attack: 0.015,

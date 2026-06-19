@@ -281,8 +281,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     difficulty: 'medium',
     arpeggiateType: 'spiral_down',
     progression: [
-      { degree: 1, type: 'seventh' },
-      { degree: 6, type: 'seventh' },
+      { degree: 1, type: 'triad' },
+      { degree: 6, type: 'triad' },
       { degree: 5, type: 'seventh' },
       { degree: 1, type: 'seventh' },
     ],
