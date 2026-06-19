@@ -1,4 +1,3 @@
-import { useCallback } from 'react'
 import { Button, type ButtonVariant, Stack, Text } from '@mantine/core'
 
 import Card from '../Card/Card'
@@ -11,7 +10,7 @@ type Props = {
   variant?: ButtonVariant
   status?: GuessStatus
   disabled?: boolean
-  onClick: (text: string) => void
+  onClick: () => void
 }
 
 export default function PalleteButton({
@@ -21,16 +20,12 @@ export default function PalleteButton({
   disabled,
   onClick,
 }: Props) {
-  const handleOnClick = useCallback((text: string) => {
-    onClick(text)
-  }, [onClick])
-
   return (
     <Card p={0} shadow="xs">
       <Button
         variant="subtle"
         size="lg"
-        onClick={() => handleOnClick(text)}
+        onClick={onClick}
         disabled={disabled}
         aria-disabled={disabled}
         h={80}
@@ -42,7 +37,7 @@ export default function PalleteButton({
           </Text>
           {subtext && (
             <Text size="sm" c="dimmed">
-              iv
+              {subtext}
             </Text>
           )}
         </Stack>

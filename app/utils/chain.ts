@@ -1,5 +1,4 @@
 import { playChord } from './music'
-import type { Chord } from '~/components/Game/context/GameContext'
 
 export const SEQUENCE_GAP_MS = 1200
 export const DEFAULT_TEMPO_BPM = 120
@@ -23,7 +22,7 @@ const sequenceTimeouts: SequenceTimeouts = {
 let activeSession = 0
 
 type PlaySequence = {
-  chords: Chord[]
+  chords: string[][]
   arpeggiate: boolean
   shouldLoop: () => boolean
   tempoBpm: number

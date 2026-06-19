@@ -1,11 +1,15 @@
-import { GAME_MAX_CHARS, GAME_MAX_GUESSES, PUZZLE_HISTORY_STORAGE_KEY } from '~/constant'
+import {
+  GAME_MAX_CHARS,
+  GAME_MAX_GUESSES,
+  PUZZLE_HISTORY_STORAGE_KEY,
+} from '~/constant'
+import { resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
-
-export type PuzzleHistoryGuessStatus = 'absent' | 'present' | 'correct'
+import type { ChordId, PuzzleDifficulty } from '~/utils/music'
+import { areChordIdsEqual, isChordAllowedForDifficulty, isChordId } from '~/utils/music'
 
 export type PuzzleHistoryGuess = {
-  chords: string[]
-  status: PuzzleHistoryGuessStatus[]
+  chords: ChordId[]
 }
 
 export type PuzzleHistoryEntry = {
@@ -18,7 +22,7 @@ export type PuzzleHistoryEntry = {
 }
 
 export type PuzzleHistoryStore = {
-  version: 1
+  version: 2
   entries: Record<string, PuzzleHistoryEntry>
 }
 
@@ -27,16 +31,13 @@ export type StreakResult = {
 }
 
 const EMPTY_STORE: PuzzleHistoryStore = {
-  version: 1,
+  version: 2,
   entries: {},
 }
 
-const VALID_GUESS_STATUSES = new Set<PuzzleHistoryGuessStatus>(['absent', 'present', 'correct'])
-
 function clonePuzzleHistoryGuesses(guesses: PuzzleHistoryGuess[]): PuzzleHistoryGuess[] {
   return guesses.slice(0, GAME_MAX_GUESSES).map(guess => ({
-    chords: [...guess.chords],
-    status: [...guess.status],
+    chords: guess.chords.map(chord => ({ ...chord })),
   }))
 }
 
@@ -51,12 +52,13 @@ export function arePuzzleHistoryGuessesEqual(
   return (nextGuesses ?? []).every((guess, guessIndex) => {
     const currentGuess = currentGuesses?.[guessIndex]
 
-    if (!currentGuess || currentGuess.chords.length !== guess.chords.length || currentGuess.status.length !== guess.status.length) {
+    if (!currentGuess || currentGuess.chords.length !== guess.chords.length) {
       return false
     }
 
-    return guess.chords.every((chord, chordIndex) => chord === currentGuess.chords[chordIndex])
-      && guess.status.every((status, statusIndex) => status === currentGuess.status[statusIndex])
+    return guess.chords.every((chord, chordIndex) => {
+      return areChordIdsEqual(chord, currentGuess.chords[chordIndex])
+    })
   })
 }
 
@@ -109,57 +111,46 @@ function getPreviousDateKey(date: string): string | null {
   return formatLocalDate(parsed)
 }
 
-function sanitizeStoredGuess(value: unknown): PuzzleHistoryGuess | null {
+function sanitizeStoredGuess(
+  value: unknown,
+  difficulty: PuzzleDifficulty,
+): PuzzleHistoryGuess | null {
   if (!value || typeof value !== 'object') {
     return null
   }
 
   const guess = value as Partial<PuzzleHistoryGuess>
 
-  if (!Array.isArray(guess.chords) || !Array.isArray(guess.status)) {
+  if (!Array.isArray(guess.chords) || guess.chords.length !== GAME_MAX_CHARS) {
     return null
   }
 
-  if (!guess.chords.length || guess.chords.length > GAME_MAX_CHARS) {
-    return null
-  }
-
-  if (guess.chords.length !== guess.status.length) {
-    return null
-  }
-
-  if (!guess.chords.every(chord => typeof chord === 'string')) {
-    return null
-  }
-
-  if (!guess.status.every(status => VALID_GUESS_STATUSES.has(status as PuzzleHistoryGuessStatus))) {
+  if (!guess.chords.every(chord => isChordId(chord) && isChordAllowedForDifficulty(chord, difficulty))) {
     return null
   }
 
   return {
-    chords: [...guess.chords],
-    status: [...guess.status] as PuzzleHistoryGuessStatus[],
+    chords: guess.chords.map(chord => ({ ...chord })),
   }
 }
 
-function sanitizeStoredGuesses(value: unknown): PuzzleHistoryGuess[] | undefined {
-  if (value === undefined) {
-    return undefined
-  }
-
-  if (!Array.isArray(value)) {
+function sanitizeStoredGuesses(
+  value: unknown,
+  difficulty: PuzzleDifficulty,
+): PuzzleHistoryGuess[] | undefined {
+  if (value === undefined || !Array.isArray(value)) {
     return undefined
   }
 
   const guesses = value
     .slice(0, GAME_MAX_GUESSES)
-    .map(sanitizeStoredGuess)
+    .map(guess => sanitizeStoredGuess(guess, difficulty))
     .filter((guess): guess is PuzzleHistoryGuess => guess !== null)
 
   return guesses.length ? guesses : undefined
 }
 
-function sanitizeEntry(value: unknown): PuzzleHistoryEntry | null {
+function sanitizeEntry(date: string, value: unknown): PuzzleHistoryEntry | null {
   if (!value || typeof value !== 'object') {
     return null
   }
@@ -186,7 +177,8 @@ function sanitizeEntry(value: unknown): PuzzleHistoryEntry | null {
     return null
   }
 
-  const guesses = sanitizeStoredGuesses(entry.guesses)
+  const puzzle = resolveDailyPuzzle(date)
+  const guesses = sanitizeStoredGuesses(entry.guesses, puzzle.difficulty)
 
   return {
     completed: entry.completed,
@@ -205,14 +197,14 @@ function parsePuzzleHistoryStore(value: unknown): PuzzleHistoryStore | null {
 
   const maybeStore = value as Partial<PuzzleHistoryStore>
 
-  if (maybeStore.version !== 1 || typeof maybeStore.entries !== 'object' || !maybeStore.entries) {
+  if (maybeStore.version !== 2 || typeof maybeStore.entries !== 'object' || !maybeStore.entries) {
     return null
   }
 
   const entries: Record<string, PuzzleHistoryEntry> = {}
 
   for (const [date, entry] of Object.entries(maybeStore.entries)) {
-    const sanitizedEntry = sanitizeEntry(entry)
+    const sanitizedEntry = sanitizeEntry(date, entry)
 
     if (sanitizedEntry) {
       entries[date] = sanitizedEntry
@@ -220,7 +212,7 @@ function parsePuzzleHistoryStore(value: unknown): PuzzleHistoryStore | null {
   }
 
   return {
-    version: 1,
+    version: 2,
     entries,
   }
 }
@@ -293,7 +285,7 @@ export function markPuzzleCompleted(
     }
 
     return {
-      version: 1,
+      version: 2,
       entries: {
         ...store.entries,
         [date]: nextEntry,
@@ -302,7 +294,7 @@ export function markPuzzleCompleted(
   }
 
   return {
-    version: 1,
+    version: 2,
     entries: {
       ...store.entries,
       [date]: {
@@ -342,7 +334,7 @@ export function markPuzzleFailed(
     }
 
     return {
-      version: 1,
+      version: 2,
       entries: {
         ...store.entries,
         [date]: nextEntry,
@@ -351,7 +343,7 @@ export function markPuzzleFailed(
   }
 
   return {
-    version: 1,
+    version: 2,
     entries: {
       ...store.entries,
       [date]: {
@@ -387,7 +379,7 @@ export function savePuzzleGuesses(
   }
 
   return {
-    version: 1,
+    version: 2,
     entries: {
       ...store.entries,
       [date]: nextEntry,
@@ -404,7 +396,7 @@ export function removePuzzleHistoryEntry(store: PuzzleHistoryStore, date: string
   delete entries[date]
 
   return {
-    version: 1,
+    version: 2,
     entries,
   }
 }

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import type { Chord } from '../context/GameContext'
 import { createSubmittedGuess } from '../logic/game'
 import { createEmptyGuess, createResetSessionState, createSessionStateFromHistory, getNextStatusFromGuesses, isGameOverStatus } from '../logic/session'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
 import { endSequence, stopSequence } from '~/utils/chain'
 import type { DailyPuzzle } from '~/utils/dailyPuzzle'
+import type { ChordId } from '~/utils/music'
+import { isChordAllowedForDifficulty } from '~/utils/music'
 import {
   arePuzzleHistoryGuessesEqual,
   markPuzzleCompleted,
@@ -21,31 +22,33 @@ type UseSessionProps = {
   activePuzzle: DailyPuzzle
   commitHistoryStore: CommitHistoryStore
   historyEntries: PuzzleHistoryStore['entries']
-  paletteChords: Chord[]
-  target: Chord[]
 }
 
 export function useSession({
   activePuzzle,
   commitHistoryStore,
   historyEntries,
-  paletteChords,
-  target,
 }: UseSessionProps) {
-  const [session, setSession] = useState(() => createSessionStateFromHistory(activePuzzle.date, historyEntries[activePuzzle.date], target))
+  const [session, setSession] = useState(() => {
+    return createSessionStateFromHistory(
+      activePuzzle.date,
+      historyEntries[activePuzzle.date],
+      activePuzzle.progression,
+    )
+  })
   const isSessionActivePuzzle = session.puzzleDate === activePuzzle.date
   const isGameOver = isGameOverStatus(session.status)
 
-  const loadSessionForDate = useCallback((date: string, nextTarget: Chord[]) => {
-    const entry = historyEntries[date]
-    const nextSessionState = createSessionStateFromHistory(date, entry, nextTarget)
+  const loadSessionForPuzzle = useCallback((puzzle: DailyPuzzle) => {
+    const entry = historyEntries[puzzle.date]
+    const nextSessionState = createSessionStateFromHistory(puzzle.date, entry, puzzle.progression)
 
     stopSequence()
     endSequence()
     setSession(nextSessionState)
 
     if (entry?.guesses && !arePuzzleHistoryGuessesEqual(entry.guesses, nextSessionState.guesses)) {
-      commitHistoryStore(prev => savePuzzleGuesses(prev, date, nextSessionState.guesses))
+      commitHistoryStore(prev => savePuzzleGuesses(prev, puzzle.date, nextSessionState.guesses))
     }
   }, [commitHistoryStore, historyEntries])
 
@@ -55,7 +58,7 @@ export function useSession({
     }
 
     setSession((prev) => {
-      const nextStatus = getNextStatusFromGuesses(prev.status, prev.guesses, target)
+      const nextStatus = getNextStatusFromGuesses(prev.status, prev.guesses, activePuzzle.progression)
 
       if (nextStatus === prev.status) {
         return prev
@@ -66,7 +69,7 @@ export function useSession({
         status: nextStatus,
       }
     })
-  }, [isSessionActivePuzzle, session.guesses, target])
+  }, [activePuzzle.progression, isSessionActivePuzzle, session.guesses])
 
   useEffect(() => {
     if (!isSessionActivePuzzle) {
@@ -130,7 +133,7 @@ export function useSession({
       return
     }
 
-    const submittedGuess = createSubmittedGuess(session.current.chords, target)
+    const submittedGuess = createSubmittedGuess(session.current.chords)
     const nextGuesses = [...session.guesses, submittedGuess]
 
     setSession(prev => ({
@@ -140,14 +143,14 @@ export function useSession({
       current: createEmptyGuess(),
     }))
     commitHistoryStore(prev => savePuzzleGuesses(prev, session.puzzleDate, nextGuesses))
-  }, [isGameOver, isSessionActivePuzzle, session.current.chords, session.guesses, target, session.puzzleDate, commitHistoryStore])
+  }, [isGameOver, isSessionActivePuzzle, session.current.chords, session.guesses, session.puzzleDate, commitHistoryStore])
 
-  const addCurrent = useCallback((chord: Chord) => {
+  const addCurrent = useCallback((chord: ChordId) => {
     if (isGameOver || !isSessionActivePuzzle || session.current.chords.length >= GAME_MAX_CHARS) {
       return
     }
 
-    if (!paletteChords.includes(chord)) {
+    if (!isChordAllowedForDifficulty(chord, activePuzzle.difficulty)) {
       return
     }
 
@@ -157,10 +160,9 @@ export function useSession({
       current: {
         ...prev.current,
         chords: [...prev.current.chords, chord],
-        status: [],
       },
     }))
-  }, [isGameOver, isSessionActivePuzzle, session.current.chords.length, paletteChords])
+  }, [activePuzzle.difficulty, isGameOver, isSessionActivePuzzle, session.current.chords.length])
 
   const removeCurrent = useCallback(() => {
     if (isGameOver || !isSessionActivePuzzle) {
@@ -172,14 +174,13 @@ export function useSession({
       current: {
         ...prev.current,
         chords: [...prev.current.chords.slice(0, -1)],
-        status: [],
       },
     }))
   }, [isGameOver, isSessionActivePuzzle])
 
   const reset = useCallback(() => {
-    loadSessionForDate(activePuzzle.date, target)
-  }, [activePuzzle.date, loadSessionForDate, target])
+    loadSessionForPuzzle(activePuzzle)
+  }, [activePuzzle, loadSessionForPuzzle])
 
   const resetToday = useCallback(() => {
     commitHistoryStore(prev => removePuzzleHistoryEntry(prev, activePuzzle.date))
@@ -190,7 +191,7 @@ export function useSession({
 
   return {
     session,
-    loadSessionForDate,
+    loadSessionForPuzzle,
     addCurrent,
     removeCurrent,
     submitGuess,

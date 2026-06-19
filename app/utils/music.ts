@@ -3,17 +3,42 @@ import zzfx from './zzfx'
 export const MIDI_A4 = 69
 export const A4_HZ = 440
 
-export const PITCH_CLASSES = [
-  'C', 'Db', 'D', 'Eb',
-  'E', 'F', 'Gb', 'G',
-  'Ab', 'A', 'Bb', 'B',
-] as const
+export type ModeId
+  = | 'ionian'
+    | 'dorian'
+    | 'phrygian'
+    | 'lydian'
+    | 'mixolydian'
+    | 'aeolian'
+    | 'locrian'
 
-export const PITCH_CLASS_TO_NUM: Record<string, number> = Object.fromEntries(
-  PITCH_CLASSES.map((n, i) => [n, i]),
-)
+export type PuzzleDifficulty = 'easy' | 'medium' | 'hard'
+export type ChordType = 'triad' | 'seventh' | 'sus2' | 'sus4'
+export type ChordDegree = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
-export const SCALE_INTERVALS: Record<string, number[]> = {
+export type ChordId = {
+  degree: ChordDegree
+  type: ChordType
+}
+
+export type DisplayChord = ChordId & {
+  name: string
+  notes: string[]
+}
+
+export type PaletteChordIds = {
+  triad: ChordId[]
+  seventh: ChordId[]
+  extension: ChordId[]
+}
+
+export type DisplayPaletteSections = {
+  triad: DisplayChord[]
+  seventh: DisplayChord[]
+  extension: DisplayChord[]
+}
+
+export const MODE_INTERVALS: Record<ModeId, readonly number[]> = {
   ionian: [0, 2, 4, 5, 7, 9, 11],
   dorian: [0, 2, 3, 5, 7, 9, 10],
   phrygian: [0, 1, 3, 5, 7, 8, 10],
@@ -23,33 +48,18 @@ export const SCALE_INTERVALS: Record<string, number[]> = {
   locrian: [0, 1, 3, 5, 6, 8, 10],
 }
 
-export const CHORD_INTERVALS: Record<string, number[]> = {
-  major: [0, 4, 7],
-  minor: [0, 3, 7],
-  dim: [0, 3, 6],
-  aug: [0, 4, 8],
-  maj7: [0, 4, 7, 11],
-  m7: [0, 3, 7, 10],
-  dom7: [0, 4, 7, 10],
-  m7b5: [0, 3, 6, 10],
+export const CHORD_RECIPES: Record<ChordType, readonly number[]> = {
+  triad: [0, 2, 4],
+  seventh: [0, 2, 4, 6],
+  sus2: [0, 1, 4],
+  sus4: [0, 3, 4],
 }
 
-export type PaletteSections = {
-  diatonic: string[]
-  secondaryDominant: string[]
-  extensions: string[]
+export const DIFFICULTY_CHORD_TYPES: Record<PuzzleDifficulty, readonly ChordType[]> = {
+  easy: ['triad'],
+  medium: ['triad', 'seventh'],
+  hard: ['triad', 'seventh', 'sus2', 'sus4'],
 }
-
-export type PaletteSectionId = keyof PaletteSections
-
-export type ModeId
-  = | 'ionian'
-    | 'dorian'
-    | 'phrygian'
-    | 'lydian'
-    | 'mixolydian'
-    | 'aeolian'
-    | 'locrian'
 
 export const MODE_IDS: ModeId[] = [
   'ionian',
@@ -74,16 +84,160 @@ const MODE_LABELS: Record<ModeId, string> = {
   locrian: 'Locrian',
 }
 
-const PITCH_CLASS_ALIASES: Record<string, string> = {
-  'C#': 'Db',
-  'D#': 'Eb',
-  'F#': 'Gb',
-  'G#': 'Ab',
-  'A#': 'Bb',
+const DIFFICULTY_LABELS: Record<PuzzleDifficulty, string> = {
+  easy: 'Easy',
+  medium: 'Medium',
+  hard: 'Hard',
+}
+
+const NOTE_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const
+const NATURAL_PITCH_CLASSES: Record<string, number> = {
+  C: 0,
+  D: 2,
+  E: 4,
+  F: 5,
+  G: 7,
+  A: 9,
+  B: 11,
+}
+const CHORD_DEGREES: ChordDegree[] = [1, 2, 3, 4, 5, 6, 7]
+const CHORD_TYPES = new Set<ChordType>(['triad', 'seventh', 'sus2', 'sus4'])
+const CHORD_DEGREE_SET = new Set<number>(CHORD_DEGREES)
+
+type ParsedNote = {
+  letter: string
+  pitchClass: number
 }
 
 function toTitleCase(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+}
+
+function mod(value: number, divisor: number): number {
+  return ((value % divisor) + divisor) % divisor
+}
+
+function parseNote(note: string): ParsedNote | null {
+  const match = /^([A-G])([#b]{0,2})$/.exec(note)
+
+  if (!match) {
+    return null
+  }
+
+  const [, letter, accidentals] = match
+  const accidentalOffset = [...accidentals].reduce((total, accidental) => {
+    return total + (accidental === '#' ? 1 : -1)
+  }, 0)
+
+  return {
+    letter,
+    pitchClass: mod(NATURAL_PITCH_CLASSES[letter] + accidentalOffset, 12),
+  }
+}
+
+function formatNote(letter: string, pitchClass: number): string {
+  const naturalPitchClass = NATURAL_PITCH_CLASSES[letter]
+  let accidentalOffset = mod(pitchClass - naturalPitchClass, 12)
+
+  if (accidentalOffset > 6) {
+    accidentalOffset -= 12
+  }
+
+  if (accidentalOffset > 0) {
+    return `${letter}${'#'.repeat(accidentalOffset)}`
+  }
+
+  if (accidentalOffset < 0) {
+    return `${letter}${'b'.repeat(Math.abs(accidentalOffset))}`
+  }
+
+  return letter
+}
+
+function getNotePitchClass(note: string): number {
+  const parsed = parseNote(note)
+
+  if (!parsed) {
+    throw new Error(`[music] Invalid note '${note}'.`)
+  }
+
+  return parsed.pitchClass
+}
+
+function getChordIntervals(notes: string[]): number[] {
+  const rootPitchClass = getNotePitchClass(notes[0])
+
+  return notes.map(note => mod(getNotePitchClass(note) - rootPitchClass, 12))
+}
+
+function getChordName(notes: string[], type: ChordType): string {
+  const root = notes[0]
+
+  if (type === 'sus2') {
+    return `${root}sus2`
+  }
+
+  if (type === 'sus4') {
+    return `${root}sus4`
+  }
+
+  const intervals = getChordIntervals(notes)
+
+  if (type === 'triad') {
+    if (intervals.join(',') === '0,4,7') {
+      return root
+    }
+
+    if (intervals.join(',') === '0,3,7') {
+      return `${root}m`
+    }
+
+    if (intervals.join(',') === '0,3,6') {
+      return `${root}dim`
+    }
+  }
+
+  if (type === 'seventh') {
+    if (intervals.join(',') === '0,4,7,11') {
+      return `${root}maj7`
+    }
+
+    if (intervals.join(',') === '0,3,7,10') {
+      return `${root}m7`
+    }
+
+    if (intervals.join(',') === '0,4,7,10') {
+      return `${root}7`
+    }
+
+    if (intervals.join(',') === '0,3,6,10') {
+      return `${root}m7b5`
+    }
+  }
+
+  throw new Error(
+    `[music] Unsupported ${type} quality for notes '${notes.join(', ')}' with intervals '${intervals.join(', ')}'.`,
+  )
+}
+
+function validateScale(scale: string[]): void {
+  if (scale.length !== 7) {
+    throw new Error(`[music] A scale must contain exactly seven notes; received ${scale.length}.`)
+  }
+
+  const parsedNotes = scale.map((note) => {
+    const parsed = parseNote(note)
+
+    if (!parsed) {
+      throw new Error(`[music] Invalid scale note '${note}'.`)
+    }
+
+    return parsed
+  })
+
+  if (new Set(parsedNotes.map(note => note.letter)).size !== 7) {
+    throw new Error(`[music] Scale notes must use seven distinct diatonic letters: '${scale.join(', ')}'.`)
+  }
 }
 
 export function normalizeModeId(mode?: string): ModeId {
@@ -93,7 +247,7 @@ export function normalizeModeId(mode?: string): ModeId {
 
   const normalized = mode.trim().toLowerCase()
 
-  if (normalized in SCALE_INTERVALS) {
+  if (normalized in MODE_INTERVALS) {
     return normalized as ModeId
   }
 
@@ -107,10 +261,9 @@ export function normalizeKey(key?: string): string {
   }
 
   const normalized = toTitleCase(key.trim())
-  const alias = PITCH_CLASS_ALIASES[normalized] ?? normalized
 
-  if (alias in PITCH_CLASS_TO_NUM) {
-    return alias
+  if (parseNote(normalized)) {
+    return normalized
   }
 
   console.warn(`[music] Unknown key '${key}', falling back to '${DEFAULT_KEY}'.`)
@@ -121,267 +274,122 @@ export function formatModeLabel(mode: ModeId): string {
   return MODE_LABELS[mode]
 }
 
+export function formatPuzzleDifficulty(difficulty: PuzzleDifficulty): string {
+  return DIFFICULTY_LABELS[difficulty]
+}
+
 export function formatKeyModeLabel(key: string, mode: ModeId): string {
   return `${key} ${formatModeLabel(mode)}`
 }
 
-function getTriadQuality(thirdOffset: number, fifthOffset: number): 'major' | 'minor' | 'dim' | 'aug' {
-  if (thirdOffset === 4 && fifthOffset === 7) {
-    return 'major'
+export function isChordId(value: unknown): value is ChordId {
+  if (!value || typeof value !== 'object') {
+    return false
   }
 
-  if (thirdOffset === 3 && fifthOffset === 7) {
-    return 'minor'
-  }
+  const chord = value as Partial<ChordId>
 
-  if (thirdOffset === 3 && fifthOffset === 6) {
-    return 'dim'
-  }
-
-  if (thirdOffset === 4 && fifthOffset === 8) {
-    return 'aug'
-  }
-
-  // Fallback keeps generation deterministic for malformed input.
-  return 'major'
+  return CHORD_DEGREE_SET.has(chord.degree as number)
+    && CHORD_TYPES.has(chord.type as ChordType)
 }
 
-function getChordLabel(root: string, quality: 'major' | 'minor' | 'dim' | 'aug'): string {
-  if (quality === 'major') {
-    return `${root}maj`
-  }
-
-  if (quality === 'minor') {
-    return `${root}m`
-  }
-
-  if (quality === 'dim') {
-    return `${root}dim`
-  }
-
-  if (quality === 'aug') {
-    return `${root}aug`
-  }
-
-  return root
+export function areChordIdsEqual(left: ChordId, right: ChordId): boolean {
+  return left.degree === right.degree && left.type === right.type
 }
 
-function getSeventhQuality(
-  thirdOffset: number,
-  fifthOffset: number,
-  seventhOffset: number,
-): 'maj7' | 'm7' | 'dom7' | 'm7b5' {
-  if (thirdOffset === 4 && fifthOffset === 7 && seventhOffset === 11) {
-    return 'maj7'
-  }
-
-  if (thirdOffset === 3 && fifthOffset === 7 && seventhOffset === 10) {
-    return 'm7'
-  }
-
-  if (thirdOffset === 4 && fifthOffset === 7 && seventhOffset === 10) {
-    return 'dom7'
-  }
-
-  if (thirdOffset === 3 && fifthOffset === 6 && seventhOffset === 10) {
-    return 'm7b5'
-  }
-
-  return 'dom7'
+export function chordIdKey(chord: ChordId): string {
+  return `${chord.degree}:${chord.type}`
 }
 
-function getSeventhChordLabel(root: string, quality: 'maj7' | 'm7' | 'dom7' | 'm7b5'): string {
-  if (quality === 'dom7') {
-    return `${root}7`
+export function isChordAllowedForDifficulty(chord: ChordId, difficulty: PuzzleDifficulty): boolean {
+  return isChordId(chord) && DIFFICULTY_CHORD_TYPES[difficulty].includes(chord.type)
+}
+
+export function buildScale(key: string, mode: ModeId): string[] {
+  const normalizedKey = normalizeKey(key)
+  const normalizedMode = normalizeModeId(mode)
+  const tonic = parseNote(normalizedKey)
+
+  if (!tonic) {
+    throw new Error(`[music] Could not parse normalized key '${normalizedKey}'.`)
   }
 
-  return `${root}${quality}`
-}
+  const tonicLetterIndex = NOTE_LETTERS.indexOf(tonic.letter as typeof NOTE_LETTERS[number])
 
-export function getScalePitchClasses(key: string, mode: ModeId): number[] {
-  const root = normalizeKey(key)
-  const modeId = normalizeModeId(mode)
-  const rootPitchClass = PITCH_CLASS_TO_NUM[root]
+  return MODE_INTERVALS[normalizedMode].map((interval, degreeIndex) => {
+    const letter = NOTE_LETTERS[(tonicLetterIndex + degreeIndex) % NOTE_LETTERS.length]
+    const pitchClass = mod(tonic.pitchClass + interval, 12)
 
-  return SCALE_INTERVALS[modeId].map(interval => (rootPitchClass + interval) % 12)
-}
-
-export function getDiatonicTriads(key: string, mode: ModeId): string[] {
-  const scalePitchClasses = getScalePitchClasses(key, mode)
-
-  return scalePitchClasses.map((rootPitchClass, degree) => {
-    const thirdPitchClass = scalePitchClasses[(degree + 2) % 7]
-    const fifthPitchClass = scalePitchClasses[(degree + 4) % 7]
-    const thirdOffset = (thirdPitchClass - rootPitchClass + 12) % 12
-    const fifthOffset = (fifthPitchClass - rootPitchClass + 12) % 12
-    const quality = getTriadQuality(thirdOffset, fifthOffset)
-    const rootLabel = PITCH_CLASSES[rootPitchClass]
-
-    return getChordLabel(rootLabel, quality)
+    return formatNote(letter, pitchClass)
   })
 }
 
-export function normalizeChordLabel(chord: string): string {
-  const value = chord.trim()
+export function buildChord(scale: string[], chord: ChordId): DisplayChord {
+  validateScale(scale)
 
-  if (!value) {
-    return value
+  if (!isChordId(chord)) {
+    throw new Error(`[music] Invalid chord identity '${JSON.stringify(chord)}'.`)
   }
 
-  if (value.endsWith('maj') || value.endsWith('m') || value.endsWith('dim') || value.endsWith('aug')) {
-    return value
-  }
-
-  if (value.endsWith('maj7') || value.endsWith('m7') || value.endsWith('m7b5') || value.endsWith('7')) {
-    return value
-  }
-
-  return `${value}maj`
-}
-
-export function getDiatonicTriadsByPolicy(key: string, mode: ModeId): string[] {
-  const scalePitchClasses = getScalePitchClasses(key, mode)
-
-  return scalePitchClasses.map((rootPitchClass, degree) => {
-    const thirdPitchClass = scalePitchClasses[(degree + 2) % 7]
-    const fifthPitchClass = scalePitchClasses[(degree + 4) % 7]
-    const thirdOffset = (thirdPitchClass - rootPitchClass + 12) % 12
-    const fifthOffset = (fifthPitchClass - rootPitchClass + 12) % 12
-    const quality = getTriadQuality(thirdOffset, fifthOffset)
-    const rootLabel = PITCH_CLASSES[rootPitchClass]
-
-    return getChordLabel(rootLabel, quality)
-  })
-}
-
-export function getSecondaryDominants(key: string, mode: ModeId): string[] {
-  const scalePitchClasses = getScalePitchClasses(key, mode)
-
-  return scalePitchClasses.map((targetPitchClass) => {
-    const dominantRootPitchClass = (targetPitchClass + 7) % 12
-    return `${PITCH_CLASSES[dominantRootPitchClass]}7`
-  })
-}
-
-export function getDiatonicExtensions(key: string, mode: ModeId): string[] {
-  const scalePitchClasses = getScalePitchClasses(key, mode)
-
-  return scalePitchClasses.map((rootPitchClass, degree) => {
-    const thirdPitchClass = scalePitchClasses[(degree + 2) % 7]
-    const fifthPitchClass = scalePitchClasses[(degree + 4) % 7]
-    const seventhPitchClass = scalePitchClasses[(degree + 6) % 7]
-    const thirdOffset = (thirdPitchClass - rootPitchClass + 12) % 12
-    const fifthOffset = (fifthPitchClass - rootPitchClass + 12) % 12
-    const seventhOffset = (seventhPitchClass - rootPitchClass + 12) % 12
-    const quality = getSeventhQuality(thirdOffset, fifthOffset, seventhOffset)
-    const rootLabel = PITCH_CLASSES[rootPitchClass]
-
-    return getSeventhChordLabel(rootLabel, quality)
-  })
-}
-
-export function getPaletteSections(key: string, mode: ModeId): PaletteSections {
-  return {
-    diatonic: getDiatonicTriadsByPolicy(key, mode),
-    secondaryDominant: getSecondaryDominants(key, mode),
-    extensions: getDiatonicExtensions(key, mode),
-  }
-}
-
-export function flattenPaletteSections(sections: PaletteSections): string[] {
-  return [...sections.diatonic, ...sections.secondaryDominant, ...sections.extensions]
-}
-
-export function filterPaletteSections(sections: PaletteSections, enabledSectionIds: PaletteSectionId[]): PaletteSections {
-  const enabledSectionIdSet = new Set(enabledSectionIds)
+  const rootIndex = chord.degree - 1
+  const notes = CHORD_RECIPES[chord.type].map(offset => scale[(rootIndex + offset) % scale.length])
 
   return {
-    diatonic: enabledSectionIdSet.has('diatonic') ? sections.diatonic : [],
-    secondaryDominant: enabledSectionIdSet.has('secondaryDominant') ? sections.secondaryDominant : [],
-    extensions: enabledSectionIdSet.has('extensions') ? sections.extensions : [],
+    ...chord,
+    name: getChordName(notes, chord.type),
+    notes,
+  }
+}
+
+export function buildDisplayProgression(
+  key: string,
+  mode: ModeId,
+  progression: ChordId[],
+): DisplayChord[] {
+  const scale = buildScale(key, mode)
+
+  return progression.map(chord => buildChord(scale, chord))
+}
+
+export function buildPaletteChordIds(difficulty: PuzzleDifficulty): PaletteChordIds {
+  const allowedTypes = DIFFICULTY_CHORD_TYPES[difficulty]
+
+  return {
+    triad: allowedTypes.includes('triad')
+      ? CHORD_DEGREES.map(degree => ({ degree, type: 'triad' }))
+      : [],
+    seventh: allowedTypes.includes('seventh')
+      ? CHORD_DEGREES.map(degree => ({ degree, type: 'seventh' }))
+      : [],
+    extension: [
+      ...(allowedTypes.includes('sus2')
+        ? CHORD_DEGREES.map(degree => ({ degree, type: 'sus2' as const }))
+        : []),
+      ...(allowedTypes.includes('sus4')
+        ? CHORD_DEGREES.map(degree => ({ degree, type: 'sus4' as const }))
+        : []),
+    ],
   }
 }
 
 export function midiFromPitchClass(pitchClass: number, octave = 4): number {
-  const n = ((pitchClass % 12) + 12) % 12
+  const normalizedPitchClass = mod(pitchClass, 12)
   const baseC = 12 * (octave + 1)
-  return baseC + n
+
+  return baseC + normalizedPitchClass
 }
 
 export function hzFromMidi(midi: number): number {
   return A4_HZ * Math.pow(2, (midi - MIDI_A4) / 12)
 }
 
-export function hzFromPitchClass(pc: number, octave = 4): number {
-  const midi = midiFromPitchClass(pc, octave)
-  return hzFromMidi(midi)
-}
-
-export function rootFromChord(chord: string): string {
-  const rootMatch = chord.match(/^([A-G](?:b)?)/)
-
-  if (!rootMatch) {
-    return chord
-  }
-
-  return rootMatch[1]
-}
-
-export function qualityFromChord(chord: string): string {
-  if (chord.endsWith('maj7')) return 'maj7'
-  if (chord.endsWith('m7b5')) return 'm7b5'
-  if (chord.endsWith('m7')) return 'm7'
-  if (chord.endsWith('7')) return 'dom7'
-  if (chord.endsWith('dim')) return 'dim'
-  if (chord.endsWith('aug')) return 'aug'
-  if (chord.endsWith('m')) return 'minor'
-  if (chord.endsWith('maj')) return 'major'
-  return 'major'
-}
-
-export function pitchClassesFromChord(chord: string): number[] {
-  const root = rootFromChord(chord)
-  const rootPitchClass = PITCH_CLASS_TO_NUM[root]
-
-  const quality = qualityFromChord(chord)
-  const intervals = CHORD_INTERVALS[quality]
-
-  return intervals.map(i => (rootPitchClass + i) % 12)
+export function hzFromPitchClass(pitchClass: number, octave = 4): number {
+  return hzFromMidi(midiFromPitchClass(pitchClass, octave))
 }
 
 export type VoicedTone = {
   pitchClass: number
   octave: number
-}
-
-export function intervalsFromChord(chord: string): number[] {
-  const quality = qualityFromChord(chord)
-  const intervals = CHORD_INTERVALS[quality]
-
-  if (!intervals) {
-    return CHORD_INTERVALS.major
-  }
-
-  return [...intervals]
-}
-
-export function voicedTonesFromChord(chord: string): VoicedTone[] {
-  const root = rootFromChord(chord)
-  const rootPitchClass = PITCH_CLASS_TO_NUM[root]
-
-  if (rootPitchClass === undefined) {
-    console.warn(`[music] Could not resolve chord root '${root}' from '${chord}'.`)
-    return []
-  }
-
-  const intervals = intervalsFromChord(chord)
-  const bassTone = {
-    pitchClass: rootPitchClass,
-    octave: BASS_OCTAVE,
-  }
-  const chordTones = intervals.map(interval => toneFromRootInterval(rootPitchClass, MAIN_CHORD_OCTAVE, interval))
-
-  return [bassTone, ...chordTones]
 }
 
 const DEFAULT_ARPEGGIO_INTERVAL_MS = 200
@@ -390,8 +398,27 @@ const DEFAULT_TONE_VOLUME = 4
 const MAIN_CHORD_OCTAVE = 4
 const BASS_OCTAVE = MAIN_CHORD_OCTAVE - 1
 
-export function playChord(chord: string, arpeggiate: boolean, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
-  const tones = voicedTonesFromChord(chord)
+export function voicedTonesFromNotes(notes: string[]): VoicedTone[] {
+  if (!notes.length) {
+    throw new Error('[music] Cannot voice a chord without notes.')
+  }
+
+  const rootPitchClass = getNotePitchClass(notes[0])
+  const bassTone = {
+    pitchClass: rootPitchClass,
+    octave: BASS_OCTAVE,
+  }
+  const chordTones = notes.map((note) => {
+    const interval = mod(getNotePitchClass(note) - rootPitchClass, 12)
+
+    return toneFromRootInterval(rootPitchClass, MAIN_CHORD_OCTAVE, interval)
+  })
+
+  return [bassTone, ...chordTones]
+}
+
+export function playChord(notes: string[], arpeggiate: boolean, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
+  const tones = voicedTonesFromNotes(notes)
   const interval = arpeggiate ? getArpeggioIntervalMs(sequenceGapMs) : 0
   const volume = getChordToneVolume(tones.length)
 
@@ -407,7 +434,7 @@ function toneFromRootInterval(rootPitchClass: number, octave: number, interval: 
   const midi = midiFromPitchClass(rootPitchClass, octave) + interval
 
   return {
-    pitchClass: ((midi % 12) + 12) % 12,
+    pitchClass: mod(midi, 12),
     octave: Math.floor(midi / 12) - 1,
   }
 }

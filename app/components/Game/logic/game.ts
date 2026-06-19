@@ -1,48 +1,28 @@
 import type { DefaultMantineColor } from '@mantine/core'
 
-import type { Chord, GameStatus, Guess, GuessStatus } from '../context/GameContext'
-import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
-import { type DailyPuzzle, getEnabledPaletteSectionIds } from '~/utils/dailyPuzzle'
-import { filterPaletteSections, flattenPaletteSections, getPaletteSections, normalizeChordLabel } from '~/utils/music'
+import type { GameStatus, Guess, GuessStatus } from '../context/GameContext'
+import { GAME_MAX_GUESSES } from '~/constant'
+import type { ChordId } from '~/utils/music'
+import { areChordIdsEqual, chordIdKey } from '~/utils/music'
 
 export type GuessRowKind = 'submitted' | 'active' | 'empty'
 
 export type GuessRow = {
   index: number
   kind: GuessRowKind
-  chords: Chord[]
+  chords: ChordId[]
   status: GuessStatus[]
 }
 
-export function getPuzzleTarget(puzzle: DailyPuzzle): Chord[] {
-  const enabledPaletteSectionIds = getEnabledPaletteSectionIds(puzzle.difficulty)
-  const puzzlePaletteSections = getPaletteSections(puzzle.key, puzzle.mode)
-  const enabledPuzzlePaletteSections = filterPaletteSections(puzzlePaletteSections, enabledPaletteSectionIds)
-  const puzzlePaletteChords = flattenPaletteSections(enabledPuzzlePaletteSections)
-  const normalizedTarget = puzzle.target.map(chord => normalizeChordLabel(chord))
-  const invalidTargetChords = normalizedTarget.filter(chord => !puzzlePaletteChords.includes(chord))
-
-  if (!invalidTargetChords.length) {
-    return normalizedTarget
-  }
-
-  console.warn(
-    `[game] Puzzle '${puzzle.date}' contains target chords missing from the ${puzzle.difficulty} palette: ${invalidTargetChords.join(', ')}. `
-    + `Falling back to first ${GAME_MAX_CHARS} palette chords.`,
-  )
-
-  return puzzlePaletteChords.slice(0, GAME_MAX_CHARS)
-}
-
-export function isChordSequenceEqual(guess: Chord[], solution: Chord[]): boolean {
+export function isChordSequenceEqual(guess: ChordId[], solution: ChordId[]): boolean {
   if (guess.length !== solution.length) {
     return false
   }
 
-  return guess.every((chord, index) => chord === solution[index])
+  return guess.every((chord, index) => areChordIdsEqual(chord, solution[index]))
 }
 
-export function isGameWon(guesses: Guess[], solution: Chord[]): boolean {
+export function isGameWon(guesses: Guess[], solution: ChordId[]): boolean {
   return guesses.some(guess => isChordSequenceEqual(guess.chords, solution))
 }
 
@@ -59,11 +39,13 @@ export function buildGuessRows({
   current,
   status,
   maxGuesses,
+  solution,
 }: {
   guesses: Guess[]
   current: Guess
   status: GameStatus
   maxGuesses: number
+  solution: ChordId[]
 }): GuessRow[] {
   const isPlayable = status !== 'won' && status !== 'loss'
 
@@ -75,7 +57,7 @@ export function buildGuessRows({
         index,
         kind: 'submitted',
         chords: submittedGuess.chords,
-        status: submittedGuess.status,
+        status: buildGuessStatus(submittedGuess.chords, solution),
       }
     }
 
@@ -84,7 +66,7 @@ export function buildGuessRows({
         index,
         kind: 'active',
         chords: current.chords,
-        status: current.status,
+        status: [],
       }
     }
 
@@ -97,20 +79,22 @@ export function buildGuessRows({
   })
 }
 
-export function buildGuessStatus(guess: Chord[], solution: Chord[]): GuessStatus[] {
+export function buildGuessStatus(guess: ChordId[], solution: ChordId[]): GuessStatus[] {
   const result: GuessStatus[] = new Array(guess.length).fill('absent')
-  const remaining = new Map<Chord, number>()
+  const remaining = new Map<string, number>()
 
   for (const chord of solution) {
-    const count = remaining.get(chord) ?? 0
-    remaining.set(chord, count + 1)
+    const key = chordIdKey(chord)
+    const count = remaining.get(key) ?? 0
+    remaining.set(key, count + 1)
   }
 
   for (let i = 0; i < guess.length; i++) {
-    if (guess[i] === solution[i]) {
+    if (areChordIdsEqual(guess[i], solution[i])) {
       result[i] = 'correct'
-      const count = remaining.get(guess[i]) ?? 0
-      remaining.set(guess[i], count - 1)
+      const key = chordIdKey(guess[i])
+      const count = remaining.get(key) ?? 0
+      remaining.set(key, count - 1)
     }
   }
 
@@ -119,22 +103,20 @@ export function buildGuessStatus(guess: Chord[], solution: Chord[]): GuessStatus
       continue
     }
 
-    const count = remaining.get(guess[i]) ?? 0
+    const key = chordIdKey(guess[i])
+    const count = remaining.get(key) ?? 0
     if (count > 0) {
       result[i] = 'present'
-      remaining.set(guess[i], count - 1)
+      remaining.set(key, count - 1)
     }
   }
 
   return result
 }
 
-export function createSubmittedGuess(chords: Chord[], solution: Chord[]): Guess {
-  const nextChords = [...chords]
-
+export function createSubmittedGuess(chords: ChordId[]): Guess {
   return {
-    chords: nextChords,
-    status: buildGuessStatus(nextChords, solution),
+    chords: chords.map(chord => ({ ...chord })),
   }
 }
 
@@ -161,13 +143,15 @@ export function mergeGuessStatus(
   return 'absent'
 }
 
-export function getGuessStatus(chord: Chord, guesses: Guess[]): GuessStatus | undefined {
+export function getGuessStatus(chord: ChordId, guesses: Guess[], solution: ChordId[]): GuessStatus | undefined {
   let bestStatus: GuessStatus | undefined
 
   for (const guess of guesses) {
+    const statuses = buildGuessStatus(guess.chords, solution)
+
     for (let i = 0; i < guess.chords.length; i++) {
-      if (guess.chords[i] === chord) {
-        bestStatus = mergeGuessStatus(bestStatus, guess.status[i])
+      if (areChordIdsEqual(guess.chords[i], chord)) {
+        bestStatus = mergeGuessStatus(bestStatus, statuses[i])
       }
     }
   }

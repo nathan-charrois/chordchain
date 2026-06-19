@@ -9,6 +9,7 @@ import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
 import { getPuzzlePathForDate, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatDisplayDate, formatDisplayDateTime } from '~/utils/date'
+import { formatPuzzleDifficulty } from '~/utils/music'
 
 export default function History() {
   const navigate = useNavigate()
@@ -63,7 +64,7 @@ export default function History() {
               <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
             </Stack>
             <Group gap="xs">
-              <Badge color="gray.6" variant="outline">{puzzle.difficulty}</Badge>
+              <Badge color="gray.6" variant="outline">{formatPuzzleDifficulty(puzzle.difficulty)}</Badge>
               {statusLabel && (<Badge color={statusColor} variant="outline">{statusLabel}</Badge>)}
 
             </Group>

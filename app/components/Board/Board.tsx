@@ -5,11 +5,12 @@ import { Alert, Badge, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor } from '../Game/logic/game'
-import { getEndStateMessage, isGameOverStatus, shouldRevealTarget } from '../Game/logic/session'
+import { getEndStateMessage, isGameOverStatus, shouldRevealProgression } from '../Game/logic/session'
 import PlaybackControls from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import Card from '~/components/Card/Card'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
+import { buildChord, buildDisplayProgression, buildScale, chordIdKey } from '~/utils/music'
 
 export default function Board() {
   const {
@@ -18,8 +19,9 @@ export default function Board() {
     current,
     maxLength,
     maxGuesses,
+    activePuzzle,
   } = useGame()
-  const { target, activeIndex, isPlaying, play, stop, setLooping, restartAfterTempoChange } = useSequence()
+  const { progression, activeIndex, isPlaying, play, stop, setLooping, restartAfterTempoChange } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(true)
@@ -61,7 +63,15 @@ export default function Board() {
 
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
-  const revealTarget = shouldRevealTarget(status)
+  const revealProgression = shouldRevealProgression(status)
+  const scale = useMemo(
+    () => buildScale(activePuzzle.key, activePuzzle.mode),
+    [activePuzzle.key, activePuzzle.mode],
+  )
+  const displayProgression = useMemo(
+    () => buildDisplayProgression(activePuzzle.key, activePuzzle.mode, progression),
+    [activePuzzle.key, activePuzzle.mode, progression],
+  )
 
   const guessRows = useMemo(() => {
     return buildGuessRows({
@@ -69,8 +79,9 @@ export default function Board() {
       current,
       status,
       maxGuesses,
+      solution: activePuzzle.progression,
     })
-  }, [guesses, current, status, maxGuesses, target])
+  }, [guesses, current, status, maxGuesses, activePuzzle.progression])
 
   return (
     <>
@@ -78,13 +89,13 @@ export default function Board() {
         <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Game Loss' : 'Game Win'} role="status" bdrs="md">
           <Stack gap="xs">
             <Text>{endStateMessage}</Text>
-            {revealTarget && (
+            {revealProgression && (
               <Stack gap={4}>
                 <Text size="md">Answer:</Text>
                 <Group gap="xs" wrap="wrap">
-                  {target.map((chord, index) => (
-                    <Badge key={`${chord}-${index}`} color="green.7" variant="filled" size="lg" miw={64} bdrs="md">
-                      {chord}
+                  {displayProgression.map((chord, index) => (
+                    <Badge key={`${chordIdKey(chord)}-${index}`} color="green.7" variant="filled" size="lg" miw={64} bdrs="md">
+                      {chord.name}
                     </Badge>
                   ))}
                 </Group>
@@ -96,14 +107,17 @@ export default function Board() {
       <Card>
         <Stack>
           {guessRows.map(row => (
-            <>
-              <Group
-                key={row.index}
-                gap="xs"
-                wrap="nowrap"
-                aria-label={`Guess ${row.index + 1} ${row.kind}`}
-              >
-                {Array.from({ length: maxLength }, (_, cellIndex) => (
+            <Group
+              key={row.index}
+              gap="xs"
+              wrap="nowrap"
+              aria-label={`Guess ${row.index + 1} ${row.kind}`}
+            >
+              {Array.from({ length: maxLength }, (_, cellIndex) => {
+                const chord = row.chords[cellIndex]
+                const chordName = chord ? buildChord(scale, chord).name : ''
+
+                return (
                   <Badge
                     key={`${row.index}-${cellIndex}`}
                     bg={getGuessCellColor(row, cellIndex, activeIndex).background}
@@ -114,11 +128,11 @@ export default function Board() {
                     radius="lg"
                     tt="capitalize"
                   >
-                    <Text size="xl" fw={500}>{row.chords[cellIndex]}</Text>
+                    <Text size="xl" fw={500}>{chordName}</Text>
                   </Badge>
-                ))}
-              </Group>
-            </>
+                )
+              })}
+            </Group>
           ))}
         </Stack>
         <Group mt="xl" mb="lg" justify="center">

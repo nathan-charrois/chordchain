@@ -1,5 +1,6 @@
-import type { Chord, GameStatus, Guess } from '../context/GameContext'
+import type { GameStatus, Guess } from '../context/GameContext'
 import { createSubmittedGuess, isGameLoss, isGameWon } from './game'
+import type { ChordId } from '~/utils/music'
 import type { PuzzleHistoryEntry } from '~/utils/puzzleHistory'
 
 export type GameSessionState = {
@@ -12,7 +13,6 @@ export type GameSessionState = {
 export function createEmptyGuess(): Guess {
   return {
     chords: [],
-    status: [],
   }
 }
 
@@ -28,13 +28,13 @@ export function createResetSessionState(puzzleDate: string): GameSessionState {
 export function getNextStatusFromGuesses(
   currentStatus: GameStatus,
   guesses: Guess[],
-  target: Chord[],
+  solution: ChordId[],
 ): GameStatus {
   if (!guesses.length || isGameOverStatus(currentStatus)) {
     return currentStatus
   }
 
-  if (isGameWon(guesses, target)) {
+  if (isGameWon(guesses, solution)) {
     return 'won'
   }
 
@@ -48,9 +48,9 @@ export function getNextStatusFromGuesses(
 export function createSessionStateFromHistory(
   puzzleDate: string,
   entry: PuzzleHistoryEntry | undefined,
-  target: Chord[],
+  solution: ChordId[],
 ): GameSessionState {
-  const guesses = (entry?.guesses ?? []).map(guess => createSubmittedGuess(guess.chords, target))
+  const guesses = (entry?.guesses ?? []).map(guess => createSubmittedGuess(guess.chords))
   let status: GameStatus = guesses.length ? 'started' : 'new'
 
   if (entry?.completed) {
@@ -59,7 +59,7 @@ export function createSessionStateFromHistory(
   else if (entry?.failed) {
     status = 'loss'
   }
-  else if (isGameWon(guesses, target)) {
+  else if (isGameWon(guesses, solution)) {
     status = 'won'
   }
   else if (isGameLoss(guesses)) {
@@ -82,7 +82,7 @@ export function isGuessInputLocked(status: GameStatus): boolean {
   return isGameOverStatus(status)
 }
 
-export function shouldRevealTarget(status: GameStatus): boolean {
+export function shouldRevealProgression(status: GameStatus): boolean {
   return status === 'loss'
 }
 

@@ -7,20 +7,23 @@ import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
 import PalleteButton from '../PalleteButton/PalleteButton'
 import Card from '~/components/Card/Card'
-import { type PaletteSectionId } from '~/utils/music'
+import type { ChordId, DisplayChord, PaletteChordIds } from '~/utils/music'
+import { buildChord, buildPaletteChordIds, buildScale, chordIdKey } from '~/utils/music'
 
 type PaletteSection = {
-  id: PaletteSectionId
+  id: keyof PaletteChordIds
   title: string
-  chords: string[]
+  chords: Array<{
+    id: ChordId
+    display: DisplayChord
+  }>
 }
 
 export default function Pallete() {
   const {
     status,
     guesses,
-    paletteSections,
-    enabledPaletteSectionIds,
+    activePuzzle,
     addCurrent,
     removeCurrent,
     submitGuess,
@@ -28,18 +31,29 @@ export default function Pallete() {
 
   const disabled = status === 'won' || status === 'loss'
 
-  const sections: PaletteSection[] = [
-    { id: 'diatonic', title: 'Diatonic', chords: paletteSections.diatonic },
-    { id: 'secondaryDominant', title: 'Secondary / Dominant', chords: paletteSections.secondaryDominant },
-    { id: 'extensions', title: 'Extensions', chords: paletteSections.extensions },
-  ]
+  const sections = useMemo<PaletteSection[]>(() => {
+    const scale = buildScale(activePuzzle.key, activePuzzle.mode)
+    const paletteChordIds = buildPaletteChordIds(activePuzzle.difficulty)
+    const buildSection = (
+      id: keyof PaletteChordIds,
+      title: string,
+    ): PaletteSection => ({
+      id,
+      title,
+      chords: paletteChordIds[id].map(chord => ({
+        id: chord,
+        display: buildChord(scale, chord),
+      })),
+    })
 
-  const enabledPaletteSectionIdSet = useMemo(
-    () => new Set(enabledPaletteSectionIds),
-    [enabledPaletteSectionIds],
-  )
+    return [
+      buildSection('triad', 'Triads'),
+      buildSection('seventh', 'Sevenths'),
+      buildSection('extension', 'Extensions'),
+    ]
+  }, [activePuzzle.difficulty, activePuzzle.key, activePuzzle.mode])
 
-  const handleClickChord = useCallback((chord: string) => {
+  const handleClickChord = useCallback((chord: ChordId) => {
     addCurrent(chord)
   }, [addCurrent])
 
@@ -56,9 +70,7 @@ export default function Pallete() {
       <Card mt="lg">
         <Stack gap="lg">
           {sections.map((section) => {
-            const isSectionEnabled = enabledPaletteSectionIdSet.has(section.id)
-
-            if (!isSectionEnabled) {
+            if (!section.chords.length) {
               return
             }
 
@@ -68,13 +80,13 @@ export default function Pallete() {
                   <Text fw={500} size="md">{section.title}</Text>
                 </Group>
                 <Group grow>
-                  {section.chords.map((chord, chordIndex) => (
+                  {section.chords.map(chord => (
                     <PalleteButton
-                      key={`${section.title}-${chord}-${chordIndex}`}
-                      onClick={handleClickChord}
-                      text={chord}
-                      subtext="iv"
-                      status={getGuessStatus(chord, guesses)}
+                      key={`${section.id}-${chordIdKey(chord.id)}`}
+                      onClick={() => handleClickChord(chord.id)}
+                      text={chord.display.name}
+                      subtext={`Degree ${chord.id.degree}`}
+                      status={getGuessStatus(chord.id, guesses, activePuzzle.progression)}
                       disabled={disabled}
                     />
                   ))}

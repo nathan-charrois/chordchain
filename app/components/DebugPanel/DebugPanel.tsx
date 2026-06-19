@@ -2,7 +2,12 @@ import { useMemo, useState } from 'react'
 import { Badge, Box, Button, Group, Paper, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
-import { formatModeLabel } from '~/utils/music'
+import {
+  buildChord,
+  buildDisplayProgression,
+  buildPaletteChordIds,
+  buildScale,
+} from '~/utils/music'
 
 export default function DebugPanel() {
   const {
@@ -17,7 +22,33 @@ export default function DebugPanel() {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const historyEntry = historyEntries[activePuzzle.date]
-  const targetLabel = useMemo(() => activePuzzle.target.join(' -> '), [activePuzzle.target])
+  const puzzleDefinition = useMemo(() => ({
+    date: activePuzzle.date,
+    name: activePuzzle.name,
+    key: activePuzzle.key,
+    mode: activePuzzle.mode,
+    difficulty: activePuzzle.difficulty,
+    progression: activePuzzle.progression,
+  }), [activePuzzle])
+  const puzzleMusic = useMemo(() => {
+    const scale = buildScale(activePuzzle.key, activePuzzle.mode)
+    const progression = buildDisplayProgression(
+      activePuzzle.key,
+      activePuzzle.mode,
+      activePuzzle.progression,
+    )
+    const paletteChordIds = buildPaletteChordIds(activePuzzle.difficulty)
+
+    return {
+      scale,
+      progression,
+      palette: {
+        triad: paletteChordIds.triad.map(chord => buildChord(scale, chord)),
+        seventh: paletteChordIds.seventh.map(chord => buildChord(scale, chord)),
+        extension: paletteChordIds.extension.map(chord => buildChord(scale, chord)),
+      },
+    }
+  }, [activePuzzle])
 
   return (
     <Box
@@ -58,10 +89,17 @@ export default function DebugPanel() {
               <Badge color="gray" variant="light">Dev</Badge>
             </Group>
 
-            <Text size="sm">{`Date: ${activePuzzle.date}`}</Text>
-            <Text size="sm">{`Key: ${activePuzzle.key}`}</Text>
-            <Text size="sm">{`Mode: ${formatModeLabel(activePuzzle.mode)}`}</Text>
-            <Text size="sm">{`Target: ${targetLabel}`}</Text>
+            <Text fw={600} size="sm" mt="xs">Puzzle Definition</Text>
+            <Box component="pre" m={0} fz="xs" style={{ whiteSpace: 'pre-wrap' }}>
+              {JSON.stringify(puzzleDefinition, null, 2)}
+            </Box>
+
+            <Text fw={600} size="sm" mt="xs">Puzzle Music</Text>
+            <Box component="pre" m={0} fz="xs" style={{ whiteSpace: 'pre-wrap' }}>
+              {JSON.stringify(puzzleMusic, null, 2)}
+            </Box>
+
+            <Text fw={600} size="sm" mt="xs">Live Game</Text>
             <Text size="sm">{`Status: ${status}`}</Text>
             <Text size="sm">{`Guesses: ${guesses.length}/${maxGuesses}`}</Text>
 
