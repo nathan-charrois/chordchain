@@ -85,7 +85,7 @@ export default function Pallete() {
                       key={`${section.id}-${chordIdKey(chord.id)}`}
                       onClick={() => handleClickChord(chord.id)}
                       text={chord.display.name}
-                      subtext={`Degree ${chord.id.degree}`}
+                      subtext={chord.display.numeral}
                       status={getGuessStatus(chord.id, guesses, activePuzzle.progression)}
                       disabled={disabled}
                     />

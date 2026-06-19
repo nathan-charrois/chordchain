@@ -24,6 +24,7 @@ export type ChordId = {
 export type DisplayChord = ChordId & {
   name: string
   notes: string[]
+  numeral: string
 }
 
 export type PaletteChordIds = {
@@ -136,6 +137,16 @@ const NATURAL_PITCH_CLASSES: Record<string, number> = {
   B: 11,
 }
 const CHORD_DEGREES: ChordDegree[] = [1, 2, 3, 4, 5, 6, 7]
+const CHORD_DEGREE_NUMERALS: Record<ChordDegree, string> = {
+  1: 'I',
+  2: 'II',
+  3: 'III',
+  4: 'IV',
+  5: 'V',
+  6: 'VI',
+  7: 'VII',
+}
+
 const CHORD_TYPES = new Set<ChordType>(['triad', 'seventh', 'sus2', 'sus4'])
 const CHORD_DEGREE_SET = new Set<number>(CHORD_DEGREES)
 
@@ -252,6 +263,52 @@ function getChordName(notes: string[], type: ChordType): string {
 
   throw new Error(
     `[music] Unsupported ${type} quality for notes '${notes.join(', ')}' with intervals '${intervals.join(', ')}'.`,
+  )
+}
+
+function getChordNumeral(notes: string[], chord: ChordId): string {
+  const numeral = CHORD_DEGREE_NUMERALS[chord.degree]
+
+  if (chord.type === 'sus2' || chord.type === 'sus4') {
+    return `${numeral}${chord.type}`
+  }
+
+  const intervals = getChordIntervals(notes).join(',')
+
+  if (chord.type === 'triad') {
+    if (intervals === '0,4,7') {
+      return numeral
+    }
+
+    if (intervals === '0,3,7') {
+      return numeral.toLowerCase()
+    }
+
+    if (intervals === '0,3,6') {
+      return `${numeral.toLowerCase()}°`
+    }
+  }
+
+  if (chord.type === 'seventh') {
+    if (intervals === '0,4,7,11') {
+      return `${numeral}maj7`
+    }
+
+    if (intervals === '0,3,7,10') {
+      return `${numeral.toLowerCase()}7`
+    }
+
+    if (intervals === '0,4,7,10') {
+      return `${numeral}7`
+    }
+
+    if (intervals === '0,3,6,10') {
+      return `${numeral.toLowerCase()}ø7`
+    }
+  }
+
+  throw new Error(
+    `[music] Unsupported ${chord.type} numeral for notes '${notes.join(', ')}' with intervals '${intervals}'.`,
   )
 }
 
@@ -378,6 +435,7 @@ export function buildChord(scale: string[], chord: ChordId): DisplayChord {
 
   return {
     ...chord,
+    numeral: getChordNumeral(notes, chord),
     name: getChordName(notes, chord.type),
     notes,
   }
