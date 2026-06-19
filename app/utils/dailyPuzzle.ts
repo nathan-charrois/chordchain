@@ -550,7 +550,7 @@ export function getPuzzleScaleLabel(puzzle: DailyPuzzle): string {
   return `${puzzle.key} ${formatModeLabel(puzzle.mode)}`
 }
 
-export function getCatalogDatesDesc(maxDate?: string): string[] {
+export function getPuzzleDatesDesc(maxDate?: string): string[] {
   return Object.keys(DAILY_PUZZLE_CATALOG)
     .filter(date => (maxDate ? date <= maxDate : true))
     .sort((left, right) => right.localeCompare(left))
@@ -584,6 +584,17 @@ export function getPuzzleSlugForDate(date: string): string {
 
 export function getPuzzlePathForDate(date: string): string {
   return `/${encodePuzzleSlug(getPuzzleSlugForDate(date))}`
+}
+
+export function getPuzzleNumberLabel(puzzle: DailyPuzzle): string {
+  const puzzleDates = getPuzzleDatesDesc()
+  const puzzleNumber = puzzleDates.length - puzzleDates.indexOf(puzzle.date)
+
+  if (puzzleNumber) {
+    return `Puzzle #${puzzleNumber}`
+  }
+
+  return `Unknown Puzzle #`
 }
 
 export function resolveDailyPuzzle(date: string): DailyPuzzle {

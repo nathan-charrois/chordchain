@@ -44,17 +44,16 @@ export default function SidebarDetails() {
   return (
     <>
       <Card>
-        <Stack>
-          <Group align="center" wrap="wrap">
-            <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
-              <Icon icon={PuzzleIcon} onClick={() => { }} />
-            </Stack>
-            <Stack gap={2}>
-              <Text size="sm">Puzzle Name</Text>
-              <Text fw={500} size="md">{activePuzzle.name}</Text>
-            </Stack>
-          </Group>
-        </Stack>
+        <Text fz="md" fw={500} mb="sm">Puzzle Info</Text>
+        <Group align="center" wrap="wrap">
+          <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
+            <Icon icon={PuzzleIcon} onClick={() => { }} />
+          </Stack>
+          <Stack gap={2}>
+            <Text size="sm">Puzzle Name</Text>
+            <Text fw={500} size="md">{activePuzzle.name}</Text>
+          </Stack>
+        </Group>
         <Divider my="md" variant="dashed" />
         <Group align="center" justify="space-between" mb="lg">
           <Stack gap={2}>
@@ -64,14 +63,14 @@ export default function SidebarDetails() {
           <Icon icon={difficultyIcon} onClick={() => { }} />
         </Group>
         <Group align="center" justify="space-between" mb="lg">
-          <Stack gap={4}>
+          <Stack gap={2}>
             <Text size="sm">Pattern</Text>
             <Text fw={500} size="md">{arpeggiateType}</Text>
           </Stack>
           <Icon icon={ConstellationIcon} onClick={() => { }} />
         </Group>
         <Group align="center" justify="space-between">
-          <Stack gap={4}>
+          <Stack gap={2}>
             <Text size="sm">Key / Mode</Text>
             <Text fw={500} size="md">{`${keyLabel} ${modeLabel}`}</Text>
           </Stack>

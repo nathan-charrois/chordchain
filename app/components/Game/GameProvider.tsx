@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { GameContext } from './context/GameContext'
 import { useSession } from './hooks/useSession'
 import { GAME_MAX_CHARS, GAME_MAX_GUESSES } from '~/constant'
-import { getCatalogDatesDesc, resolveDailyPuzzle, resolvePuzzleDateFromSlug } from '~/utils/dailyPuzzle'
+import { getPuzzleDatesDesc, resolveDailyPuzzle, resolvePuzzleDateFromSlug } from '~/utils/dailyPuzzle'
 import { formatLocalDate } from '~/utils/date'
 import {
   calculateCurrentStreak,
@@ -22,7 +22,7 @@ export function GameProvider({ children, routePuzzleSlug }: Props) {
   const [selectedPuzzleDate, setSelectedPuzzleDate] = useState(() => resolvePuzzleDateFromSlug(routePuzzleSlug, todayDate))
   const activePuzzle = useMemo(() => resolveDailyPuzzle(selectedPuzzleDate), [selectedPuzzleDate])
   const [historyStore, setHistoryStore] = useState(readPuzzleHistory)
-  const puzzleDates = useMemo(() => getCatalogDatesDesc(todayDate), [todayDate])
+  const puzzleDates = useMemo(() => getPuzzleDatesDesc(todayDate), [todayDate])
   const currentStreak = useMemo(
     () => calculateCurrentStreak(historyStore.entries, todayDate).current,
     [historyStore.entries, todayDate],

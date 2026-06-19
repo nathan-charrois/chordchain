@@ -5,6 +5,7 @@ import { Divider, Group, Stack, Text } from '@mantine/core'
 import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
+import { getPuzzleNumberLabel } from '~/utils/dailyPuzzle'
 import { formatCountdown, formatDisplayDate, getSecondsToNextMidnight } from '~/utils/date'
 
 export default function SidebarCalendar() {
@@ -30,13 +31,14 @@ export default function SidebarCalendar() {
 
   return (
     <Card>
+      <Text fz="md" fw={500} mb="sm">Today's Puzzle</Text>
       <Group align="center" wrap="wrap">
         <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
           <Icon icon={Calendar03Icon} onClick={() => { }} />
         </Stack>
-        <Stack gap={4}>
+        <Stack gap={2}>
           <Text fw={500} size="md">{formatDisplayDate(activePuzzle.date)}</Text>
-          <Text size="sm">Daily Puzzle</Text>
+          <Text size="sm">{getPuzzleNumberLabel(activePuzzle)}</Text>
         </Stack>
       </Group>
       <Divider my="md" variant="dashed" />
