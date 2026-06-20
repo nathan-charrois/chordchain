@@ -613,13 +613,15 @@ export function playChord(notes: string[], arpeggiate: boolean, arpeggiateType: 
   const interval = getToneIntervalMs(sequenceGapMs, arpeggiate)
   const volume = getChordToneVolume(tones.length)
 
-  tones.forEach((tone, index) => {
+  const toneTimeouts = tones.map((tone, index) => {
     console.log(tone, 'volume', volume)
-    setTimeout(
+    return setTimeout(
       () => playTone(tone.pitchClass, tone.octave, volume),
       index * interval,
     )
   })
+
+  return toneTimeouts
 }
 
 function toneFromRootInterval(rootPitchClass: number, octave: number, interval: number): VoicedTone {

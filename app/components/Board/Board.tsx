@@ -21,7 +21,7 @@ export default function Board() {
     maxGuesses,
     activePuzzle,
   } = useGame()
-  const { progression, activeIndex, isPlaying, play, stop, setLooping, restartAfterTempoChange } = useSequence()
+  const { progression, activeIndex, isPlaying, play, stop, setLooping, restart } = useSequence()
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(true)
@@ -49,17 +49,17 @@ export default function Board() {
     setIsArpeggiate(nextIsArpeggiate)
 
     if (isPlaying) {
-      play(nextIsArpeggiate, isLooping, tempoBpm)
+      restart(nextIsArpeggiate, isLooping, tempoBpm)
     }
-  }, [isArpeggiate, isPlaying, play, isLooping, tempoBpm])
+  }, [isArpeggiate, isPlaying, restart, isLooping, tempoBpm])
 
   const handleTempoChange = useCallback((nextTempoBpm: number) => {
     setTempoBpm(nextTempoBpm)
 
     if (isPlaying) {
-      restartAfterTempoChange(isArpeggiate, isLooping, nextTempoBpm)
+      restart(isArpeggiate, isLooping, nextTempoBpm)
     }
-  }, [isPlaying, restartAfterTempoChange, isLooping, isArpeggiate])
+  }, [isPlaying, restart, isLooping, isArpeggiate])
 
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)

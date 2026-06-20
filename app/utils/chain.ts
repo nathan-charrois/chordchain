@@ -7,6 +7,7 @@ type TimeoutHandle = ReturnType<typeof setTimeout>
 
 type SequenceTimeouts = {
   chord: TimeoutHandle[]
+  tone: TimeoutHandle[]
   loopRestart: TimeoutHandle | null
   loopEnd: TimeoutHandle | null
   delayedInsert: TimeoutHandle | null
@@ -14,6 +15,7 @@ type SequenceTimeouts = {
 
 const sequenceTimeouts: SequenceTimeouts = {
   chord: [],
+  tone: [],
   loopRestart: null,
   loopEnd: null,
   delayedInsert: null,
@@ -89,7 +91,8 @@ export function playSequenceOnce({ chords, arpeggiate, arpeggiateType, setIndex,
           return
         }
 
-        playChord(chords[i], arpeggiate, arpeggiateType, sequenceGapMs)
+        const toneTimeouts = playChord(chords[i], arpeggiate, arpeggiateType, sequenceGapMs)
+        sequenceTimeouts.tone = [...sequenceTimeouts.tone, ...toneTimeouts]
         setIndex(i)
       },
       i * sequenceGapMs,
@@ -134,7 +137,12 @@ function clearChordTimeouts() {
   sequenceTimeouts.chord = []
 }
 
-function clearTimeoutByKey(key: Exclude<keyof SequenceTimeouts, 'chord'>) {
+function clearToneTimeouts() {
+  sequenceTimeouts.tone.forEach(clearTimeout)
+  sequenceTimeouts.tone = []
+}
+
+function clearTimeoutByKey(key: Exclude<keyof SequenceTimeouts, 'chord' | 'tone'>) {
   if (!sequenceTimeouts[key]) {
     return
   }
@@ -145,12 +153,13 @@ function clearTimeoutByKey(key: Exclude<keyof SequenceTimeouts, 'chord'>) {
 
 function clearAllTrackedTimeouts() {
   clearChordTimeouts()
+  clearToneTimeouts()
   clearTimeoutByKey('loopRestart')
   clearTimeoutByKey('loopEnd')
   clearTimeoutByKey('delayedInsert')
 }
 
-function replaceTimeout(key: Exclude<keyof SequenceTimeouts, 'chord'>, timeout: TimeoutHandle) {
+function replaceTimeout(key: Exclude<keyof SequenceTimeouts, 'chord' | 'tone'>, timeout: TimeoutHandle) {
   clearTimeoutByKey(key)
   sequenceTimeouts[key] = timeout
 }
