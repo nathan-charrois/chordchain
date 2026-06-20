@@ -104,13 +104,13 @@ export default function Board() {
           </Stack>
         </Alert>
       )}
-      <Card>
-        <Stack>
+      <Card p="lg">
+        <Stack gap="lg">
           {guessRows.map(row => (
             <Group
               key={row.index}
-              gap="xs"
               wrap="nowrap"
+              gap="lg"
               aria-label={`Guess ${row.index + 1} ${row.kind}`}
             >
               {Array.from({ length: maxLength }, (_, cellIndex) => {
@@ -124,7 +124,7 @@ export default function Board() {
                     c={getGuessCellColor(row, cellIndex, activeIndex).color}
                     variant="filled"
                     w="25%"
-                    h={120}
+                    h={160}
                     radius="lg"
                     tt="capitalize"
                   >

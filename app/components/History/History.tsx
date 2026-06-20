@@ -1,29 +1,17 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
-import { Clock01Icon } from '@hugeicons/core-free-icons'
-import { Badge, Button, Group, Modal, Stack, Text } from '@mantine/core'
+import { CancelCircleIcon, CheckmarkCircle04Icon, Clock01Icon, PlayCircleIcon } from '@hugeicons/core-free-icons'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Badge, Group, Modal, Stack, Text, Timeline } from '@mantine/core'
 
-import { useSequence } from '~/components/Board/hooks/useSequence'
-import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
-import { getPuzzlePathForDate, resolveDailyPuzzle } from '~/utils/dailyPuzzle'
-import { formatDisplayDate, formatDisplayDateTime } from '~/utils/date'
+import { resolveDailyPuzzle } from '~/utils/dailyPuzzle'
+import { formatDisplayDateTime } from '~/utils/date'
 import { formatPuzzleDifficulty } from '~/utils/music'
 
 export default function History() {
-  const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
-
-  const { stop } = useSequence()
-
-  const {
-    todayDate,
-    selectedPuzzleDate,
-    puzzleDates,
-    historyEntries,
-    selectPuzzleDate,
-  } = useGame()
+  const { puzzleDates, historyEntries } = useGame()
 
   const handleOnClick = useCallback(() => {
     setIsOpen(true)
@@ -33,79 +21,69 @@ export default function History() {
     setIsOpen(false)
   }, [])
 
-  const handleSelect = useCallback((date: string) => {
-    stop()
-    navigate(getPuzzlePathForDate(date))
-    selectPuzzleDate(date)
-    setIsOpen(false)
-  }, [stop, navigate, selectPuzzleDate])
+  const historyItems = useMemo(() => {
+    return puzzleDates
+      .filter(date => historyEntries[date])
+      .map((date) => {
+        const entry = historyEntries[date]
+        const puzzle = resolveDailyPuzzle(date)
+        const isCompleted = entry.completed === true
+        const isFailed = entry.failed === true
+        const statusLabel = isFailed ? 'Loss' : isCompleted ? 'Win' : 'In progress'
+        const statusColor = isFailed ? 'red' : isCompleted ? 'green' : 'blue'
+        const statusIcon = isFailed
+          ? CancelCircleIcon
+          : isCompleted
+            ? CheckmarkCircle04Icon
+            : PlayCircleIcon
+        const attemptsUsed = entry.attemptsUsed ?? entry.guesses?.length
+        const statusDateTime = entry.completedAt ?? entry.failedAt
 
-  const historyRows = useMemo(() => {
-    return puzzleDates.map((date) => {
-      const entry = historyEntries[date]
-      const puzzle = resolveDailyPuzzle(date)
-      const completedAt = entry?.completedAt ? formatDisplayDateTime(entry.completedAt) : null
-      const failedAt = entry?.failedAt ? formatDisplayDateTime(entry.failedAt) : null
-      const isCompleted = entry?.completed === true
-      const isFailed = entry?.failed === true
-      const isSelected = date === selectedPuzzleDate
-      const actionLabel = isSelected ? 'Playing' : 'Play'
-      const statusLabel = isFailed ? 'Loss' : isCompleted ? 'Win' : undefined
-      const statusColor = isFailed ? 'red' : isCompleted ? 'green' : 'gray'
-
-      return (
-        <Card key={date} withBorder>
-          <Stack gap="sm">
-            <Stack gap={2}>
+        return (
+          <Timeline.Item
+            key={date}
+            color={statusColor}
+            bullet={<HugeiconsIcon icon={statusIcon} width={16} />}
+            title={(
               <Group gap="xs" justify="space-between">
                 <Text fw={700}>{puzzle.name}</Text>
-                {date === todayDate && <Badge color="blue">Today's Puzzle</Badge>}
+                <Badge color={statusColor} variant="light">{statusLabel}</Badge>
               </Group>
-              <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
-            </Stack>
-            <Group gap="xs">
-              <Badge color="gray.6" variant="outline">{formatPuzzleDifficulty(puzzle.difficulty)}</Badge>
-              {statusLabel && (<Badge color={statusColor} variant="outline">{statusLabel}</Badge>)}
-
-            </Group>
-            {(entry?.completed || entry?.failed) && (
-              <Stack gap={2}>
-                {typeof entry.attemptsUsed === 'number' && (
-                  <Text size="sm" c="dimmed">
-                    {`Attempts used: ${entry.attemptsUsed}`}
-                  </Text>
-                )}
-                {completedAt && (
-                  <Text size="sm" c="dimmed">
-                    {`Completed at: ${completedAt}`}
-                  </Text>
-                )}
-                {failedAt && (
-                  <Text size="sm" c="dimmed">
-                    {`Failed at: ${failedAt}`}
-                  </Text>
-                )}
-              </Stack>
             )}
-            <Button
-              size="xs"
-              variant={isSelected ? 'light' : 'outline'}
-              disabled={isSelected}
-              onClick={() => handleSelect(date)}
-            >
-              {actionLabel}
-            </Button>
-          </Stack>
-        </Card>
+          >
+            <Stack gap={4}>
+              <Group gap="xs">
+                <Badge color="gray.6" variant="outline">
+                  {formatPuzzleDifficulty(puzzle.difficulty)}
+                </Badge>
+                {typeof attemptsUsed === 'number' && (
+                  <Text size="sm" c="dimmed">
+                    {`${attemptsUsed} ${attemptsUsed === 1 ? 'attempt' : 'attempts'}`}
+                  </Text>
+                )}
+              </Group>
+              {statusDateTime && (
+                <Text size="sm" c="dimmed">
+                  {`${isCompleted ? 'Completed' : 'Failed'} ${formatDisplayDateTime(statusDateTime)}`}
+                </Text>
+              )}
+            </Stack>
+          </Timeline.Item>
+        )
+      })
+  }, [historyEntries, puzzleDates])
+
+  const modalBody = useMemo(() => {
+    if (historyItems.length) {
+      return (
+        <Timeline active={historyItems.length - 1} bulletSize={28} lineWidth={2}>
+          {historyItems}
+        </Timeline>
       )
-    })
-  }, [
-    puzzleDates,
-    historyEntries,
-    todayDate,
-    selectedPuzzleDate,
-    handleSelect,
-  ])
+    }
+
+    return <Text c="dimmed">No games played yet.</Text>
+  }, [historyItems])
 
   return (
     <>
@@ -113,13 +91,11 @@ export default function History() {
       <Modal
         opened={isOpen}
         onClose={handleOnClose}
-        title="History"
+        title="Game History"
         closeOnEscape
         centered
       >
-        <Stack>
-          {historyRows}
-        </Stack>
+        {modalBody}
       </Modal>
     </>
   )
