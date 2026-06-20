@@ -105,7 +105,7 @@ export default function Board() {
         </Alert>
       )}
       <Card p="lg">
-        <Stack gap="lg">
+        <Stack gap="lg" mb="md">
           {guessRows.map(row => (
             <Group
               key={row.index}
@@ -135,7 +135,7 @@ export default function Board() {
             </Group>
           ))}
         </Stack>
-        <Group mt="xl" mb="lg" justify="center">
+        <Group my="lg" justify="center">
           <HugeiconsIcon icon={Idea01Icon} aria-label="Play" color="#228be6" />
           <Text c="dimmed">Tap a chord below to create a chain.</Text>
         </Group>

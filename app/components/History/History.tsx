@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { CancelCircleIcon, CheckmarkCircle04Icon, Clock01Icon, PlayCircleIcon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, Clock01Icon, PlayIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Badge, Group, Modal, Stack, Text, Timeline } from '@mantine/core'
 
@@ -7,11 +7,12 @@ import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
 import { resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatDisplayDateTime } from '~/utils/date'
-import { formatPuzzleDifficulty } from '~/utils/music'
 
 export default function History() {
   const [isOpen, setIsOpen] = useState(false)
   const { puzzleDates, historyEntries } = useGame()
+
+  console.log(historyEntries)
 
   const handleOnClick = useCallback(() => {
     setIsOpen(true)
@@ -22,20 +23,16 @@ export default function History() {
   }, [])
 
   const historyItems = useMemo(() => {
-    return puzzleDates
-      .filter(date => historyEntries[date])
+    return Object.keys(historyEntries)
+      .reverse()
       .map((date) => {
         const entry = historyEntries[date]
         const puzzle = resolveDailyPuzzle(date)
         const isCompleted = entry.completed === true
         const isFailed = entry.failed === true
-        const statusLabel = isFailed ? 'Loss' : isCompleted ? 'Win' : 'In progress'
-        const statusColor = isFailed ? 'red' : isCompleted ? 'green' : 'blue'
-        const statusIcon = isFailed
-          ? CancelCircleIcon
-          : isCompleted
-            ? CheckmarkCircle04Icon
-            : PlayCircleIcon
+        const statusLabel = isFailed ? 'Loss' : isCompleted ? 'Win' : ''
+        const statusColor = isFailed ? 'red.7' : isCompleted ? 'green.7' : 'gray.5'
+        const statusIcon = isFailed ? Cancel01Icon : isCompleted ? Tick02Icon : PlayIcon
         const attemptsUsed = entry.attemptsUsed ?? entry.guesses?.length
         const statusDateTime = entry.completedAt ?? entry.failedAt
 
@@ -46,16 +43,13 @@ export default function History() {
             bullet={<HugeiconsIcon icon={statusIcon} width={16} />}
             title={(
               <Group gap="xs" justify="space-between">
-                <Text fw={700}>{puzzle.name}</Text>
-                <Badge color={statusColor} variant="light">{statusLabel}</Badge>
+                <Text fw={500}>{puzzle.name}</Text>
+                {statusLabel && <Badge color={statusColor} variant="outline">{statusLabel}</Badge>}
               </Group>
             )}
           >
-            <Stack gap={4}>
+            <Stack gap={2}>
               <Group gap="xs">
-                <Badge color="gray.6" variant="outline">
-                  {formatPuzzleDifficulty(puzzle.difficulty)}
-                </Badge>
                 {typeof attemptsUsed === 'number' && (
                   <Text size="sm" c="dimmed">
                     {`${attemptsUsed} ${attemptsUsed === 1 ? 'attempt' : 'attempts'}`}
@@ -64,7 +58,7 @@ export default function History() {
               </Group>
               {statusDateTime && (
                 <Text size="sm" c="dimmed">
-                  {`${isCompleted ? 'Completed' : 'Failed'} ${formatDisplayDateTime(statusDateTime)}`}
+                  {`${isCompleted ? 'Won on' : 'Lost on'} ${formatDisplayDateTime(statusDateTime)}`}
                 </Text>
               )}
             </Stack>
@@ -76,7 +70,7 @@ export default function History() {
   const modalBody = useMemo(() => {
     if (historyItems.length) {
       return (
-        <Timeline active={historyItems.length - 1} bulletSize={28} lineWidth={2}>
+        <Timeline active={historyItems.length - 1} bulletSize={28} lineWidth={1}>
           {historyItems}
         </Timeline>
       )

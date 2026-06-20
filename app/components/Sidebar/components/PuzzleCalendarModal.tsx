@@ -50,7 +50,7 @@ export default function PuzzleCalendarModal({ opened, onClose }: Props) {
           ? 'Win'
           : isStarted
             ? 'In progress'
-            : 'Not played'
+            : ''
       const statusColor = isFailed
         ? 'red'
         : isCompleted
@@ -73,7 +73,7 @@ export default function PuzzleCalendarModal({ opened, onClose }: Props) {
               <Badge color="gray.6" variant="outline">
                 {formatPuzzleDifficulty(puzzle.difficulty)}
               </Badge>
-              <Badge color={statusColor} variant="outline">{statusLabel}</Badge>
+              {statusLabel && <Badge color={statusColor} variant="outline">{statusLabel}</Badge>}
             </Group>
             <Button
               size="xs"
