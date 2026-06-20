@@ -29,6 +29,7 @@ export default function PalleteButton({
         disabled={disabled}
         aria-disabled={disabled}
         h={80}
+        p="md"
         bg={status === 'absent' ? 'gray.1' : status === 'correct' ? 'green.0' : status === 'present' ? 'orange.0' : undefined}
       >
         <Stack gap={0}>
