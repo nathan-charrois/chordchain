@@ -10,7 +10,7 @@ export default function Card({
 }: MantineCardProps & CardProps,
 ) {
   return (
-    <MantineCard radius="md" shadow="sm" {...props}>
+    <MantineCard {...props}>
       {children}
     </MantineCard>
   )

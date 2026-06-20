@@ -34,15 +34,19 @@ export default function PlaybackControls({
 
   return (
     <Group>
-      <Group flex="4" mr="xl">
+      <Group flex="8">
         <Button size="lg" mr="sm" radius="md" leftSection={leftSection} onClick={onTogglePlayback}>
           {isPlaying ? 'Stop' : 'Play'}
         </Button>
         <Checkbox label="Loop" checked={isLooping} onChange={onToggleLooping} />
         <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={onToggleArpeggiate} />
       </Group>
-      <Group flex="2" grow>
+      <Group flex="6" justify="flex-end" gap="md">
+        <Text size="sm">
+          Tempo
+        </Text>
         <Slider
+          flex={1}
           aria-label="Tempo"
           min={10}
           max={160}
@@ -50,10 +54,10 @@ export default function PlaybackControls({
           value={tempoBpm}
           onChange={onTempoChange}
         />
+        <Text size="sm" w={60}>
+          {`${tempoBpm} BPM`}
+        </Text>
       </Group>
-      <Text size="sm" w={60}>
-        {`${tempoBpm} BPM`}
-      </Text>
     </Group>
   )
 }
