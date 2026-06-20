@@ -79,17 +79,18 @@ export default function Pallete() {
                 <Group gap="xs" align="center">
                   <Text fw={500} size="md">{section.title}</Text>
                 </Group>
-                <Group grow>
-                  {section.chords.map(chord => (
-                    <PalleteButton
-                      key={`${section.id}-${chordIdKey(chord.id)}`}
-                      onClick={() => handleClickChord(chord.id)}
-                      text={chord.display.name}
-                      subtext={chord.display.numeral}
-                      status={getGuessStatus(chord.id, guesses, activePuzzle.progression)}
-                      disabled={disabled}
-                    />
-                  ))}
+                <Group grow preventGrowOverflow={false}>
+                  {section.chords
+                    .map(chord => (
+                      <PalleteButton
+                        key={`${section.id}-${chordIdKey(chord.id)}`}
+                        onClick={() => handleClickChord(chord.id)}
+                        text={chord.display.name}
+                        subtext={chord.display.numeral}
+                        status={getGuessStatus(chord.id, guesses, activePuzzle.progression)}
+                        disabled={disabled}
+                      />
+                    ))}
                 </Group>
               </Stack>
             )

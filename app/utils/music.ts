@@ -13,7 +13,8 @@ export type ModeId
     | 'locrian'
 
 export type PuzzleDifficulty = 'easy' | 'medium' | 'hard'
-export type ChordType = 'triad' | 'seventh' | 'sus2' | 'sus4'
+
+export type ChordType = 'triad' | 'seventh' | 'suspended' | 'sixth'
 export type ChordDegree = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
 export type ChordId = {
@@ -87,14 +88,14 @@ export const ARPEGGIATE_RECIPES: Record<ArpeggiateType, readonly number[]> = {
 export const CHORD_RECIPES: Record<ChordType, readonly number[]> = {
   triad: [0, 2, 4],
   seventh: [0, 2, 4, 6],
-  sus2: [0, 1, 4],
-  sus4: [0, 3, 4],
+  suspended: [0, 1, 4],
+  sixth: [0, 2, 4, 5],
 }
 
 export const DIFFICULTY_CHORD_TYPES: Record<PuzzleDifficulty, readonly ChordType[]> = {
   easy: ['triad'],
   medium: ['triad', 'seventh'],
-  hard: ['triad', 'seventh', 'sus2', 'sus4'],
+  hard: ['triad', 'seventh', 'suspended', 'sixth'],
 }
 
 export const MODE_IDS: ModeId[] = [
@@ -147,7 +148,7 @@ const CHORD_DEGREE_NUMERALS: Record<ChordDegree, string> = {
   7: 'VII',
 }
 
-const CHORD_TYPES = new Set<ChordType>(['triad', 'seventh', 'sus2', 'sus4'])
+const CHORD_TYPES = new Set<ChordType>(['triad', 'seventh', 'suspended', 'sixth'])
 const CHORD_DEGREE_SET = new Set<number>(CHORD_DEGREES)
 
 type ParsedNote = {
@@ -218,62 +219,120 @@ function getChordIntervals(notes: string[]): number[] {
 
 function getChordName(notes: string[], type: ChordType): string {
   const root = notes[0]
+  const intervals = getChordIntervals(notes).join(',')
 
-  if (type === 'sus2') {
-    return `${root}sus2`
+  if (type === 'suspended') {
+    if (intervals === '0,2,7') {
+      return `${root}sus2`
+    }
+
+    if (intervals === '0,1,7') {
+      return `${root}susb2`
+    }
+
+    if (intervals === '0,2,6') {
+      return `${root}sus2b5`
+    }
+
+    if (intervals === '0,1,6') {
+      return `${root}susb2b5`
+    }
   }
 
-  if (type === 'sus4') {
-    return `${root}sus4`
-  }
+  if (type === 'sixth') {
+    if (intervals === '0,4,7,9') {
+      return `${root}6`
+    }
 
-  const intervals = getChordIntervals(notes)
+    if (intervals === '0,3,7,9') {
+      return `${root}m6`
+    }
+
+    if (intervals === '0,3,7,8') {
+      return `${root}m(addb6)`
+    }
+
+    if (intervals === '0,3,6,8') {
+      return `${root}dim(addb6)`
+    }
+  }
 
   if (type === 'triad') {
-    if (intervals.join(',') === '0,4,7') {
+    if (intervals === '0,4,7') {
       return root
     }
 
-    if (intervals.join(',') === '0,3,7') {
+    if (intervals === '0,3,7') {
       return `${root}m`
     }
 
-    if (intervals.join(',') === '0,3,6') {
+    if (intervals === '0,3,6') {
       return `${root}dim`
     }
   }
 
   if (type === 'seventh') {
-    if (intervals.join(',') === '0,4,7,11') {
+    if (intervals === '0,4,7,11') {
       return `${root}maj7`
     }
 
-    if (intervals.join(',') === '0,3,7,10') {
+    if (intervals === '0,3,7,10') {
       return `${root}m7`
     }
 
-    if (intervals.join(',') === '0,4,7,10') {
+    if (intervals === '0,4,7,10') {
       return `${root}7`
     }
 
-    if (intervals.join(',') === '0,3,6,10') {
+    if (intervals === '0,3,6,10') {
       return `${root}m7b5`
     }
   }
 
   throw new Error(
-    `[music] Unsupported ${type} quality for notes '${notes.join(', ')}' with intervals '${intervals.join(', ')}'.`,
+    `[music] Unsupported ${type} quality for notes '${notes.join(', ')}' with intervals '${intervals}'.`,
   )
 }
 
 function getChordNumeral(notes: string[], chord: ChordId): string {
   const numeral = CHORD_DEGREE_NUMERALS[chord.degree]
+  const intervals = getChordIntervals(notes).join(',')
 
-  if (chord.type === 'sus2' || chord.type === 'sus4') {
-    return `${numeral}${chord.type}`
+  if (chord.type === 'suspended') {
+    if (intervals === '0,2,7') {
+      return `${numeral}sus2`
+    }
+
+    if (intervals === '0,1,7') {
+      return `${numeral}susb2`
+    }
+
+    if (intervals === '0,2,6') {
+      return `${numeral}sus2b5`
+    }
+
+    if (intervals === '0,1,6') {
+      return `${numeral}susb2b5`
+    }
   }
 
-  const intervals = getChordIntervals(notes).join(',')
+  if (chord.type === 'sixth') {
+    if (intervals === '0,4,7,9') {
+      return `${numeral}6`
+    }
+
+    if (intervals === '0,3,7,9') {
+      return `${numeral}m6`
+    }
+
+    if (intervals === '0,3,7,8') {
+      return `${numeral}m(addb6)`
+    }
+
+    if (intervals === '0,3,6,8') {
+      return `${numeral}dim(addb6)`
+    }
+  }
 
   if (chord.type === 'triad') {
     if (intervals === '0,4,7') {
@@ -462,12 +521,12 @@ export function buildPaletteChordIds(difficulty: PuzzleDifficulty): PaletteChord
       ? CHORD_DEGREES.map(degree => ({ degree, type: 'seventh' }))
       : [],
     extension: [
-      ...(allowedTypes.includes('sus2')
-        ? CHORD_DEGREES.map(degree => ({ degree, type: 'sus2' as const }))
-        : []),
-      ...(allowedTypes.includes('sus4')
-        ? CHORD_DEGREES.map(degree => ({ degree, type: 'sus4' as const }))
-        : []),
+      ...allowedTypes.includes('suspended')
+        ? CHORD_DEGREES.map(degree => ({ degree, type: 'suspended' as ChordType }))
+        : [],
+      ...allowedTypes.includes('sixth')
+        ? CHORD_DEGREES.map(degree => ({ degree, type: 'sixth' as ChordType }))
+        : [],
     ],
   }
 }
