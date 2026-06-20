@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import { ConstellationIcon, FullSignalIcon, LowSignalIcon, MediumSignalIcon, MusicNote02Icon, PuzzleIcon } from '@hugeicons/core-free-icons'
-import { Divider, Group, Stack, Text } from '@mantine/core'
+import { FullSignalIcon, LowSignalIcon, MediumSignalIcon, MusicNote02Icon, PuzzleIcon } from '@hugeicons/core-free-icons'
+import { Group, Stack, Text } from '@mantine/core'
 
 import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
-import { formatArpeggiateType, formatModeLabel, formatPuzzleDifficulty } from '~/utils/music'
+import { formatModeLabel, formatPuzzleDifficulty } from '~/utils/music'
 
 export default function SidebarDetails() {
   const {
@@ -15,7 +15,6 @@ export default function SidebarDetails() {
   const keyLabel = activePuzzle.key
   const modeLabel = formatModeLabel(activePuzzle.mode)
   const difficultyLabel = formatPuzzleDifficulty(activePuzzle.difficulty)
-  const arpeggiateType = formatArpeggiateType(activePuzzle.arpeggiateType)
 
   const difficultyIcon = useMemo(() => {
     if (activePuzzle.difficulty === 'easy') {
@@ -44,37 +43,26 @@ export default function SidebarDetails() {
   return (
     <>
       <Card>
-        <Text fz="md" fw={500} mb="sm">Puzzle Info</Text>
-        <Group align="center" wrap="wrap">
-          <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
-            <Icon icon={PuzzleIcon} onClick={() => { }} />
-          </Stack>
+        <Group align="center" justify="space-between" mb="lg">
           <Stack gap={2}>
-            <Text size="sm">Puzzle Name</Text>
+            <Text size="sm">Puzzle</Text>
             <Text fw={500} size="md">{activePuzzle.name}</Text>
           </Stack>
+          <Icon icon={PuzzleIcon} />
         </Group>
-        <Divider my="md" variant="dashed" />
         <Group align="center" justify="space-between" mb="lg">
           <Stack gap={2}>
             <Text size="sm">Difficulty</Text>
             <Text fw={500} size="md" c={difficultyTextColor}>{difficultyLabel}</Text>
           </Stack>
-          <Icon icon={difficultyIcon} onClick={() => { }} />
-        </Group>
-        <Group align="center" justify="space-between" mb="lg">
-          <Stack gap={2}>
-            <Text size="sm">Pattern</Text>
-            <Text fw={500} size="md">{arpeggiateType}</Text>
-          </Stack>
-          <Icon icon={ConstellationIcon} onClick={() => { }} />
+          <Icon icon={difficultyIcon} />
         </Group>
         <Group align="center" justify="space-between">
           <Stack gap={2}>
             <Text size="sm">Key / Mode</Text>
             <Text fw={500} size="md">{`${keyLabel} ${modeLabel}`}</Text>
           </Stack>
-          <Icon icon={MusicNote02Icon} onClick={() => { }} />
+          <Icon icon={MusicNote02Icon} />
         </Group>
       </Card>
     </>

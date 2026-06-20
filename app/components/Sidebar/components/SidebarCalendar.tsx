@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowRight01Icon, Calendar03Icon, CheckmarkCircle04Icon, Fire02Icon, PuzzleFreeIcons } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { Button, Divider, Group, Stack, Text } from '@mantine/core'
 
 import Card from '~/components/Card/Card'
@@ -44,17 +43,17 @@ export default function SidebarCalendar() {
     <>
       <Card>
         <Text fz="md" fw={500} mb="sm">Today's Puzzle</Text>
-        <Button variant="transparent" p={0} onClick={handleClickTodaysPuzzle} h={60} justify="flex-start" c="dark">
-          <Group align="center" wrap="nowrap">
-            <Stack bg="blue.0" w={60} h={60} align="center" justify="center" bdrs="md">
-              <Icon icon={Calendar03Icon} />
+        <Button variant="transparent" p={0} onClick={handleClickTodaysPuzzle} h={60} justify="flex-start" fullWidth c="dark" display="block">
+          <Group align="center" wrap="nowrap" gap="sm" justify="space-between">
+            <Stack bg="gray.2" c="dark.5" w={60} h={60} align="center" justify="center" bdrs="md">
+              <Icon icon={Calendar03Icon} size="28" />
             </Stack>
-            <Stack gap={2} ta="left" mr="sm">
+            <Stack gap={2} ta="left" mr="md">
               <Text fw={500} size="md">{formatDisplayDate(activePuzzle.date)}</Text>
               <Text size="sm">{getPuzzleNumberLabel(activePuzzle)}</Text>
             </Stack>
-            <Stack c="gray.5">
-              <HugeiconsIcon width={20} icon={ArrowRight01Icon} cursor="pointer" aria-label="Open puzzle modal" />
+            <Stack c="dimmed">
+              <Icon icon={ArrowRight01Icon} size={20} />
             </Stack>
           </Group>
         </Button>
@@ -64,21 +63,21 @@ export default function SidebarCalendar() {
             <Text size="sm">Status</Text>
             <Text fw={500} size="md" tt="capitalize">{status}</Text>
           </Stack>
-          <Icon icon={CheckmarkCircle04Icon} onClick={handleClickTodaysPuzzle} />
+          <Icon icon={CheckmarkCircle04Icon} />
         </Group>
         <Group align="center" justify="space-between" mb="lg">
           <Stack gap={2}>
             <Text size="sm">Streak</Text>
             <Text fw={500} size="md">{`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}</Text>
           </Stack>
-          <Icon icon={Fire02Icon} onClick={() => { }} />
+          <Icon icon={Fire02Icon} />
         </Group>
         <Group align="center" justify="space-between">
           <Stack gap={2}>
             <Text size="sm">Next Puzzle</Text>
             <Text fw={500} size="md">{formatCountdown(secondsUntilReset)}</Text>
           </Stack>
-          <Icon icon={PuzzleFreeIcons} onClick={() => { }} />
+          <Icon icon={PuzzleFreeIcons} />
         </Group>
       </Card>
       <PuzzleCalendarModal

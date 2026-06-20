@@ -17,10 +17,10 @@ export default function Header() {
       </Grid.Col>
       <Grid.Col span={5}>
         <Group justify="flex-end">
-          <Card w={100}>
+          <Card p={0}>
             <History />
           </Card>
-          <Card w={100}>
+          <Card p={0}>
             <About />
           </Card>
         </Group>

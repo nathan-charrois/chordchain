@@ -25,6 +25,7 @@ export default function DebugPanel() {
   const puzzleDefinition = useMemo(() => ({
     date: activePuzzle.date,
     name: activePuzzle.name,
+    arpeggiateType: activePuzzle.arpeggiateType,
     key: activePuzzle.key,
     mode: activePuzzle.mode,
     difficulty: activePuzzle.difficulty,

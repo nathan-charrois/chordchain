@@ -429,13 +429,6 @@ export function formatPuzzleDifficulty(difficulty: PuzzleDifficulty): string {
   return DIFFICULTY_LABELS[difficulty]
 }
 
-export function formatArpeggiateType(arpeggiateType: ArpeggiateType): string {
-  return arpeggiateType
-    .split('_')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(' ')
-}
-
 export function formatKeyModeLabel(key: string, mode: ModeId): string {
   return `${key} ${formatModeLabel(mode)}`
 }
