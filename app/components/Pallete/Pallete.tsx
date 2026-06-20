@@ -1,11 +1,12 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Link01Icon, Undo03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Button, Group, Stack, Text } from '@mantine/core'
+import { Button, Grid, Group, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
 import PalleteButton from '../PalleteButton/PalleteButton'
+import PianoRoll from './PianoRoll'
 import Card from '~/components/Card/Card'
 import type { ChordId, DisplayChord, PaletteChordIds } from '~/utils/music'
 import { buildChord, buildPaletteChordIds, buildScale, chordIdKey } from '~/utils/music'
@@ -20,6 +21,7 @@ type PaletteSection = {
 }
 
 export default function Pallete() {
+  const [previewedChord, setPreviewedChord] = useState<DisplayChord | null>(null)
   const {
     status,
     guesses,
@@ -68,34 +70,43 @@ export default function Pallete() {
   return (
     <>
       <Card mt="lg">
-        <Stack gap="lg">
-          {sections.map((section) => {
-            if (!section.chords.length) {
-              return
-            }
+        <Grid gutter="xl" align="stretch">
+          <Grid.Col span={{ base: 12, md: 8 }}>
+            <Stack gap="lg">
+              {sections.map((section) => {
+                if (!section.chords.length) {
+                  return
+                }
 
-            return (
-              <Stack key={section.id} gap="xs">
-                <Group gap="xs" align="center">
-                  <Text fw={500} size="md">{section.title}</Text>
-                </Group>
-                <Group grow preventGrowOverflow={false}>
-                  {section.chords
-                    .map(chord => (
-                      <PalleteButton
-                        key={`${section.id}-${chordIdKey(chord.id)}`}
-                        onClick={() => handleClickChord(chord.id)}
-                        text={chord.display.name}
-                        subtext={chord.display.numeral}
-                        status={getGuessStatus(chord.id, guesses, activePuzzle.progression)}
-                        disabled={disabled}
-                      />
-                    ))}
-                </Group>
-              </Stack>
-            )
-          })}
-        </Stack>
+                return (
+                  <Stack key={section.id} gap="xs">
+                    <Group gap="xs" align="center">
+                      <Text fw={500} size="md">{section.title}</Text>
+                    </Group>
+                    <Group grow preventGrowOverflow={false}>
+                      {section.chords
+                        .map(chord => (
+                          <PalleteButton
+                            key={`${section.id}-${chordIdKey(chord.id)}`}
+                            onClick={() => handleClickChord(chord.id)}
+                            onMouseEnter={() => setPreviewedChord(chord.display)}
+                            onFocus={() => setPreviewedChord(chord.display)}
+                            text={chord.display.name}
+                            subtext={chord.display.numeral}
+                            status={getGuessStatus(chord.id, guesses, activePuzzle.progression)}
+                            disabled={disabled}
+                          />
+                        ))}
+                    </Group>
+                  </Stack>
+                )
+              })}
+            </Stack>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <PianoRoll chord={previewedChord} />
+          </Grid.Col>
+        </Grid>
       </Card>
       <Group justify="flex-end" my="xl">
         <Button
