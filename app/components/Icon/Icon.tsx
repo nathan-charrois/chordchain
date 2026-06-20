@@ -4,7 +4,7 @@ import { Button, Stack, Text } from '@mantine/core'
 type IconProps = {
   label?: string
   icon: IconSvgElement
-  onClick: () => void
+  onClick?: () => void
 }
 
 export default function Icon({ onClick, label, icon }: IconProps) {

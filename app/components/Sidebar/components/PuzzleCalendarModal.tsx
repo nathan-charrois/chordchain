@@ -64,7 +64,7 @@ export default function PuzzleCalendarModal({ opened, onClose }: Props) {
           <Stack gap="sm">
             <Stack gap={2}>
               <Group gap="xs" justify="space-between">
-                <Text fw={700}>{puzzle.name}</Text>
+                <Text fw={500}>{puzzle.name}</Text>
                 {date === todayDate && <Badge color="blue">Today's Puzzle</Badge>}
               </Group>
               <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
@@ -100,7 +100,7 @@ export default function PuzzleCalendarModal({ opened, onClose }: Props) {
       opened={opened}
       onClose={onClose}
       title="Daily Puzzles"
-      size="lg"
+      size="md"
       closeOnEscape
       centered
     >

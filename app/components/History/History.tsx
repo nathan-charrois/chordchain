@@ -12,8 +12,6 @@ export default function History() {
   const [isOpen, setIsOpen] = useState(false)
   const { puzzleDates, historyEntries } = useGame()
 
-  console.log(historyEntries)
-
   const handleOnClick = useCallback(() => {
     setIsOpen(true)
   }, [])
@@ -85,7 +83,8 @@ export default function History() {
       <Modal
         opened={isOpen}
         onClose={handleOnClose}
-        title="Game History"
+        size="md"
+        title="History"
         closeOnEscape
         centered
       >
