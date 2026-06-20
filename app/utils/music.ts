@@ -66,6 +66,8 @@ export type ArpeggiateType
     | 'spiral_down'
     | 'inside_out'
     | 'broken_chord'
+    | 'math_rock_syncopation'
+    | 'deep_house_pulse'
 
 export const ARPEGGIATE_RECIPES: Record<ArpeggiateType, readonly number[]> = {
   triad_ascend: [1, 2, 3],
@@ -83,6 +85,8 @@ export const ARPEGGIATE_RECIPES: Record<ArpeggiateType, readonly number[]> = {
   spiral_down: [4, 5, 3, 4, 2, 3, 1, 2],
   inside_out: [3, 2, 4, 1, 5, 1, 4, 2, 3],
   broken_chord: [1, 4, 2, 4, 3, 4, 2, 4],
+  math_rock_syncopation: [1, 3, 2, 4, 2, 1, 4, 3],
+  deep_house_pulse: [1, 2, 4, 3, 2],
 }
 
 export const CHORD_RECIPES: Record<ChordType, readonly number[]> = {
@@ -537,6 +541,10 @@ export function hzFromMidi(midi: number): number {
 
 export function hzFromPitchClass(pitchClass: number, octave = 4): number {
   return hzFromMidi(midiFromPitchClass(pitchClass, octave))
+}
+
+export function hzFromNote(note: string, octave = 4): number {
+  return hzFromPitchClass(getNotePitchClass(note), octave)
 }
 
 export type VoicedTone = {

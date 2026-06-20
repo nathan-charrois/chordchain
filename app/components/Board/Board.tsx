@@ -10,6 +10,8 @@ import PlaybackControls from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import Card from '~/components/Card/Card'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
+import type { DrumLoopId } from '~/utils/drums'
+import { DEFAULT_DRUM_LOOP_ID } from '~/utils/drums'
 import { buildChord, buildChords, buildScale, chordIdKey } from '~/utils/music'
 
 export default function Board() {
@@ -25,6 +27,8 @@ export default function Board() {
 
   const [isLooping, setIsLooping] = useState(true)
   const [isArpeggiate, setIsArpeggiate] = useState(true)
+  const [isDrumsEnabled, setIsDrumsEnabled] = useState(true)
+  const [drumLoopId, setDrumLoopId] = useState<DrumLoopId>(DEFAULT_DRUM_LOOP_ID)
   const [tempoBpm, setTempoBpm] = useState(DEFAULT_TEMPO_BPM)
 
   const handleTogglePlayback = useCallback(() => {
@@ -33,8 +37,14 @@ export default function Board() {
       return
     }
 
-    play(isArpeggiate, isLooping, tempoBpm)
-  }, [isPlaying, stop, play, isLooping, isArpeggiate, tempoBpm])
+    play({
+      arpeggiate: isArpeggiate,
+      drums: isDrumsEnabled,
+      drumLoopId,
+      loop: isLooping,
+      tempoBpm,
+    })
+  }, [isPlaying, stop, play, isLooping, isArpeggiate, isDrumsEnabled, drumLoopId, tempoBpm])
 
   const handleToggleLooping = useCallback(() => {
     const nextIsLooping = !isLooping
@@ -49,17 +59,59 @@ export default function Board() {
     setIsArpeggiate(nextIsArpeggiate)
 
     if (isPlaying) {
-      restart(nextIsArpeggiate, isLooping, tempoBpm)
+      restart({
+        arpeggiate: nextIsArpeggiate,
+        drums: isDrumsEnabled,
+        drumLoopId,
+        loop: isLooping,
+        tempoBpm,
+      })
     }
-  }, [isArpeggiate, isPlaying, restart, isLooping, tempoBpm])
+  }, [isArpeggiate, isPlaying, restart, isDrumsEnabled, drumLoopId, isLooping, tempoBpm])
+
+  const handleToggleDrums = useCallback(() => {
+    const nextIsDrumsEnabled = !isDrumsEnabled
+
+    setIsDrumsEnabled(nextIsDrumsEnabled)
+
+    if (isPlaying) {
+      restart({
+        arpeggiate: isArpeggiate,
+        drums: nextIsDrumsEnabled,
+        drumLoopId,
+        loop: isLooping,
+        tempoBpm,
+      })
+    }
+  }, [isDrumsEnabled, isPlaying, restart, isArpeggiate, drumLoopId, isLooping, tempoBpm])
+
+  const handleDrumLoopChange = useCallback((nextDrumLoopId: DrumLoopId) => {
+    setDrumLoopId(nextDrumLoopId)
+
+    if (isPlaying && isDrumsEnabled) {
+      restart({
+        arpeggiate: isArpeggiate,
+        drums: true,
+        drumLoopId: nextDrumLoopId,
+        loop: isLooping,
+        tempoBpm,
+      })
+    }
+  }, [isPlaying, isDrumsEnabled, restart, isArpeggiate, isLooping, tempoBpm])
 
   const handleTempoChange = useCallback((nextTempoBpm: number) => {
     setTempoBpm(nextTempoBpm)
 
     if (isPlaying) {
-      restart(isArpeggiate, isLooping, nextTempoBpm)
+      restart({
+        arpeggiate: isArpeggiate,
+        drums: isDrumsEnabled,
+        drumLoopId,
+        loop: isLooping,
+        tempoBpm: nextTempoBpm,
+      })
     }
-  }, [isPlaying, restart, isLooping, isArpeggiate])
+  }, [isPlaying, restart, isLooping, isArpeggiate, isDrumsEnabled, drumLoopId])
 
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
@@ -150,6 +202,10 @@ export default function Board() {
           onToggleLooping={handleToggleLooping}
           isArpeggiate={isArpeggiate}
           onToggleArpeggiate={handleToggleArpeggiate}
+          isDrumsEnabled={isDrumsEnabled}
+          onToggleDrums={handleToggleDrums}
+          drumLoopId={drumLoopId}
+          onDrumLoopChange={handleDrumLoopChange}
         />
       </Card>
     </>

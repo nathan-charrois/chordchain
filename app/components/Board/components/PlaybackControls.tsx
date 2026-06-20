@@ -1,7 +1,10 @@
 import { useMemo } from 'react'
 import { PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Button, Checkbox, Group, Slider, Text } from '@mantine/core'
+import { Button, Checkbox, Group, Select, Slider, Text } from '@mantine/core'
+
+import type { DrumLoopId } from '~/utils/drums'
+import { DRUM_LOOP_OPTIONS } from '~/utils/drums'
 
 type PlaybackControlsProps = {
   isPlaying: boolean
@@ -12,6 +15,10 @@ type PlaybackControlsProps = {
   onToggleLooping: () => void
   isArpeggiate: boolean
   onToggleArpeggiate: () => void
+  isDrumsEnabled: boolean
+  onToggleDrums: () => void
+  drumLoopId: DrumLoopId
+  onDrumLoopChange: (drumLoopId: DrumLoopId) => void
 }
 
 export default function PlaybackControls({
@@ -23,6 +30,10 @@ export default function PlaybackControls({
   onToggleLooping,
   isArpeggiate,
   onToggleArpeggiate,
+  isDrumsEnabled,
+  onToggleDrums,
+  drumLoopId,
+  onDrumLoopChange,
 }: PlaybackControlsProps) {
   const leftSection = useMemo(() => {
     if (isPlaying) {
@@ -40,6 +51,20 @@ export default function PlaybackControls({
         </Button>
         <Checkbox label="Loop" checked={isLooping} onChange={onToggleLooping} />
         <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={onToggleArpeggiate} />
+        <Checkbox label="Drums" checked={isDrumsEnabled} onChange={onToggleDrums} />
+        <Select
+          aria-label="Drum loop"
+          data={DRUM_LOOP_OPTIONS}
+          value={drumLoopId}
+          disabled={!isDrumsEnabled}
+          allowDeselect={false}
+          w={170}
+          onChange={(value) => {
+            if (value) {
+              onDrumLoopChange(value as DrumLoopId)
+            }
+          }}
+        />
       </Group>
       <Group flex="6" justify="flex-end" gap="md">
         <Text size="sm">

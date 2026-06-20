@@ -1,3 +1,5 @@
+import type { DrumLoopId } from './drums'
+import { DRUM_LOOP_BEATS, getDrumLoop, playDrum } from './drums'
 import { type ArpeggiateType, playChord } from './music'
 
 export const SEQUENCE_GAP_MS = 1200
@@ -8,6 +10,7 @@ type TimeoutHandle = ReturnType<typeof setTimeout>
 type SequenceTimeouts = {
   chord: TimeoutHandle[]
   tone: TimeoutHandle[]
+  subdivision: TimeoutHandle[]
   loopRestart: TimeoutHandle | null
   loopEnd: TimeoutHandle | null
   delayedInsert: TimeoutHandle | null
@@ -16,6 +19,7 @@ type SequenceTimeouts = {
 const sequenceTimeouts: SequenceTimeouts = {
   chord: [],
   tone: [],
+  subdivision: [],
   loopRestart: null,
   loopEnd: null,
   delayedInsert: null,
@@ -27,18 +31,20 @@ type PlaySequence = {
   chords: string[][]
   arpeggiate: boolean
   arpeggiateType: ArpeggiateType
+  drums: boolean
+  drumLoopId: DrumLoopId
   shouldLoop: () => boolean
   tempoBpm: number
   setIndex: (index: number | null) => void
   onComplete?: () => void
 }
 
-export function playSequence({ chords, arpeggiate, arpeggiateType, setIndex, shouldLoop, tempoBpm, onComplete }: PlaySequence) {
+export function playSequence({ chords, arpeggiate, arpeggiateType, drums, drumLoopId, setIndex, shouldLoop, tempoBpm, onComplete }: PlaySequence) {
   const session = startNewSession()
   const sequenceGapMs = getSequenceGapMs(tempoBpm)
   const totalDuration = chords.length * sequenceGapMs
 
-  function playSequenceAndLoop(currentSession: number) {
+  function playSequenceAndLoop(currentSession: number, loopIteration: number) {
     if (!isSessionActive(currentSession)) {
       return
     }
@@ -47,6 +53,9 @@ export function playSequence({ chords, arpeggiate, arpeggiateType, setIndex, sho
       chords,
       arpeggiate,
       arpeggiateType,
+      drums,
+      drumLoopId,
+      loopIteration,
       setIndex,
       sequenceGapMs,
       session: currentSession,
@@ -58,7 +67,7 @@ export function playSequence({ chords, arpeggiate, arpeggiateType, setIndex, sho
       }
 
       if (shouldLoop()) {
-        playSequenceAndLoop(currentSession)
+        playSequenceAndLoop(currentSession, loopIteration + 1)
         return
       }
 
@@ -73,16 +82,18 @@ export function playSequence({ chords, arpeggiate, arpeggiateType, setIndex, sho
     }, totalDuration))
   }
 
-  playSequenceAndLoop(session)
+  playSequenceAndLoop(session, 0)
 }
 
-type PlaySequenceOnce = Pick<PlaySequence, 'chords' | 'arpeggiate' | 'arpeggiateType' | 'setIndex'> & {
+type PlaySequenceOnce = Pick<PlaySequence, 'chords' | 'arpeggiate' | 'arpeggiateType' | 'drums' | 'drumLoopId' | 'setIndex'> & {
+  loopIteration: number
   sequenceGapMs: number
   session: number
 }
 
-export function playSequenceOnce({ chords, arpeggiate, arpeggiateType, setIndex, sequenceGapMs, session }: PlaySequenceOnce) {
+export function playSequenceOnce({ chords, arpeggiate, arpeggiateType, drums, drumLoopId, loopIteration, setIndex, sequenceGapMs, session }: PlaySequenceOnce) {
   clearChordTimeouts()
+  clearSubdivisionTimeouts()
 
   for (let i = 0; i < chords.length; i++) {
     const timeout = setTimeout(
@@ -101,7 +112,35 @@ export function playSequenceOnce({ chords, arpeggiate, arpeggiateType, setIndex,
     sequenceTimeouts.chord = [...sequenceTimeouts.chord, timeout]
   }
 
+  if (drums) {
+    scheduleDrumLoop(drumLoopId, loopIteration, chords, sequenceGapMs, session)
+  }
+
   sequencePlayed()
+}
+
+function scheduleDrumLoop(drumLoopId: DrumLoopId, loopIteration: number, chords: string[][], sequenceGapMs: number, session: number) {
+  const drumLoop = getDrumLoop(drumLoopId, loopIteration)
+
+  for (let chordIndex = 0; chordIndex < chords.length; chordIndex++) {
+    const loopBeat = chordIndex % DRUM_LOOP_BEATS
+    const drumHits = drumLoop.filter(hit => hit.beat === loopBeat)
+    const rootNote = chords[chordIndex][0]
+
+    for (const hit of drumHits) {
+      const subdivisionsPerBeat = hit.subdivisionsPerBeat ?? 2
+      const subdivisionGapMs = sequenceGapMs / subdivisionsPerBeat
+      const timeout = setTimeout(() => {
+        if (!isSessionActive(session)) {
+          return
+        }
+
+        playDrum(hit.instrument, rootNote)
+      }, chordIndex * sequenceGapMs + hit.subdivision * subdivisionGapMs)
+
+      sequenceTimeouts.subdivision = [...sequenceTimeouts.subdivision, timeout]
+    }
+  }
 }
 
 export function stopSequence() {
@@ -137,12 +176,17 @@ function clearChordTimeouts() {
   sequenceTimeouts.chord = []
 }
 
+function clearSubdivisionTimeouts() {
+  sequenceTimeouts.subdivision.forEach(clearTimeout)
+  sequenceTimeouts.subdivision = []
+}
+
 function clearToneTimeouts() {
   sequenceTimeouts.tone.forEach(clearTimeout)
   sequenceTimeouts.tone = []
 }
 
-function clearTimeoutByKey(key: Exclude<keyof SequenceTimeouts, 'chord' | 'tone'>) {
+function clearTimeoutByKey(key: Exclude<keyof SequenceTimeouts, 'chord' | 'subdivision' | 'tone'>) {
   if (!sequenceTimeouts[key]) {
     return
   }
@@ -153,13 +197,14 @@ function clearTimeoutByKey(key: Exclude<keyof SequenceTimeouts, 'chord' | 'tone'
 
 function clearAllTrackedTimeouts() {
   clearChordTimeouts()
+  clearSubdivisionTimeouts()
   clearToneTimeouts()
   clearTimeoutByKey('loopRestart')
   clearTimeoutByKey('loopEnd')
   clearTimeoutByKey('delayedInsert')
 }
 
-function replaceTimeout(key: Exclude<keyof SequenceTimeouts, 'chord' | 'tone'>, timeout: TimeoutHandle) {
+function replaceTimeout(key: Exclude<keyof SequenceTimeouts, 'chord' | 'subdivision' | 'tone'>, timeout: TimeoutHandle) {
   clearTimeoutByKey(key)
   sequenceTimeouts[key] = timeout
 }

@@ -3,6 +3,7 @@ import { createContext, useCallback, useEffect, useMemo, useRef, useState } from
 
 import { useGame } from '~/components/Game/hooks/useGame'
 import { endSequence, playSequence, stopSequence } from '~/utils/chain'
+import type { DrumLoopId } from '~/utils/drums'
 import type { ChordId } from '~/utils/music'
 import { buildChords } from '~/utils/music'
 
@@ -12,11 +13,19 @@ export type Sequence = {
   progression: ChordId[]
   activeIndex: number | null
   isPlaying: boolean
-  play: (arpeggiate: boolean, loop: boolean, tempoBpm: number) => void
+  play: (options: SequencePlaybackOptions) => void
   stop: () => void
   end: () => void
   setLooping: (loop: boolean) => void
-  restart: (arpeggiate: boolean, loop: boolean, tempoBpm: number) => void
+  restart: (options: SequencePlaybackOptions) => void
+}
+
+type SequencePlaybackOptions = {
+  arpeggiate: boolean
+  drums: boolean
+  drumLoopId: DrumLoopId
+  loop: boolean
+  tempoBpm: number
 }
 
 type SequenceProviderProps = {
@@ -68,13 +77,15 @@ export function SequenceProvider({ children }: SequenceProviderProps) {
 
   useEffect(() => clearRestartTimeoutRef, [clearRestartTimeoutRef])
 
-  const handlePlay = useCallback((arpeggiate: boolean, loop: boolean, tempoBpm: number) => {
+  const handlePlay = useCallback(({ arpeggiate, drums, drumLoopId, loop, tempoBpm }: SequencePlaybackOptions) => {
     clearRestartTimeoutRef()
     shouldLoopRef.current = loop
     setIsPlaying(true)
     playSequence({
       chords,
       arpeggiate,
+      drums,
+      drumLoopId,
       arpeggiateType,
       shouldLoop: () => shouldLoopRef.current,
       tempoBpm,
@@ -104,13 +115,13 @@ export function SequenceProvider({ children }: SequenceProviderProps) {
     shouldLoopRef.current = loop
   }, [])
 
-  const handleRestart = useCallback((arpeggiate: boolean, loop: boolean, tempoBpm: number) => {
+  const handleRestart = useCallback((options: SequencePlaybackOptions) => {
     clearRestartTimeoutRef()
     stopSequence()
     setIndex(null)
     restartTimeoutRef.current = setTimeout(() => {
       restartTimeoutRef.current = null
-      handlePlay(arpeggiate, loop, tempoBpm)
+      handlePlay(options)
     }, PLAYBACK_RESTART_DELAY_MS)
   }, [clearRestartTimeoutRef, handlePlay])
 
