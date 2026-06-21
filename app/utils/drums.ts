@@ -55,28 +55,7 @@ type DrumVariationOperation
 
 type DrumVariation = DrumVariationOperation[]
 
-export const DEFAULT_DRUM_LOOP_ID: DrumLoopId = 'loFiPocket'
 export const DRUM_LOOP_BEATS = 4
-
-export const DRUM_LOOP_OPTIONS: { value: DrumLoopId, label: string }[] = [
-  { value: 'loFiPocket', label: 'Lo-fi Pocket' },
-  { value: 'dustyBreak', label: 'Dusty Break' },
-  { value: 'halfTimeHeadNod', label: 'Half-time Head Nod' },
-  { value: 'boomBapBounce', label: 'Boom Bap Bounce' },
-  { value: 'midnightDrive', label: 'Midnight Drive' },
-  { value: 'brokenTape', label: 'Broken Tape' },
-  { value: 'dubSpace', label: 'Dub Space' },
-  { value: 'rimRunner', label: 'Rim Runner' },
-  { value: 'neonWobble', label: 'Neon Wobble' },
-  { value: 'earthquakeDrop', label: 'Earthquake Drop' },
-  { value: 'laserSkank', label: 'Laser Skank' },
-  { value: 'fracturedSeven', label: 'Fractured Seven' },
-  { value: 'angularSprint', label: 'Angular Sprint' },
-  { value: 'polymeterPanic', label: 'Polymeter Panic' },
-  { value: 'deepHousePulse', label: 'Deep House Pulse' },
-  { value: 'velvetBasement', label: 'Velvet Basement' },
-  { value: 'sunriseTerrace', label: 'Sunrise Terrace' },
-]
 
 const DRUM_LOOPS: Record<DrumLoopId, DrumHit[]> = {
   loFiPocket: [
@@ -117,9 +96,8 @@ const DRUM_LOOPS: Record<DrumLoopId, DrumHit[]> = {
     { beat: 1, subdivision: 0, instrument: 'closedHat' },
     { beat: 1, subdivision: 1, instrument: 'kick' },
     { beat: 1, subdivision: 1, instrument: 'closedHat' },
-    { beat: 2, subdivision: 0, instrument: 'snare' },
     { beat: 2, subdivision: 0, instrument: 'closedHat' },
-    { beat: 2, subdivision: 1, instrument: 'openHat' },
+    { beat: 2, subdivision: 1, instrument: 'closedHat' },
     { beat: 3, subdivision: 0, instrument: 'closedHat' },
     { beat: 3, subdivision: 1, instrument: 'kick' },
     { beat: 3, subdivision: 1, instrument: 'closedHat' },
@@ -411,17 +389,16 @@ const DRUM_LOOP_VARIATIONS: Record<DrumLoopId, DrumVariation[]> = {
     // ],
   ],
   halfTimeHeadNod: [
+    [],
+    [],
     [
-      addHit(0, 1, 'rim'),
-      addHit(3, 0, 'kick'),
+      removeHit(0, 1, 'closedHat'),
+      removeHit(2, 1, 'closedHat'),
+      removeHit(3, 1, 'closedHat'),
+      addHit(1, 0, 'kick'),
     ],
     [
-      removeHit(1, 1, 'kick'),
-      addHit(2, 1, 'kick'),
-    ],
-    [
-      replaceHit(2, 1, 'openHat', 'closedHat'),
-      addHit(3, 1, 'snare'),
+      addHit(1, 0, 'kick'),
     ],
   ],
   boomBapBounce: [
@@ -735,7 +712,7 @@ export function playDrum(instrument: DrumInstrument, rootNote?: string) {
 
 function playKick() {
   zzfx({
-    volume: 20,
+    volume: 15,
     randomness: 0,
     frequency: 90,
     attack: 0.005,
@@ -748,7 +725,7 @@ function playKick() {
 
 function playSnare() {
   zzfx({
-    volume: 12,
+    volume: 9,
     randomness: 0,
     frequency: 160,
     attack: 0.005,
@@ -762,8 +739,8 @@ function playSnare() {
 
 function playClosedHat() {
   zzfx({
-    volume: 3,
-    randomness: 0.08,
+    volume: 1,
+    randomness: 0.12,
     frequency: 5200,
     attack: 0.001,
     sustain: 0.008,
@@ -790,22 +767,21 @@ function playOpenHat() {
 
 function playRim() {
   zzfx({
-    volume: 5,
-    randomness: 0.02,
-    frequency: 760,
+    volume: 2,
+    randomness: 0.16,
+    frequency: 3200,
     attack: 0.001,
-    sustain: 0.008,
-    release: 0.045,
-    shape: 1,
-    shapeCurve: 2,
-    pitchJump: 120,
-    pitchJumpTime: 0.008,
+    sustain: 0.04,
+    release: 0.12,
+    shape: 4,
+    noise: 2.2,
+    bitCrush: 0.07,
   })
 }
 
 function playSubBass(rootNote = 'C') {
   zzfx({
-    volume: 10,
+    volume: 8,
     randomness: 0,
     frequency: hzFromNote(rootNote, 1),
     attack: 0.005,
@@ -819,7 +795,7 @@ function playSubBass(rootNote = 'C') {
 
 function playWobbleBass(rootNote = 'C') {
   zzfx({
-    volume: 8,
+    volume: 7,
     randomness: 0,
     frequency: hzFromNote(rootNote, 2),
     attack: 0.01,
@@ -837,7 +813,7 @@ function playWobbleBass(rootNote = 'C') {
 
 function playBassGrowl(rootNote = 'C') {
   zzfx({
-    volume: 7,
+    volume: 6,
     randomness: 0.01,
     frequency: hzFromNote(rootNote, 2),
     attack: 0.015,
@@ -857,7 +833,7 @@ function playBassGrowl(rootNote = 'C') {
 
 function playCrash() {
   zzfx({
-    volume: 5,
+    volume: 4,
     randomness: 0.12,
     frequency: 3200,
     attack: 0.001,
@@ -874,7 +850,7 @@ function playDropImpact(rootNote = 'C') {
   playKick()
 
   zzfx({
-    volume: 12,
+    volume: 10,
     randomness: 0,
     frequency: hzFromNote(rootNote, 1),
     attack: 0.001,
@@ -888,7 +864,7 @@ function playDropImpact(rootNote = 'C') {
 
 function playHighTom() {
   zzfx({
-    volume: 7,
+    volume: 5,
     randomness: 0.01,
     frequency: 190,
     attack: 0.001,
@@ -900,7 +876,7 @@ function playHighTom() {
   })
 
   zzfx({
-    volume: 1.5,
+    volume: 1,
     randomness: 0.04,
     frequency: 900,
     attack: 0.001,
@@ -913,7 +889,7 @@ function playHighTom() {
 
 function playLowTom() {
   zzfx({
-    volume: 9,
+    volume: 7,
     randomness: 0.01,
     frequency: 105,
     attack: 0.001,
@@ -925,7 +901,7 @@ function playLowTom() {
   })
 
   zzfx({
-    volume: 1.5,
+    volume: 1,
     randomness: 0.04,
     frequency: 600,
     attack: 0.001,
@@ -938,7 +914,7 @@ function playLowTom() {
 
 function playRideBell() {
   zzfx({
-    volume: 2.4,
+    volume: 2,
     randomness: 0.01,
     frequency: 1800,
     attack: 0.001,
@@ -950,7 +926,7 @@ function playRideBell() {
   })
 
   zzfx({
-    volume: 1.2,
+    volume: 1,
     randomness: 0.015,
     frequency: 2700,
     attack: 0.001,
@@ -963,7 +939,7 @@ function playRideBell() {
 
 function playChina() {
   zzfx({
-    volume: 2.5,
+    volume: 2,
     randomness: 0.08,
     frequency: 1100,
     attack: 0.001,
@@ -977,7 +953,7 @@ function playChina() {
   })
 
   zzfx({
-    volume: 1.5,
+    volume: 1.25,
     randomness: 0.1,
     frequency: 3400,
     attack: 0.001,
@@ -991,7 +967,7 @@ function playChina() {
 
 function playClubKick() {
   zzfx({
-    volume: 14,
+    volume: 10,
     randomness: 0,
     frequency: 62,
     attack: 0.001,

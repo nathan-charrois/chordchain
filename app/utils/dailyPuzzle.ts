@@ -1,4 +1,5 @@
 import { GAME_MAX_CHARS } from '~/constant'
+import type { DrumLoopId } from '~/utils/drums'
 import type { ArpeggiateType, ChordId, ModeId, PuzzleDifficulty } from '~/utils/music'
 import {
   formatModeLabel,
@@ -14,6 +15,7 @@ export type PuzzleDefinition = {
   key: string
   mode: ModeId
   arpeggiateType: ArpeggiateType
+  drumLoopId: DrumLoopId
   difficulty: PuzzleDifficulty
   progression: ChordId[]
 }
@@ -28,6 +30,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'mixolydian',
     difficulty: 'easy',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'loFiPocket',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 7, type: 'triad' },
@@ -42,6 +45,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'phrygian',
     difficulty: 'medium',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'velvetBasement',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'triad' },
@@ -56,6 +60,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'ionian',
     difficulty: 'medium',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'sunriseTerrace',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -70,6 +75,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'lydian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'deepHousePulse',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'triad' },
@@ -84,6 +90,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'mixolydian',
     difficulty: 'medium',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'midnightDrive',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 7, type: 'triad' },
@@ -98,6 +105,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'aeolian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'dubSpace',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -112,6 +120,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'locrian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'brokenTape',
     progression: [
       { degree: 2, type: 'triad' },
       { degree: 3, type: 'triad' },
@@ -126,6 +135,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'ionian',
     difficulty: 'medium',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'sunriseTerrace',
     progression: [
       { degree: 6, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -140,6 +150,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'dorian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'loFiPocket',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'seventh' },
@@ -154,6 +165,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'phrygian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'dustyBreak',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'seventh' },
@@ -168,6 +180,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'lydian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'rimRunner',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 7, type: 'seventh' },
@@ -182,6 +195,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'mixolydian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'boomBapBounce',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 5, type: 'seventh' },
@@ -196,6 +210,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'aeolian',
     difficulty: 'medium',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'halfTimeHeadNod',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 6, type: 'triad' },
@@ -210,6 +225,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'locrian',
     difficulty: 'hard',
     arpeggiateType: 'triad_ascend',
+    drumLoopId: 'polymeterPanic',
     progression: [
       { degree: 3, type: 'triad' },
       { degree: 4, type: 'triad' },
@@ -224,6 +240,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'ionian',
     difficulty: 'medium',
     arpeggiateType: 'inside_out',
+    drumLoopId: 'deepHousePulse',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 6, type: 'seventh' },
@@ -238,6 +255,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'dorian',
     difficulty: 'hard',
     arpeggiateType: 'broken_chord',
+    drumLoopId: 'velvetBasement',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 5, type: 'seventh' },
@@ -252,6 +270,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'phrygian',
     difficulty: 'hard',
     arpeggiateType: 'full_sweep',
+    drumLoopId: 'earthquakeDrop',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 7, type: 'seventh' },
@@ -265,7 +284,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     key: 'F',
     mode: 'lydian',
     difficulty: 'hard',
-    arpeggiateType: 'skip_thirds_up',
+    arpeggiateType: 'seventh_double',
+    drumLoopId: 'sunriseTerrace',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 3, type: 'seventh' },
@@ -280,6 +300,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'mixolydian',
     difficulty: 'medium',
     arpeggiateType: 'spiral_down',
+    drumLoopId: 'midnightDrive',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 6, type: 'triad' },
@@ -294,6 +315,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'aeolian',
     difficulty: 'hard',
     arpeggiateType: 'seventh_rythmic_feel',
+    drumLoopId: 'dustyBreak',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 3, type: 'seventh' },
@@ -308,6 +330,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'locrian',
     difficulty: 'hard',
     arpeggiateType: 'seventh_pop_ostinato',
+    drumLoopId: 'neonWobble',
     progression: [
       { degree: 2, type: 'seventh' },
       { degree: 6, type: 'triad' },
@@ -322,6 +345,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'ionian',
     difficulty: 'medium',
     arpeggiateType: 'seventh_ascend',
+    drumLoopId: 'deepHousePulse',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'seventh' },
@@ -336,6 +360,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'dorian',
     difficulty: 'easy',
     arpeggiateType: 'triad_alberti',
+    drumLoopId: 'loFiPocket',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 5, type: 'triad' },
@@ -350,6 +375,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'phrygian',
     difficulty: 'easy',
     arpeggiateType: 'triad_downup',
+    drumLoopId: 'dubSpace',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 5, type: 'triad' },
@@ -364,6 +390,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'lydian',
     difficulty: 'hard',
     arpeggiateType: 'seventh_pop_ostinato',
+    drumLoopId: 'velvetBasement',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 5, type: 'seventh' },
@@ -378,6 +405,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'mixolydian',
     difficulty: 'easy',
     arpeggiateType: 'triad_descend',
+    drumLoopId: 'boomBapBounce',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 5, type: 'triad' },
@@ -392,6 +420,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'dorian',
     difficulty: 'hard',
     arpeggiateType: 'seventh_ascend',
+    drumLoopId: 'halfTimeHeadNod',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'seventh' },
@@ -420,6 +449,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'lydian',
     difficulty: 'hard',
     arpeggiateType: 'math_rock_syncopation',
+    drumLoopId: 'fracturedSeven',
     progression: [
       { degree: 1, type: 'sixth' },
       { degree: 2, type: 'seventh' },
@@ -434,6 +464,7 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     mode: 'dorian',
     difficulty: 'medium',
     arpeggiateType: 'deep_house_pulse',
+    drumLoopId: 'deepHousePulse',
     progression: [
       { degree: 1, type: 'seventh' },
       { degree: 4, type: 'seventh' },
@@ -567,6 +598,7 @@ function resolvePuzzleEntry(entry: PuzzleDefinition): DailyPuzzle {
     date: entry.date,
     name: entry.name,
     arpeggiateType: entry.arpeggiateType,
+    drumLoopId: entry.drumLoopId,
     key,
     mode,
     difficulty,

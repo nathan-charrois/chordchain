@@ -2,8 +2,8 @@ import type { DrumLoopId } from './drums'
 import { DRUM_LOOP_BEATS, getDrumLoop, playDrum } from './drums'
 import { type ArpeggiateType, playChord } from './music'
 
-export const SEQUENCE_GAP_MS = 1200
-export const DEFAULT_TEMPO_BPM = 110
+export const SEQUENCE_GAP_MS = 1400
+export const DEFAULT_TEMPO_BPM = 100
 
 type TimeoutHandle = ReturnType<typeof setTimeout>
 

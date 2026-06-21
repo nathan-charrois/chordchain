@@ -26,6 +26,7 @@ export default function DebugPanel() {
     date: activePuzzle.date,
     name: activePuzzle.name,
     arpeggiateType: activePuzzle.arpeggiateType,
+    drumLoopId: activePuzzle.drumLoopId,
     key: activePuzzle.key,
     mode: activePuzzle.mode,
     difficulty: activePuzzle.difficulty,
