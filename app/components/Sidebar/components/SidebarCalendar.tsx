@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowRight01Icon, Calendar03Icon, CheckmarkCircle04Icon, Fire02Icon, PuzzleFreeIcons } from '@hugeicons/core-free-icons'
+import { ArrowRight01Icon, Calendar03Icon, Fire02Icon, HourglassIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { Divider, Group, Stack, Text, UnstyledButton } from '@mantine/core'
 
 import Card from '~/components/Card/Card'
@@ -48,15 +48,15 @@ export default function SidebarCalendar() {
         <UnstyledButton onClick={handleClickTodaysPuzzle} c="dark">
           <Group align="center">
             <Stack
-              bg="gray.2"
-              c="dark.5"
+              bg="gray.3"
+              c="brand.8"
               w={isTablet ? 48 : 60}
               h={isTablet ? 48 : 60}
               align="center"
               justify="center"
               bdrs="md"
             >
-              <Icon icon={Calendar03Icon} size={isTablet ? 20 : 28} />
+              <Icon icon={Calendar03Icon} size={isTablet ? 22 : 30} />
             </Stack>
             <Stack gap={2} ta="left" flex={1}>
               <Text fw={500} fz="md" lh={1.2}>{formatDisplayDate(activePuzzle.date)}</Text>
@@ -70,26 +70,26 @@ export default function SidebarCalendar() {
         {!isTablet && (
           <>
             <Divider my="md" variant="dashed" />
-            <Group align="flex-start" wrap="nowrap" gap="md" mb="lg">
+            <Group align="center" wrap="nowrap" gap="md" mb="lg">
               <Stack gap={0} miw={0} flex={1}>
                 <Text fz="sm">Status</Text>
                 <Text fw={500} fz="md" lh={1.2} tt="capitalize">{status}</Text>
               </Stack>
-              <Icon icon={CheckmarkCircle04Icon} />
+              <Icon icon={Tick02Icon} color="forest.6" />
             </Group>
-            <Group align="flex-start" wrap="nowrap" gap="md" mb="lg">
+            <Group align="center" wrap="nowrap" gap="md" mb="lg">
               <Stack gap={0} miw={0} flex={1}>
                 <Text fz="sm">Streak</Text>
                 <Text fw={500} fz="md" lh={1.2}>{`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}</Text>
               </Stack>
-              <Icon icon={Fire02Icon} />
+              <Icon icon={Fire02Icon} color="amber.6" />
             </Group>
-            <Group align="flex-start" wrap="nowrap" gap="md">
+            <Group align="center" wrap="nowrap" gap="md">
               <Stack gap={0} miw={0} flex={1}>
                 <Text fz="sm">Next Puzzle</Text>
                 <Text fw={500} fz="md" lh={1.2}>{formatCountdown(secondsUntilReset)}</Text>
               </Stack>
-              <Icon icon={PuzzleFreeIcons} />
+              <Icon icon={HourglassIcon} color="dark.8" />
             </Group>
           </>
         )}

@@ -1,6 +1,4 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Idea01Icon } from '@hugeicons/core-free-icons'
-import { HugeiconsIcon } from '@hugeicons/react'
 import { Alert, Badge, Center, Flex, Group, SimpleGrid, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
@@ -10,14 +8,13 @@ import PlaybackControls from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import Card from '~/components/Card/Card'
 import { responsiveSizing } from '~/constant'
-import { useIsMobile } from '~/hooks/useIsMobile'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
 import { buildChord, buildChords, buildScale, chordIdKey } from '~/utils/music'
 
 const cellHeight = {
-  base: 72,
-  xs: 96,
-  md: 160,
+  base: 86,
+  xs: 102,
+  md: 144,
 }
 
 const cellFontSize = {
@@ -26,8 +23,6 @@ const cellFontSize = {
 }
 
 export default function Board() {
-  const isMobile = useIsMobile()
-
   const {
     status,
     guesses,
@@ -153,7 +148,7 @@ export default function Board() {
         </Alert>
       )}
       <Card p={responsiveSizing}>
-        <Flex direction="column" gap={responsiveSizing} mb="md">
+        <Flex direction="column" gap={responsiveSizing}>
           {guessRows.map(row => (
             <SimpleGrid
               key={row.index}
@@ -184,12 +179,6 @@ export default function Board() {
             </SimpleGrid>
           ))}
         </Flex>
-        {!isMobile && (
-          <Group my="lg" justify="center">
-            <HugeiconsIcon icon={Idea01Icon} aria-label="Play" color="#228be6" />
-            <Text c="dimmed">Tap a chord below to create a chain.</Text>
-          </Group>
-        )}
       </Card>
       <Card mt="lg" p={responsiveSizing}>
         <PlaybackControls

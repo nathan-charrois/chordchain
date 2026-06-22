@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Cancel01Icon, Clock01Icon, Fire02Icon, PlayIcon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Basketball01Icon, Cancel01Icon, Clock01Icon, Fire02Icon, PlayIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Badge, Group, Modal, Paper, Stack, Text, Timeline } from '@mantine/core'
+import { Badge, Group, Modal, Stack, Text, Timeline } from '@mantine/core'
 
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
@@ -71,23 +71,34 @@ export default function History() {
 
   const modalBody = useMemo(() => {
     const streakSection = (
-      <Paper withBorder p="md">
-        <Group justify="space-between">
+      <Group grow>
+        <Group justify="space-between" bg="gray.1" p="md" bdrs="md">
           <Stack gap={2}>
-            <Text size="sm" c="dimmed">Current Streak</Text>
+            <Text size="sm" c="dimmed">Streak</Text>
             <Text fw={600} size="lg">
               {`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}
             </Text>
           </Stack>
           <HugeiconsIcon icon={Fire02Icon} aria-label="Current streak" />
         </Group>
-      </Paper>
+        <Group justify="space-between" bg="gray.1" p="md" bdrs="md">
+          <Stack gap={2}>
+            <Text size="sm" c="dimmed">Played</Text>
+            <Text fw={600} size="lg">
+              {`${historyItems.length} ${currentStreak === 1 ? 'game' : 'games'}`}
+            </Text>
+          </Stack>
+          <HugeiconsIcon icon={Basketball01Icon} aria-label="Games Played" />
+        </Group>
+      </Group>
+
     )
 
     if (historyItems.length) {
       return (
         <Stack>
           {streakSection}
+          <Text size="md">Previous Games</Text>
           <Timeline active={historyItems.length - 1} bulletSize={28} lineWidth={1}>
             {historyItems}
           </Timeline>

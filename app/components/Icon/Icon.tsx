@@ -8,6 +8,7 @@ type IconProps = {
   onClick?: () => void
   size?: string | number
   compact?: boolean
+  color?: string
 }
 
 export default function Icon({
@@ -16,16 +17,17 @@ export default function Icon({
   icon,
   size,
   compact = false,
+  color,
 }: IconProps) {
   const content = useMemo(() => ((
-    <>
-      <HugeiconsIcon icon={icon} aria-label={label} size={size} />
+    <Stack c={color} align="center" gap="xs">
+      <HugeiconsIcon icon={icon} aria-label={label} size={size} color="inherit" />
       {label && !compact && (
         <Text c="dark.8">
           {label}
         </Text>
       )}
-    </>
+    </Stack>
   )), [icon, label, compact, size])
 
   if (onClick) {
@@ -38,9 +40,7 @@ export default function Icon({
         py={compact ? 'xs' : 'md'}
         px={compact ? 'sm' : 'lg'}
       >
-        <Stack align="center" gap={8}>
-          {content}
-        </Stack>
+        {content}
       </Button>
     )
   }

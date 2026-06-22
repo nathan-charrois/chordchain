@@ -1,4 +1,4 @@
-import { Settings02Icon } from '@hugeicons/core-free-icons'
+import { SlidersHorizontalIcon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ActionIcon } from '@mantine/core'
 
@@ -17,7 +17,7 @@ export default function PlaybackControlsButton({ opened, onClick }: Props) {
       radius="md"
       onClick={onClick}
     >
-      <HugeiconsIcon icon={Settings02Icon} />
+      <HugeiconsIcon icon={SlidersHorizontalIcon} />
     </ActionIcon>
   )
 }

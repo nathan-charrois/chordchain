@@ -2,7 +2,7 @@ import { Box, Button, type ButtonVariant, Stack, Text } from '@mantine/core'
 
 import Card from '../Card/Card'
 import type { GuessStatus } from '../Game/context/GameContext'
-import { getBadgeColor } from '../Game/logic/game'
+import { getCellTextColor } from '../Game/logic/game'
 
 type Props = {
   text: string
@@ -39,15 +39,15 @@ export default function PalleteButton({
           aria-disabled={disabled}
           h={80}
           p="md"
-          bg={status === 'absent' ? 'gray.1' : status === 'correct' ? 'green.0' : status === 'present' ? 'orange.0' : undefined}
+          bg={status === 'absent' ? 'gray.3' : status === 'correct' ? 'forest.7' : status === 'present' ? 'amber.6' : 'inkMuted'}
           fullWidth
         >
           <Stack gap={0}>
-            <Text size="lg" c={getBadgeColor(status)}>
+            <Text size="lg" fw={500} c={getCellTextColor(status)}>
               {text}
             </Text>
             {subtext && (
-              <Text size="sm" c="dimmed">
+              <Text size="sm" c={getCellTextColor(status)} opacity={0.7}>
                 {subtext}
               </Text>
             )}

@@ -35,6 +35,7 @@ export default function Pallete() {
   const sections = useMemo<PaletteSection[]>(() => {
     const scale = buildScale(activePuzzle.key, activePuzzle.mode)
     const paletteChordIds = buildPaletteChordIds(activePuzzle.difficulty)
+
     const buildSection = (
       id: keyof PaletteChordIds,
       title: string,

@@ -197,42 +197,43 @@ export function getKeyClassName(status?: GuessStatus): string {
   }
 }
 
-export function getBadgeColor(status?: GuessStatus): string {
+export function getSubmittedCellColor(status?: GuessStatus): string {
   switch (status) {
     case 'correct':
-      return 'green.8'
+      return 'forest.8'
     case 'present':
-      return 'yellow.6'
+      return 'amber.6'
     case 'absent':
+      return 'dark.6'
     default:
-      return 'gray.6'
+      return 'brand.1'
   }
 }
 
 export function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex: number | null) {
   if (row.kind === 'submitted') {
     return {
-      background: getBadgeColor(row.status[cellIndex]),
+      background: getSubmittedCellColor(row.status[cellIndex]),
       color: 'gray.0',
     }
   }
 
   if (row.kind === 'active' && cellIndex === activeIndex) {
     return {
-      background: 'gray.2',
-      color: 'gray.9',
+      background: 'brand.3',
+      color: 'brand.8',
     }
   }
 
   if (row.kind === 'active' && row.chords[cellIndex]) {
     return {
-      background: 'gray.1',
-      color: 'gray.9',
+      background: 'brand.2',
+      color: 'brand.8',
     }
   }
 
   return {
-    background: 'gray.0',
-    color: 'gray.9',
+    background: getSubmittedCellColor(),
+    color: undefined,
   }
 }

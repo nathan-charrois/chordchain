@@ -87,7 +87,7 @@ export default function PlaybackControls({
           <PlaybackControlsButton opened={areControlsOpen} onClick={handleToggleControls} />
         </Flex>
         <Collapse in={areControlsOpen}>
-          <Flex direction="column" bg="gray.0" p="lg" gap="lg">
+          <Flex direction="column" bdrs="md" p="sm" px="sm" gap="lg">
             {toggleButtons}
             {tempoSlider}
           </Flex>

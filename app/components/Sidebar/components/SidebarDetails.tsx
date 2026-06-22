@@ -30,14 +30,14 @@ export default function SidebarDetails() {
 
   const difficultyTextColor = useMemo(() => {
     if (activePuzzle.difficulty === 'hard') {
-      return 'orange.9'
+      return 'amber.9'
     }
 
     if (activePuzzle.difficulty === 'medium') {
-      return 'orange.5'
+      return 'amber.5'
     }
 
-    return 'green.9'
+    return 'forest.7'
   }, [activePuzzle.difficulty])
 
   return (
@@ -48,21 +48,21 @@ export default function SidebarDetails() {
             <Text size="sm">Puzzle</Text>
             <Text fw={500} size="md">{activePuzzle.name}</Text>
           </Stack>
-          <Icon icon={PuzzleIcon} />
+          <Icon icon={PuzzleIcon} color="dark.8" />
         </Group>
         <Group align="center" justify="space-between" mb="lg">
           <Stack gap={2}>
             <Text size="sm">Difficulty</Text>
             <Text fw={500} size="md" c={difficultyTextColor}>{difficultyLabel}</Text>
           </Stack>
-          <Icon icon={difficultyIcon} />
+          <Icon icon={difficultyIcon} color="dark.8" />
         </Group>
         <Group align="center" justify="space-between">
           <Stack gap={2}>
             <Text size="sm">Key / Mode</Text>
             <Text fw={500} size="md">{`${keyLabel} ${modeLabel}`}</Text>
           </Stack>
-          <Icon icon={MusicNote02Icon} />
+          <Icon icon={MusicNote02Icon} color="dark.8" />
         </Group>
       </Card>
     </>

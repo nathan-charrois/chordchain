@@ -16,11 +16,11 @@ export default function Header() {
       my={isMobile ? 'sm' : 'md'}
       py={isMobile ? 'sm' : 'lg'}
     >
-      <Box miw={0} flex={1}>
-        <Title order={1} fw={600} fz="h3">
+      <Box>
+        <Title order={1} fw={600} c="brand.8" fz="h2">
           ChordChain
         </Title>
-        <Title order={2} fw={600} c="blue.5" fz="h5">
+        <Title order={2} fw={600} c="brand.6" fz="h4">
           Guess chords by listening
         </Title>
       </Box>
