@@ -1,13 +1,14 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Link01Icon, Undo03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Button, Grid, Group, Stack, Text } from '@mantine/core'
+import { Button, Flex, Grid, Group, SimpleGrid, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
 import PalleteButton from '../PalleteButton/PalleteButton'
 import PianoRoll from './PianoRoll'
 import Card from '~/components/Card/Card'
+import { responsiveSizing } from '~/constant'
 import type { ChordId, DisplayChord, PaletteChordIds } from '~/utils/music'
 import { buildChord, buildPaletteChordIds, buildScale, chordIdKey } from '~/utils/music'
 
@@ -69,8 +70,8 @@ export default function Pallete() {
 
   return (
     <>
-      <Card mt="lg">
-        <Grid gutter="xl" align="stretch">
+      <Card mt="lg" p={responsiveSizing}>
+        <Grid align="stretch">
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap="lg">
               {sections.map((section) => {
@@ -83,7 +84,11 @@ export default function Pallete() {
                     <Group gap="xs" align="center">
                       <Text fw={500} size="md">{section.title}</Text>
                     </Group>
-                    <Group grow preventGrowOverflow={false}>
+                    <SimpleGrid
+                      cols={{ base: 3, sm: 4 }}
+                      spacing={{ base: 'xs', sm: 'md' }}
+                      verticalSpacing={{ base: 'xs', sm: 'md' }}
+                    >
                       {section.chords
                         .map(chord => (
                           <PalleteButton
@@ -97,7 +102,7 @@ export default function Pallete() {
                             disabled={disabled}
                           />
                         ))}
-                    </Group>
+                    </SimpleGrid>
                   </Stack>
                 )
               })}
@@ -108,14 +113,15 @@ export default function Pallete() {
           </Grid.Col>
         </Grid>
       </Card>
-      <Group justify="flex-end" my="xl">
+      <Flex my="xl" gap="lg">
         <Button
           leftSection={<HugeiconsIcon icon={Undo03Icon} aria-label="Undo" />}
           onClick={handleClickUndo}
           disabled={disabled}
-          variant="subtle"
-          size="lg"
+          variant="light"
           radius="md"
+          size="lg"
+          flex={1}
         >
           Undo
         </Button>
@@ -126,10 +132,11 @@ export default function Pallete() {
           variant="filled"
           size="lg"
           radius="md"
+          flex={1}
         >
           Submit Chain
         </Button>
-      </Group>
+      </Flex>
     </>
   )
 }

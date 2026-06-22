@@ -19,11 +19,11 @@ export default function Game() {
   return (
     <AppProvider puzzleSlug={puzzleSlug}>
       <AppLayout>
-        <Grid overflow="hidden">
-          <Grid.Col span={3}>
+        <Grid>
+          <Grid.Col span={{ base: 12, sm: 3 }}>
             <Sidebar />
           </Grid.Col>
-          <Grid.Col span={9}>
+          <Grid.Col span={{ base: 12, sm: 9 }}>
             <Board />
             <Pallete />
           </Grid.Col>

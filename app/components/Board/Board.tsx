@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Idea01Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Alert, Badge, Group, Stack, Text } from '@mantine/core'
+import { Alert, Badge, Center, Flex, Group, SimpleGrid, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor } from '../Game/logic/game'
@@ -9,10 +9,25 @@ import { getEndStateMessage, isGameOverStatus, shouldRevealProgression } from '.
 import PlaybackControls from './components/PlaybackControls'
 import { useSequence } from './hooks/useSequence'
 import Card from '~/components/Card/Card'
+import { responsiveSizing } from '~/constant'
+import { useIsMobile } from '~/hooks/useIsMobile'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
 import { buildChord, buildChords, buildScale, chordIdKey } from '~/utils/music'
 
+const cellHeight = {
+  base: 72,
+  xs: 96,
+  md: 160,
+}
+
+const cellFontSize = {
+  xs: 'lg',
+  md: 'xl',
+}
+
 export default function Board() {
+  const isMobile = useIsMobile()
+
   const {
     status,
     guesses,
@@ -21,7 +36,15 @@ export default function Board() {
     maxGuesses,
     activePuzzle,
   } = useGame()
-  const { progression, activeIndex, isPlaying, play, stop, restart } = useSequence()
+
+  const {
+    progression,
+    activeIndex,
+    isPlaying,
+    play,
+    stop,
+    restart,
+  } = useSequence()
 
   const [isArpeggiate, setIsArpeggiate] = useState(true)
   const [isDrumsEnabled, setIsDrumsEnabled] = useState(true)
@@ -87,10 +110,12 @@ export default function Board() {
   const isLoss = status === 'loss'
   const endStateMessage = getEndStateMessage(status)
   const revealProgression = shouldRevealProgression(status)
+
   const scale = useMemo(
     () => buildScale(activePuzzle.key, activePuzzle.mode),
     [activePuzzle.key, activePuzzle.mode],
   )
+
   const chords = useMemo(
     () => buildChords(activePuzzle.key, activePuzzle.mode, progression),
     [activePuzzle.key, activePuzzle.mode, progression],
@@ -127,13 +152,13 @@ export default function Board() {
           </Stack>
         </Alert>
       )}
-      <Card p="lg">
-        <Stack gap="lg" mb="md">
+      <Card p={responsiveSizing}>
+        <Flex direction="column" gap={responsiveSizing} mb="md">
           {guessRows.map(row => (
-            <Group
+            <SimpleGrid
               key={row.index}
-              wrap="nowrap"
-              gap="lg"
+              cols={maxLength}
+              spacing={responsiveSizing}
               aria-label={`Guess ${row.index + 1} ${row.kind}`}
             >
               {Array.from({ length: maxLength }, (_, cellIndex) => {
@@ -141,29 +166,32 @@ export default function Board() {
                 const chordName = chord ? buildChord(scale, chord).name : ''
 
                 return (
-                  <Badge
+                  <Center
                     key={`${row.index}-${cellIndex}`}
                     bg={getGuessCellColor(row, cellIndex, activeIndex).background}
                     c={getGuessCellColor(row, cellIndex, activeIndex).color}
-                    variant="filled"
-                    w="25%"
-                    h={160}
-                    radius="lg"
+                    h={cellHeight}
+                    px={2}
+                    bdrs="lg"
                     tt="capitalize"
                   >
-                    <Text size="xl" fw={500}>{chordName}</Text>
-                  </Badge>
+                    <Text fz={cellFontSize} lh={1.1} fw={500} ta="center">
+                      {chordName}
+                    </Text>
+                  </Center>
                 )
               })}
-            </Group>
+            </SimpleGrid>
           ))}
-        </Stack>
-        <Group my="lg" justify="center">
-          <HugeiconsIcon icon={Idea01Icon} aria-label="Play" color="#228be6" />
-          <Text c="dimmed">Tap a chord below to create a chain.</Text>
-        </Group>
+        </Flex>
+        {!isMobile && (
+          <Group my="lg" justify="center">
+            <HugeiconsIcon icon={Idea01Icon} aria-label="Play" color="#228be6" />
+            <Text c="dimmed">Tap a chord below to create a chain.</Text>
+          </Group>
+        )}
       </Card>
-      <Card mt="lg">
+      <Card mt="lg" p={responsiveSizing}>
         <PlaybackControls
           isPlaying={isPlaying}
           onTogglePlayback={handleTogglePlayback}

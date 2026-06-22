@@ -6,11 +6,12 @@ import { useSequence } from '~/components/Board/hooks/useSequence'
 import Card from '~/components/Card/Card'
 import { useGame } from '~/components/Game/hooks/useGame'
 import {
+  getPuzzleNumberLabel,
   getPuzzlePathForDate,
   resolveDailyPuzzle,
 } from '~/utils/dailyPuzzle'
 import { formatDisplayDate } from '~/utils/date'
-import { formatPuzzleDifficulty } from '~/utils/music'
+import { formatModeLabel, formatPuzzleDifficulty } from '~/utils/music'
 
 type Props = {
   opened: boolean
@@ -63,13 +64,24 @@ export default function PuzzleCalendarModal({ opened, onClose }: Props) {
         <Card key={date} withBorder>
           <Stack gap="sm">
             <Stack gap={2}>
-              <Group gap="xs" justify="space-between">
-                <Text fw={500}>{puzzle.name}</Text>
-                {date === todayDate && <Badge color="blue">Today's Puzzle</Badge>}
+              <Group gap="xs" justify="space-between" align="flex-start" wrap="wrap">
+                <Text fw={500} miw={0} flex={1}>{puzzle.name}</Text>
+                {date === todayDate && (
+                  <Badge color="blue">Today's Puzzle</Badge>
+                )}
               </Group>
               <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
             </Stack>
             <Group gap="xs">
+              <Badge color="blue.6" variant="outline">
+                {getPuzzleNumberLabel(puzzle)}
+              </Badge>
+              <Badge color="gray.6" variant="outline">
+                {`Key: ${puzzle.key}`}
+              </Badge>
+              <Badge color="gray.6" variant="outline">
+                {formatModeLabel(puzzle.mode)}
+              </Badge>
               <Badge color="gray.6" variant="outline">
                 {formatPuzzleDifficulty(puzzle.difficulty)}
               </Badge>

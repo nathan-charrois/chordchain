@@ -7,23 +7,37 @@ type IconProps = {
   icon: IconSvgElement
   onClick?: () => void
   size?: string | number
+  compact?: boolean
 }
 
-export default function Icon({ onClick, label, icon, size }: IconProps) {
+export default function Icon({
+  onClick,
+  label,
+  icon,
+  size,
+  compact = false,
+}: IconProps) {
   const content = useMemo(() => ((
     <>
       <HugeiconsIcon icon={icon} aria-label={label} size={size} />
-      {label && (
+      {label && !compact && (
         <Text c="dark.8">
           {label}
         </Text>
       )}
     </>
-  )), [icon, label, size])
+  )), [icon, label, compact, size])
 
   if (onClick) {
     return (
-      <Button variant="transparent" onClick={onClick} h="105" w="95">
+      <Button
+        aria-label={label}
+        variant="transparent"
+        onClick={onClick}
+        h="auto"
+        py={compact ? 'xs' : 'md'}
+        px={compact ? 'sm' : 'lg'}
+      >
         <Stack align="center" gap={8}>
           {content}
         </Stack>

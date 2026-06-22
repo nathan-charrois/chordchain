@@ -1,4 +1,4 @@
-import { Box, Group, Stack, Text, UnstyledButton } from '@mantine/core'
+import { Box, Flex, Stack, Text, UnstyledButton } from '@mantine/core'
 
 import type { DisplayChord } from '~/utils/music'
 import { playTone } from '~/utils/music'
@@ -70,14 +70,14 @@ export default function PianoRoll({ chord }: PianoRollProps) {
 
   return (
     <Stack gap="xs" h="100%" justify="center">
-      <Group justify="space-between" align="baseline" mih={28}>
+      <Flex justify="space-between" align="baseline" wrap="wrap" gap={{ base: 0, sm: 'xs' }} mih={28}>
         <Text fw={600} c={chord ? 'teal.8' : 'dimmed'}>
           {chord?.name ?? 'Chord preview'}
         </Text>
         <Text size="sm" c="dimmed">
           {chord ? `${chord.numeral} · ${chord.notes.join(' · ')}` : 'Hover a chord'}
         </Text>
-      </Group>
+      </Flex>
 
       <Box
         aria-label={chordDescription}

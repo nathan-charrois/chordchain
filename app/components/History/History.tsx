@@ -1,16 +1,18 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Cancel01Icon, Clock01Icon, PlayIcon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, Clock01Icon, Fire02Icon, PlayIcon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Badge, Group, Modal, Stack, Text, Timeline } from '@mantine/core'
+import { Badge, Group, Modal, Paper, Stack, Text, Timeline } from '@mantine/core'
 
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
+import { useIsMobile } from '~/hooks/useIsMobile'
 import { resolveDailyPuzzle } from '~/utils/dailyPuzzle'
 import { formatDisplayDateTime } from '~/utils/date'
 
 export default function History() {
   const [isOpen, setIsOpen] = useState(false)
-  const { puzzleDates, historyEntries } = useGame()
+  const isMobile = useIsMobile()
+  const { currentStreak, puzzleDates, historyEntries } = useGame()
 
   const handleOnClick = useCallback(() => {
     setIsOpen(true)
@@ -26,8 +28,10 @@ export default function History() {
       .map((date) => {
         const entry = historyEntries[date]
         const puzzle = resolveDailyPuzzle(date)
+
         const isCompleted = entry.completed === true
         const isFailed = entry.failed === true
+
         const statusLabel = isFailed ? 'Loss' : isCompleted ? 'Win' : ''
         const statusColor = isFailed ? 'red.7' : isCompleted ? 'green.7' : 'gray.5'
         const statusIcon = isFailed ? Cancel01Icon : isCompleted ? Tick02Icon : PlayIcon
@@ -66,11 +70,28 @@ export default function History() {
   }, [historyEntries, puzzleDates])
 
   const modalBody = useMemo(() => {
+    const streakSection = (
+      <Paper withBorder p="md">
+        <Group justify="space-between">
+          <Stack gap={2}>
+            <Text size="sm" c="dimmed">Current Streak</Text>
+            <Text fw={600} size="lg">
+              {`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}
+            </Text>
+          </Stack>
+          <HugeiconsIcon icon={Fire02Icon} aria-label="Current streak" />
+        </Group>
+      </Paper>
+    )
+
     if (historyItems.length) {
       return (
-        <Timeline active={historyItems.length - 1} bulletSize={28} lineWidth={1}>
-          {historyItems}
-        </Timeline>
+        <Stack>
+          {streakSection}
+          <Timeline active={historyItems.length - 1} bulletSize={28} lineWidth={1}>
+            {historyItems}
+          </Timeline>
+        </Stack>
       )
     }
 
@@ -79,7 +100,7 @@ export default function History() {
 
   return (
     <>
-      <Icon label="History" icon={Clock01Icon} onClick={handleOnClick} />
+      <Icon label="History" icon={Clock01Icon} onClick={handleOnClick} compact={isMobile} />
       <Modal
         opened={isOpen}
         onClose={handleOnClose}
