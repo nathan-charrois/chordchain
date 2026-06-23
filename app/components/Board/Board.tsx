@@ -12,9 +12,9 @@ import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
 import { buildChord, buildChords, buildScale, chordIdKey } from '~/utils/music'
 
 const cellHeight = {
-  base: 86,
-  xs: 102,
-  md: 144,
+  base: 78,
+  xs: 110,
+  md: 136,
 }
 
 const cellFontSize = {
@@ -41,8 +41,8 @@ export default function Board() {
     restart,
   } = useSequence()
 
-  const [isArpeggiate, setIsArpeggiate] = useState(true)
-  const [isDrumsEnabled, setIsDrumsEnabled] = useState(true)
+  const [isArpeggiate, setIsArpeggiate] = useState(false)
+  const [isDrumsEnabled, setIsDrumsEnabled] = useState(false)
   const [tempoBpm, setTempoBpm] = useState(DEFAULT_TEMPO_BPM)
 
   const handleTogglePlayback = useCallback(() => {
@@ -180,7 +180,7 @@ export default function Board() {
           ))}
         </Flex>
       </Card>
-      <Card mt="lg" p={responsiveSizing}>
+      <Card mt={responsiveSizing} p={responsiveSizing}>
         <PlaybackControls
           isPlaying={isPlaying}
           onTogglePlayback={handleTogglePlayback}

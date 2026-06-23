@@ -753,7 +753,7 @@ function playClosedHat() {
 
 function playOpenHat() {
   zzfx({
-    volume: 2.5,
+    volume: 1.5,
     randomness: 0.08,
     frequency: 4600,
     attack: 0.001,

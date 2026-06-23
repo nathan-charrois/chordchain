@@ -69,7 +69,7 @@ export default function Pallete() {
 
   return (
     <>
-      <Card mt="lg" p={responsiveSizing}>
+      <Card mt={responsiveSizing} p={responsiveSizing}>
         <Stack gap="lg">
           {sections.map((section) => {
             if (!section.chords.length) {

@@ -656,7 +656,7 @@ function getArpeggioIntervalMs(sequenceGapMs: number) {
 }
 
 function getBassOctaveMultiplier(octave: number): number {
-  return octave <= BASS_OCTAVE ? 1.1 : 1
+  return octave <= BASS_OCTAVE ? 1.25 : 1
 }
 
 export function playTone(pitchClass: number, octave: number, volume = DEFAULT_TONE_VOLUME) {
@@ -664,11 +664,11 @@ export function playTone(pitchClass: number, octave: number, volume = DEFAULT_TO
   const sustainMultiplier = getBassOctaveMultiplier(octave)
 
   zzfx({
-    volume: volume / sustainMultiplier,
+    volume: volume,
     randomness: 0,
     frequency,
     attack: 0.015,
-    sustain: 0.40 * sustainMultiplier,
+    sustain: 0.50 * sustainMultiplier,
     release: 0.25,
   })
 }
