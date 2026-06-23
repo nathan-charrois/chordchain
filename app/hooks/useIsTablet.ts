@@ -1,6 +1,6 @@
 import { useMediaQuery } from '@mantine/hooks'
 
 export function useIsTablet() {
-  const isTablet = useMediaQuery('(max-width: 900px)')
+  const isTablet = useMediaQuery('(max-width: 991px)')
   return isTablet
 }

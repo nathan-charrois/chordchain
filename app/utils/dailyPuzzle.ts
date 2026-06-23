@@ -9,7 +9,7 @@ import {
   normalizeModeId,
 } from '~/utils/music'
 
-export type PuzzleDefinition = {
+export type DailyPuzzle = {
   date: string
   name: string
   key: string
@@ -20,26 +20,24 @@ export type PuzzleDefinition = {
   progression: ChordId[]
 }
 
-export type DailyPuzzle = PuzzleDefinition
-
-const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
-  '2026-05-23': {
-    date: '2026-05-23',
-    name: 'Open Roads',
-    key: 'C',
-    mode: 'mixolydian',
-    difficulty: 'easy',
-    arpeggiateType: 'triad_ascend',
-    drumLoopId: 'loFiPocket',
+const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
+  '2026-07-12': {
+    date: '2026-07-12',
+    name: 'Boxed Upside',
+    key: 'B',
+    mode: 'locrian',
+    difficulty: 'hard',
+    arpeggiateType: 'broken_chord',
+    drumLoopId: 'velvetBasement',
     progression: [
-      { degree: 1, type: 'triad' },
-      { degree: 7, type: 'triad' },
-      { degree: 4, type: 'triad' },
-      { degree: 1, type: 'triad' },
+      { degree: 4, type: 'seventh' },
+      { degree: 2, type: 'triad' },
+      { degree: 3, type: 'seventh' },
+      { degree: 5, type: 'seventh' },
     ],
   },
-  '2026-05-24': {
-    date: '2026-05-24',
+  '2026-07-11': {
+    date: '2026-07-11',
     name: 'Velvet Echo',
     key: 'E',
     mode: 'phrygian',
@@ -53,28 +51,28 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-05-25': {
-    date: '2026-05-25',
+  '2026-07-10': {
+    date: '2026-07-10',
     name: 'Warm Sunrise',
     key: 'C',
     mode: 'ionian',
-    difficulty: 'medium',
-    arpeggiateType: 'triad_ascend',
+    difficulty: 'easy',
+    arpeggiateType: 'seventh_pop_ostinato',
     drumLoopId: 'sunriseTerrace',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 4, type: 'triad' },
-      { degree: 5, type: 'seventh' },
+      { degree: 5, type: 'triad' },
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-05-26': {
-    date: '2026-05-26',
+  '2026-07-09': {
+    date: '2026-07-09',
     name: 'Sky Lantern',
     key: 'F',
     mode: 'lydian',
-    difficulty: 'hard',
-    arpeggiateType: 'triad_ascend',
+    difficulty: 'medium',
+    arpeggiateType: 'cascade_up',
     drumLoopId: 'deepHousePulse',
     progression: [
       { degree: 1, type: 'triad' },
@@ -83,28 +81,13 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-05-27': {
-    date: '2026-05-27',
-    name: 'Neon Drift',
-    key: 'G',
-    mode: 'mixolydian',
-    difficulty: 'medium',
-    arpeggiateType: 'triad_ascend',
-    drumLoopId: 'midnightDrive',
-    progression: [
-      { degree: 1, type: 'seventh' },
-      { degree: 7, type: 'triad' },
-      { degree: 4, type: 'triad' },
-      { degree: 1, type: 'triad' },
-    ],
-  },
-  '2026-05-28': {
-    date: '2026-05-28',
+  '2026-07-08': {
+    date: '2026-07-08',
     name: 'Quiet Harbor',
     key: 'A',
     mode: 'aeolian',
     difficulty: 'hard',
-    arpeggiateType: 'triad_ascend',
+    arpeggiateType: 'triad_descend',
     drumLoopId: 'dubSpace',
     progression: [
       { degree: 1, type: 'triad' },
@@ -113,28 +96,13 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-05-29': {
-    date: '2026-05-29',
-    name: 'Paper Moon',
-    key: 'B',
-    mode: 'locrian',
-    difficulty: 'hard',
-    arpeggiateType: 'triad_ascend',
-    drumLoopId: 'brokenTape',
-    progression: [
-      { degree: 2, type: 'triad' },
-      { degree: 3, type: 'triad' },
-      { degree: 4, type: 'seventh' },
-      { degree: 2, type: 'triad' },
-    ],
-  },
-  '2026-05-30': {
-    date: '2026-05-30',
+  '2026-07-07': {
+    date: '2026-07-07',
     name: 'Citrus Light',
     key: 'C',
     mode: 'ionian',
     difficulty: 'medium',
-    arpeggiateType: 'triad_ascend',
+    arpeggiateType: 'spiral_down',
     drumLoopId: 'sunriseTerrace',
     progression: [
       { degree: 6, type: 'triad' },
@@ -143,59 +111,44 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-05-31': {
-    date: '2026-05-31',
+  '2026-07-06': {
+    date: '2026-07-06',
     name: 'After Rain',
     key: 'D',
     mode: 'dorian',
     difficulty: 'hard',
-    arpeggiateType: 'triad_ascend',
+    arpeggiateType: 'full_sweep',
     drumLoopId: 'loFiPocket',
     progression: [
       { degree: 1, type: 'triad' },
-      { degree: 2, type: 'seventh' },
-      { degree: 7, type: 'triad' },
+      { degree: 2, type: 'triad' },
+      { degree: 7, type: 'sixth' },
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-01': {
-    date: '2026-06-01',
+  '2026-07-05': {
+    date: '2026-07-05',
     name: 'Amber Hall',
-    key: 'E',
-    mode: 'phrygian',
+    key: 'D',
+    mode: 'aeolian',
     difficulty: 'hard',
-    arpeggiateType: 'triad_ascend',
+    arpeggiateType: 'triad_updown',
     drumLoopId: 'dustyBreak',
     progression: [
       { degree: 1, type: 'triad' },
-      { degree: 4, type: 'seventh' },
+      { degree: 4, type: 'triad' },
+      { degree: 3, type: 'suspended' },
       { degree: 2, type: 'triad' },
-      { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-02': {
-    date: '2026-06-02',
-    name: 'Kite Parade',
-    key: 'F',
-    mode: 'lydian',
-    difficulty: 'hard',
-    arpeggiateType: 'triad_ascend',
-    drumLoopId: 'rimRunner',
-    progression: [
-      { degree: 1, type: 'triad' },
-      { degree: 7, type: 'seventh' },
-      { degree: 2, type: 'triad' },
-      { degree: 1, type: 'triad' },
-    ],
-  },
-  '2026-06-03': {
-    date: '2026-06-03',
+  '2026-07-04': {
+    date: '2026-07-04',
     name: 'Rolling Tide',
     key: 'G',
-    mode: 'mixolydian',
-    difficulty: 'hard',
+    mode: 'aeolian',
+    difficulty: 'medium',
     arpeggiateType: 'triad_ascend',
-    drumLoopId: 'boomBapBounce',
+    drumLoopId: 'polymeterPanic',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 5, type: 'seventh' },
@@ -203,8 +156,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-04': {
-    date: '2026-06-04',
+  '2026-07-03': {
+    date: '2026-07-03',
     name: 'Moss Path',
     key: 'A',
     mode: 'aeolian',
@@ -218,38 +171,23 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-05': {
-    date: '2026-06-05',
+  '2026-07-02': {
+    date: '2026-07-02',
     name: 'Clockwork Air',
-    key: 'B',
-    mode: 'locrian',
-    difficulty: 'hard',
-    arpeggiateType: 'triad_ascend',
-    drumLoopId: 'polymeterPanic',
+    key: 'C',
+    mode: 'dorian',
+    difficulty: 'easy',
+    arpeggiateType: 'deep_house_pulse',
+    drumLoopId: 'boomBapBounce',
     progression: [
       { degree: 3, type: 'triad' },
       { degree: 4, type: 'triad' },
-      { degree: 1, type: 'seventh' },
+      { degree: 5, type: 'triad' },
       { degree: 2, type: 'triad' },
     ],
   },
-  '2026-06-06': {
-    date: '2026-06-06',
-    name: 'Golden Thread',
-    key: 'C',
-    mode: 'ionian',
-    difficulty: 'medium',
-    arpeggiateType: 'inside_out',
-    drumLoopId: 'deepHousePulse',
-    progression: [
-      { degree: 1, type: 'seventh' },
-      { degree: 6, type: 'seventh' },
-      { degree: 2, type: 'seventh' },
-      { degree: 5, type: 'seventh' },
-    ],
-  },
-  '2026-06-07': {
-    date: '2026-06-07',
+  '2026-07-01': {
+    date: '2026-07-01',
     name: 'Night Trains',
     key: 'D',
     mode: 'dorian',
@@ -258,28 +196,13 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
     drumLoopId: 'velvetBasement',
     progression: [
       { degree: 1, type: 'seventh' },
-      { degree: 5, type: 'seventh' },
+      { degree: 5, type: 'triad' },
       { degree: 7, type: 'seventh' },
-      { degree: 1, type: 'seventh' },
-    ],
-  },
-  '2026-06-08': {
-    date: '2026-06-08',
-    name: 'Scooter Lane High',
-    key: 'E',
-    mode: 'phrygian',
-    difficulty: 'hard',
-    arpeggiateType: 'full_sweep',
-    drumLoopId: 'earthquakeDrop',
-    progression: [
       { degree: 1, type: 'triad' },
-      { degree: 7, type: 'seventh' },
-      { degree: 6, type: 'triad' },
-      { degree: 1, type: 'seventh' },
     ],
   },
-  '2026-06-09': {
-    date: '2026-06-09',
+  '2026-06-30': {
+    date: '2026-06-30',
     name: 'Blue Terrace',
     key: 'F',
     mode: 'lydian',
@@ -293,8 +216,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'seventh' },
     ],
   },
-  '2026-06-10': {
-    date: '2026-06-10',
+  '2026-06-29': {
+    date: '2026-06-29',
     name: 'Late Checkout',
     key: 'G',
     mode: 'mixolydian',
@@ -308,12 +231,12 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'seventh' },
     ],
   },
-  '2026-06-11': {
-    date: '2026-06-11',
+  '2026-06-28': {
+    date: '2026-06-28',
     name: 'Faded Postcard',
     key: 'A',
     mode: 'aeolian',
-    difficulty: 'hard',
+    difficulty: 'medium',
     arpeggiateType: 'seventh_rythmic_feel',
     drumLoopId: 'dustyBreak',
     progression: [
@@ -323,29 +246,29 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'seventh' },
     ],
   },
-  '2026-06-12': {
-    date: '2026-06-12',
+  '2026-06-27': {
+    date: '2026-06-27',
     name: 'Silver Arcade',
     key: 'B',
-    mode: 'locrian',
-    difficulty: 'hard',
-    arpeggiateType: 'seventh_pop_ostinato',
-    drumLoopId: 'neonWobble',
+    mode: 'ionian',
+    difficulty: 'medium',
+    arpeggiateType: 'skip_thirds_up',
+    drumLoopId: 'dustyBreak',
     progression: [
-      { degree: 2, type: 'seventh' },
+      { degree: 2, type: 'triad' },
       { degree: 6, type: 'triad' },
       { degree: 7, type: 'seventh' },
       { degree: 3, type: 'triad' },
     ],
   },
-  '2026-06-13': {
-    date: '2026-06-13',
+  '2026-06-26': {
+    date: '2026-06-26',
     name: 'Signal Bloom',
     key: 'C',
     mode: 'ionian',
     difficulty: 'medium',
     arpeggiateType: 'seventh_ascend',
-    drumLoopId: 'deepHousePulse',
+    drumLoopId: 'halfTimeHeadNod',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 2, type: 'seventh' },
@@ -353,13 +276,13 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-14': {
-    date: '2026-06-14',
+  '2026-06-25': {
+    date: '2026-06-25',
     name: 'City Lullaby',
     key: 'D',
-    mode: 'dorian',
+    mode: 'aeolian',
     difficulty: 'easy',
-    arpeggiateType: 'triad_alberti',
+    arpeggiateType: 'triad_updown',
     drumLoopId: 'loFiPocket',
     progression: [
       { degree: 1, type: 'triad' },
@@ -368,8 +291,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 4, type: 'triad' },
     ],
   },
-  '2026-06-15': {
-    date: '2026-06-15',
+  '2026-06-24': {
+    date: '2026-06-24',
     name: 'Low Horizon',
     key: 'E',
     mode: 'phrygian',
@@ -383,23 +306,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 2, type: 'triad' },
     ],
   },
-  '2026-06-16': {
-    date: '2026-06-16',
-    name: 'Glass Garden',
-    key: 'F',
-    mode: 'lydian',
-    difficulty: 'hard',
-    arpeggiateType: 'seventh_pop_ostinato',
-    drumLoopId: 'velvetBasement',
-    progression: [
-      { degree: 1, type: 'seventh' },
-      { degree: 5, type: 'seventh' },
-      { degree: 1, type: 'seventh' },
-      { degree: 2, type: 'seventh' },
-    ],
-  },
-  '2026-06-17': {
-    date: '2026-06-17',
+  '2026-06-21': {
+    date: '2026-06-21',
     name: 'Old Radio',
     key: 'G',
     mode: 'mixolydian',
@@ -413,8 +321,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 7, type: 'triad' },
     ],
   },
-  '2026-06-18': {
-    date: '2026-06-18',
+  '2026-06-22': {
+    date: '2026-06-22',
     name: 'Slow Comet',
     key: 'F',
     mode: 'dorian',
@@ -426,50 +334,6 @@ const DAILY_PUZZLE_CATALOG: Record<string, PuzzleDefinition> = {
       { degree: 2, type: 'seventh' },
       { degree: 5, type: 'sixth' },
       { degree: 3, type: 'suspended' },
-    ],
-  },
-  // '2026-06-19': {
-  //   date: '2026-06-19',
-  //   name: 'Lantern Steps',
-  //   key: 'B',
-  //   mode: 'locrian',
-  //   difficulty: 'hard',
-  //   arpeggiateType: 'seventh_rythmic_feel',
-  //   progression: [
-  //     { degree: 1, type: 'triad' },
-  //     { degree: 3, type: 'suspended' },
-  //     { degree: 5, type: 'sixth' },
-  //     { degree: 2, type: 'seventh' },
-  //   ],
-  // },
-  '2026-06-19': {
-    date: '2026-06-19',
-    name: 'Fractured Signal',
-    key: 'D',
-    mode: 'lydian',
-    difficulty: 'hard',
-    arpeggiateType: 'math_rock_syncopation',
-    drumLoopId: 'fracturedSeven',
-    progression: [
-      { degree: 1, type: 'sixth' },
-      { degree: 2, type: 'seventh' },
-      { degree: 6, type: 'sixth' },
-      { degree: 5, type: 'seventh' },
-    ],
-  },
-  '2026-06-20': {
-    date: '2026-06-20',
-    name: 'Afterhours Current',
-    key: 'F',
-    mode: 'dorian',
-    difficulty: 'medium',
-    arpeggiateType: 'deep_house_pulse',
-    drumLoopId: 'deepHousePulse',
-    progression: [
-      { degree: 1, type: 'seventh' },
-      { degree: 4, type: 'seventh' },
-      { degree: 7, type: 'seventh' },
-      { degree: 3, type: 'seventh' },
     ],
   },
 }
@@ -589,7 +453,7 @@ function getPuzzleSlugEntries(): Record<string, PuzzleSlugEntry> {
   return slugEntries
 }
 
-function resolvePuzzleEntry(entry: PuzzleDefinition): DailyPuzzle {
+function resolvePuzzleEntry(entry: DailyPuzzle): DailyPuzzle {
   const key = normalizeKey(entry.key)
   const mode = normalizeModeId(entry.mode)
   const difficulty = normalizeDifficulty(entry.difficulty)

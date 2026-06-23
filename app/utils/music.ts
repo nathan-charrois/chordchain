@@ -79,16 +79,16 @@ export const ARPEGGIATE_RECIPES: Record<ArpeggiateType, readonly number[]> = {
   seventh_ascend: [1, 2, 3, 4],
   seventh_descend: [4, 3, 2, 1],
   seventh_double: [1, 1, 2, 3],
-  seventh_pop_ostinato: [1, 1, 3, 1, 4, 1, 3, 1],
+  seventh_pop_ostinato: [1, 1, 3, 2, 4, 1],
   seventh_rythmic_feel: [1, 2, 3, 2, 3, 4, 3, 4],
-  full_sweep: [1, 3, 2, 4, 3, 5, 4, 2],
+  full_sweep: [1, 3, 2, 4, 5],
   cascade_up: [1, 2, 1, 3, 1, 4, 1, 5],
   skip_thirds_up: [1, 3, 2, 4],
   spiral_down: [4, 5, 3, 4, 2, 1],
-  inside_out: [3, 2, 4, 1, 5, 1],
-  broken_chord: [1, 4, 2, 4, 3, 4, 2, 4],
+  inside_out: [3, 2, 1, 2, 3],
+  broken_chord: [1, 4, 2, 4, 3],
   math_rock_syncopation: [1, 3, 2, 4],
-  deep_house_pulse: [1, 2, 4, 3, 2],
+  deep_house_pulse: [4, 3, 4, 3, 2],
 }
 
 export const CHORD_RECIPES: Record<ChordType, readonly number[]> = {
@@ -557,7 +557,7 @@ export type VoicedTone = {
 const DEFAULT_TONE_INTERVAL_MS = 10
 const DEFAULT_ARPEGGIATED_TONE_INTERVAL_MS = 200
 const DEFAULT_SEQUENCE_GAP_MS = 1200
-const DEFAULT_TONE_VOLUME = 2
+const DEFAULT_TONE_VOLUME = 1.5
 const MAIN_CHORD_OCTAVE = 4
 const BASS_OCTAVE = MAIN_CHORD_OCTAVE - 1
 
@@ -617,7 +617,6 @@ export function playChord(notes: string[], arpeggiate: boolean, arpeggiateType: 
   const volume = getChordToneVolume(tones.length)
 
   const toneTimeouts = tones.map((tone, index) => {
-    console.log(tone, 'volume', volume)
     return setTimeout(
       () => playTone(tone.pitchClass, tone.octave, volume),
       index * interval,

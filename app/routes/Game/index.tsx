@@ -20,10 +20,10 @@ export default function Game() {
     <AppProvider puzzleSlug={puzzleSlug}>
       <AppLayout>
         <Grid>
-          <Grid.Col span={{ base: 12, sm: 3 }}>
+          <Grid.Col span={{ base: 12, md: 3 }}>
             <Sidebar />
           </Grid.Col>
-          <Grid.Col span={{ base: 12, sm: 9 }}>
+          <Grid.Col span={{ base: 12, md: 9 }}>
             <Board />
             <Pallete />
           </Grid.Col>

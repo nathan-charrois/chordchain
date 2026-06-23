@@ -1,8 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Basketball01Icon, Cancel01Icon, Clock01Icon, Fire02Icon, PlayIcon, Tick02Icon } from '@hugeicons/core-free-icons'
+import { Basketball01Icon, Clock01Icon, Fire02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Badge, Group, Modal, Stack, Text, Timeline } from '@mantine/core'
+import { Badge, Group, Indicator, Modal, Stack, Text, Timeline } from '@mantine/core'
 
+import Card from '../Card/Card'
+import { getSubmittedCellColor } from '../Game/logic/game'
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
 import { useIsMobile } from '~/hooks/useIsMobile'
@@ -34,37 +36,30 @@ export default function History() {
 
         const statusLabel = isFailed ? 'Loss' : isCompleted ? 'Win' : ''
         const statusColor = isFailed ? 'red.7' : isCompleted ? 'green.7' : 'gray.5'
-        const statusIcon = isFailed ? Cancel01Icon : isCompleted ? Tick02Icon : PlayIcon
         const attemptsUsed = entry.attemptsUsed ?? entry.guesses?.length
         const statusDateTime = entry.completedAt ?? entry.failedAt
+        console.log(entry)
 
         return (
-          <Timeline.Item
-            key={date}
-            color={statusColor}
-            bullet={<HugeiconsIcon icon={statusIcon} width={16} />}
-            title={(
-              <Group gap="xs" justify="space-between">
-                <Text fw={500}>{puzzle.name}</Text>
-                {statusLabel && <Badge color={statusColor} variant="outline">{statusLabel}</Badge>}
-              </Group>
-            )}
-          >
-            <Stack gap={2}>
-              <Group gap="xs">
-                {typeof attemptsUsed === 'number' && (
-                  <Text size="sm" c="dimmed">
-                    {`${attemptsUsed} ${attemptsUsed === 1 ? 'attempt' : 'attempts'}`}
-                  </Text>
-                )}
-              </Group>
-              {statusDateTime && (
-                <Text size="sm" c="dimmed">
-                  {`${isCompleted ? 'Won on' : 'Lost on'} ${formatDisplayDateTime(statusDateTime)}`}
-                </Text>
+          <Card shadow="sm">
+            <Group gap="xs" justify="space-between" mb="sm">
+              <Text fw={500}>{puzzle.name}</Text>
+              {statusLabel && <Badge color={statusColor} variant="outline">{statusLabel}</Badge>}
+            </Group>
+            <Group gap="xs">
+              {typeof attemptsUsed === 'number' && (
+                <Group>
+                  <Indicator position="middle-center" inline color={getSubmittedCellColor('absent')} size={12} />
+                  {`${attemptsUsed} ${attemptsUsed === 1 ? 'attempt' : 'attempts'}`}
+                </Group>
               )}
-            </Stack>
-          </Timeline.Item>
+            </Group>
+            {statusDateTime && (
+              <Text size="sm" c="dimmed">
+                {`${isCompleted ? 'Won on' : 'Lost on'} ${formatDisplayDateTime(statusDateTime)}`}
+              </Text>
+            )}
+          </Card>
         )
       })
   }, [historyEntries, puzzleDates])
@@ -72,24 +67,28 @@ export default function History() {
   const modalBody = useMemo(() => {
     const streakSection = (
       <Group grow>
-        <Group justify="space-between" bg="gray.1" p="md" bdrs="md">
-          <Stack gap={2}>
-            <Text size="sm" c="dimmed">Streak</Text>
-            <Text fw={600} size="lg">
-              {`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}
-            </Text>
-          </Stack>
-          <HugeiconsIcon icon={Fire02Icon} aria-label="Current streak" />
-        </Group>
-        <Group justify="space-between" bg="gray.1" p="md" bdrs="md">
-          <Stack gap={2}>
-            <Text size="sm" c="dimmed">Played</Text>
-            <Text fw={600} size="lg">
-              {`${historyItems.length} ${currentStreak === 1 ? 'game' : 'games'}`}
-            </Text>
-          </Stack>
-          <HugeiconsIcon icon={Basketball01Icon} aria-label="Games Played" />
-        </Group>
+        <Card shadow="sm">
+          <Group justify="space-between">
+            <Stack gap={2}>
+              <Text size="sm" c="dimmed">Streak</Text>
+              <Text fw={600} size="lg">
+                {`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'}`}
+              </Text>
+            </Stack>
+            <HugeiconsIcon icon={Fire02Icon} aria-label="Current streak" />
+          </Group>
+        </Card>
+        <Card withBorder shadow="sm">
+          <Group justify="space-between">
+            <Stack gap={2}>
+              <Text size="sm" c="dimmed">Played</Text>
+              <Text fw={600} size="lg">
+                {`${historyItems.length} ${currentStreak === 1 ? 'game' : 'games'}`}
+              </Text>
+            </Stack>
+            <HugeiconsIcon icon={Basketball01Icon} aria-label="Games Played" />
+          </Group>
+        </Card>
       </Group>
 
     )
@@ -99,9 +98,7 @@ export default function History() {
         <Stack>
           {streakSection}
           <Text size="md">Previous Games</Text>
-          <Timeline active={historyItems.length - 1} bulletSize={28} lineWidth={1}>
-            {historyItems}
-          </Timeline>
+          {historyItems}
         </Stack>
       )
     }

@@ -22,7 +22,7 @@ export type PuzzleHistoryEntry = {
 }
 
 export type PuzzleHistoryStore = {
-  version: 2
+  version: number
   entries: Record<string, PuzzleHistoryEntry>
 }
 
@@ -31,7 +31,7 @@ export type StreakResult = {
 }
 
 const EMPTY_STORE: PuzzleHistoryStore = {
-  version: 2,
+  version: 1,
   entries: {},
 }
 
@@ -88,15 +88,13 @@ function parseDateKey(date: string): Date | null {
   const year = Number(match[1])
   const month = Number(match[2])
   const day = Number(match[3])
+  const midnight = new Date(year, month - 1, day, 12, 0, 0, 0)
 
-  // Use noon local time to avoid DST-related midnight shifts.
-  const parsed = new Date(year, month - 1, day, 12, 0, 0, 0)
-
-  if (Number.isNaN(parsed.getTime())) {
+  if (Number.isNaN(midnight.getTime())) {
     return null
   }
 
-  return parsed
+  return midnight
 }
 
 function getPreviousDateKey(date: string): string | null {

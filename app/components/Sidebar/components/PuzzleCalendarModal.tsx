@@ -42,54 +42,48 @@ export default function PuzzleCalendarModal({ opened, onClose }: Props) {
       const puzzle = resolveDailyPuzzle(date)
       const isCompleted = entry?.completed === true
       const isFailed = entry?.failed === true
-      const isStarted = Boolean(entry?.guesses?.length)
       const isSelected = date === selectedPuzzleDate
       const actionLabel = isSelected ? 'Playing' : 'Play'
       const statusLabel = isFailed
         ? 'Loss'
         : isCompleted
           ? 'Win'
-          : isStarted
-            ? 'In progress'
-            : ''
+          : ''
       const statusColor = isFailed
-        ? 'red'
+        ? 'dark.4'
         : isCompleted
-          ? 'green'
-          : isStarted
-            ? 'blue'
-            : 'gray'
+          ? 'forest.5'
+          : ''
 
       return (
-        <Card key={date} withBorder>
+        <Card key={date} shadow="sm">
           <Stack gap="sm">
             <Stack gap={2}>
-              <Group gap="xs" justify="space-between" align="flex-start" wrap="wrap">
-                <Text fw={500} miw={0} flex={1}>{puzzle.name}</Text>
-                {date === todayDate && (
-                  <Badge color="blue">Today's Puzzle</Badge>
-                )}
+              <Group gap="xs" justify="space-between" align="center" wrap="wrap">
+                <Text fw={500} miw={0} flex={1}>
+                  {puzzle.name}
+                  {statusLabel && <Badge color={statusColor} variant="filled" ml="sm">{statusLabel}</Badge>}
+                </Text>
+                <Badge color="brand.7" variant="transparent">
+                  {getPuzzleNumberLabel(puzzle)}
+                </Badge>
               </Group>
               <Text size="sm" c="dimmed">{formatDisplayDate(date)}</Text>
             </Stack>
             <Group gap="xs">
-              <Badge color="blue.6" variant="outline">
-                {getPuzzleNumberLabel(puzzle)}
-              </Badge>
-              <Badge color="gray.6" variant="outline">
+              <Badge color="gray.6" variant="light">
                 {`Key: ${puzzle.key}`}
               </Badge>
-              <Badge color="gray.6" variant="outline">
+              <Badge color="gray.6" variant="light">
                 {formatModeLabel(puzzle.mode)}
               </Badge>
-              <Badge color="gray.6" variant="outline">
+              <Badge color="gray.6" variant="light">
                 {formatPuzzleDifficulty(puzzle.difficulty)}
               </Badge>
-              {statusLabel && <Badge color={statusColor} variant="outline">{statusLabel}</Badge>}
             </Group>
             <Button
-              size="xs"
-              variant={isSelected ? 'light' : 'outline'}
+              size="md"
+              variant={isSelected ? 'light' : 'default'}
               disabled={isSelected}
               onClick={() => handleSelect(date)}
             >

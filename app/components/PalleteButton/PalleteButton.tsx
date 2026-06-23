@@ -39,7 +39,7 @@ export default function PalleteButton({
           aria-disabled={disabled}
           h={80}
           p="md"
-          bg={status === 'absent' ? 'gray.3' : status === 'correct' ? 'forest.7' : status === 'present' ? 'amber.6' : 'inkMuted'}
+          bg={status === 'absent' ? 'gray.3' : status === 'correct' ? 'forest.7' : status === 'present' ? 'amber.6' : 'var(--app-color-ink-muted)'}
           fullWidth
         >
           <Stack gap={0}>
