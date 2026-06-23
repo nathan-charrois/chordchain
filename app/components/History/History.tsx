@@ -4,7 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Badge, Group, Indicator, Modal, Stack, Text } from '@mantine/core'
 
 import Card from '../Card/Card'
-import { getSubmittedCellColor } from '../Game/logic/game'
+import { getCellColorByStatus } from '../Game/logic/game'
 import { useGame } from '~/components/Game/hooks/useGame'
 import Icon from '~/components/Icon/Icon'
 import { useIsMobile } from '~/hooks/useIsMobile'
@@ -48,7 +48,7 @@ export default function History() {
             <Group gap="xs">
               {typeof attemptsUsed === 'number' && (
                 <Group>
-                  <Indicator position="middle-center" inline color={getSubmittedCellColor('absent')} size={12} />
+                  <Indicator position="middle-center" inline color={getCellColorByStatus('absent')} size={12} />
                   {`${attemptsUsed} ${attemptsUsed === 1 ? 'attempt' : 'attempts'}`}
                 </Group>
               )}

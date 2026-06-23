@@ -15,6 +15,7 @@ type PlaybackControlsProps = {
   onToggleArpeggiate: () => void
   isDrumsEnabled: boolean
   onToggleDrums: () => void
+  settingsDisabled?: boolean
 }
 
 export default function PlaybackControls({
@@ -26,6 +27,7 @@ export default function PlaybackControls({
   onToggleArpeggiate,
   isDrumsEnabled,
   onToggleDrums,
+  settingsDisabled = false,
 }: PlaybackControlsProps) {
   const isTablet = useIsTablet()
 
@@ -46,11 +48,11 @@ export default function PlaybackControls({
   const toggleButtons = useMemo(() => {
     return (
       <Flex direction="row" gap="md">
-        <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={onToggleArpeggiate} />
-        <Checkbox label="Drums" checked={isDrumsEnabled} onChange={onToggleDrums} />
+        <Checkbox label="Arpeggiate" checked={isArpeggiate} onChange={onToggleArpeggiate} disabled={settingsDisabled} />
+        <Checkbox label="Drums" checked={isDrumsEnabled} onChange={onToggleDrums} disabled={settingsDisabled} />
       </Flex>
     )
-  }, [isArpeggiate, onToggleArpeggiate, isDrumsEnabled, onToggleDrums])
+  }, [isArpeggiate, onToggleArpeggiate, isDrumsEnabled, onToggleDrums, settingsDisabled])
 
   const tempoSlider = useMemo(() => {
     return (
@@ -63,13 +65,14 @@ export default function PlaybackControls({
           step={1}
           value={tempoBpm}
           onChange={onTempoChange}
+          disabled={settingsDisabled}
         />
         <Flex justify="space-between" align="center" miw={55}>
           <Text size="sm">{`${tempoBpm} BPM`}</Text>
         </Flex>
       </Flex>
     )
-  }, [tempoBpm, onTempoChange])
+  }, [tempoBpm, onTempoChange, settingsDisabled])
 
   if (isTablet) {
     return (
@@ -80,6 +83,7 @@ export default function PlaybackControls({
             radius="md"
             leftSection={leftSection}
             onClick={onTogglePlayback}
+            disabled={settingsDisabled}
             flex={1}
           >
             {isPlaying ? 'Stop' : 'Play'}
@@ -105,6 +109,7 @@ export default function PlaybackControls({
           mr="sm"
           leftSection={leftSection}
           onClick={onTogglePlayback}
+          disabled={settingsDisabled}
         >
           {isPlaying ? 'Stop' : 'Play'}
         </Button>

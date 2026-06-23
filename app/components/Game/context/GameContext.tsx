@@ -32,6 +32,6 @@ export type Guess = {
   chords: ChordId[]
 }
 
-export type GuessStatus = 'absent' | 'present' | 'correct'
+export type GuessStatus = 'absent' | 'present' | 'correct' | 'active' | 'current'
 
 export const GameContext = createContext<Game | undefined>(undefined)

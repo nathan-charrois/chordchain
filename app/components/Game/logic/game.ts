@@ -5,7 +5,7 @@ import { GAME_MAX_GUESSES } from '~/constant'
 import type { ChordId } from '~/utils/music'
 import { areChordIdsEqual, chordIdKey } from '~/utils/music'
 
-export type GuessRowKind = 'submitted' | 'active' | 'empty'
+export type GuessRowKind = 'submitted' | 'playing' | 'active' | 'empty'
 
 export type GuessRow = {
   index: number
@@ -40,12 +40,14 @@ export function buildGuessRows({
   status,
   maxGuesses,
   solution,
+  isSubmittingGuess = false,
 }: {
   guesses: Guess[]
   current: Guess
   status: GameStatus
   maxGuesses: number
   solution: ChordId[]
+  isSubmittingGuess?: boolean
 }): GuessRow[] {
   const isPlayable = status !== 'won' && status !== 'loss'
 
@@ -64,9 +66,11 @@ export function buildGuessRows({
     if (isPlayable && index === guesses.length) {
       return {
         index,
-        kind: 'active',
+        kind: isSubmittingGuess ? 'playing' : 'active',
         chords: current.chords,
-        status: [],
+        status: isSubmittingGuess
+          ? buildGuessStatus(current.chords, solution)
+          : [],
       }
     }
 
@@ -197,7 +201,7 @@ export function getKeyClassName(status?: GuessStatus): string {
   }
 }
 
-export function getSubmittedCellColor(status?: GuessStatus): string {
+export function getCellColorByStatus(status?: GuessStatus): string {
   switch (status) {
     case 'correct':
       return 'forest.8'
@@ -205,35 +209,60 @@ export function getSubmittedCellColor(status?: GuessStatus): string {
       return 'amber.6'
     case 'absent':
       return 'dark.6'
+    case 'current':
+      return 'brand.3'
+    case 'active':
+      return 'brand.2'
     default:
       return 'brand.1'
   }
 }
 
-export function getGuessCellColor(row: GuessRow, cellIndex: number, activeIndex: number | null) {
+export function getGuessCellColor(
+  row: GuessRow,
+  cellIndex: number,
+  activeIndex: number | null,
+  isGuessPlaying = false,
+) {
+  const isRevealPending = isGuessPlaying
+    && activeIndex !== null
+    && cellIndex <= activeIndex
+
   if (row.kind === 'submitted') {
     return {
-      background: getSubmittedCellColor(row.status[cellIndex]),
+      background: getCellColorByStatus(row.status[cellIndex]),
       color: 'gray.0',
+      border: undefined,
     }
   }
 
-  if (row.kind === 'active' && cellIndex === activeIndex) {
+  if (row.kind === 'playing' && !isRevealPending) {
     return {
-      background: 'brand.3',
-      color: 'brand.8',
+      background: 'gray.3',
+      color: 'gray.7',
+      border: undefined,
     }
   }
 
-  if (row.kind === 'active' && row.chords[cellIndex]) {
+  if (row.kind === 'playing') {
+    return {
+      background: getCellColorByStatus(row.status[cellIndex]),
+      color: 'gray.0',
+      border: undefined,
+    }
+  }
+
+  if (row.kind === 'active' && activeIndex === cellIndex) {
     return {
       background: 'brand.2',
       color: 'brand.8',
+      border: undefined,
     }
   }
 
   return {
-    background: getSubmittedCellColor(),
+    background: getCellColorByStatus(),
     color: undefined,
+    border: undefined,
   }
 }

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Center, Flex, SimpleGrid, Stack, Text } from '@mantine/core'
+import { Center, Flex, SimpleGrid, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor } from '../Game/logic/game'
@@ -37,6 +37,8 @@ export default function Board() {
     progression,
     activeIndex,
     isPlaying,
+    isGuessPlaying,
+    isSubmittingGuess,
     play,
     stop,
     restart,
@@ -120,8 +122,9 @@ export default function Board() {
       status,
       maxGuesses,
       solution: activePuzzle.progression,
+      isSubmittingGuess,
     })
-  }, [guesses, current, status, maxGuesses, activePuzzle.progression])
+  }, [guesses, current, status, maxGuesses, activePuzzle.progression, isSubmittingGuess])
 
   return (
     <>
@@ -149,12 +152,14 @@ export default function Board() {
               {Array.from({ length: maxLength }, (_, cellIndex) => {
                 const chord = row.chords[cellIndex]
                 const chordName = chord ? buildChord(scale, chord).name : ''
+                const cellColor = getGuessCellColor(row, cellIndex, activeIndex, isGuessPlaying)
 
                 return (
                   <Center
                     key={`${row.index}-${cellIndex}`}
-                    bg={getGuessCellColor(row, cellIndex, activeIndex).background}
-                    c={getGuessCellColor(row, cellIndex, activeIndex).color}
+                    bg={cellColor.background}
+                    c={cellColor.color}
+                    bd={cellColor.border}
                     h={cellHeight}
                     px={2}
                     bdrs="lg"
@@ -180,6 +185,7 @@ export default function Board() {
           onToggleArpeggiate={handleToggleArpeggiate}
           isDrumsEnabled={isDrumsEnabled}
           onToggleDrums={handleToggleDrums}
+          settingsDisabled={isSubmittingGuess}
         />
       </Card>
     </>

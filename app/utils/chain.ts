@@ -37,9 +37,16 @@ type PlaySequence = {
   tempoBpm: number
   setIndex: (index: number | null) => void
   onComplete?: () => void
+  takeNextSequence?: () => QueuedSequence | null
 }
 
-export function playSequence({ chords, arpeggiate, arpeggiateType, drums, drumLoopId, setIndex, shouldLoop, tempoBpm, onComplete }: PlaySequence) {
+type QueuedSequence = {
+  chords: string[][]
+  onStart?: () => void
+  onComplete?: () => void
+}
+
+export function playSequence({ chords, arpeggiate, arpeggiateType, drums, drumLoopId, setIndex, shouldLoop, tempoBpm, onComplete, takeNextSequence }: PlaySequence) {
   const session = startNewSession()
   const sequenceGapMs = getSequenceGapMs(tempoBpm)
   const totalDuration = chords.length * sequenceGapMs
@@ -66,23 +73,65 @@ export function playSequence({ chords, arpeggiate, arpeggiateType, drums, drumLo
         return
       }
 
+      const queuedSequence = takeNextSequence?.()
+
+      if (queuedSequence) {
+        queuedSequence.onStart?.()
+        playSequenceOnce({
+          chords: queuedSequence.chords,
+          arpeggiate,
+          arpeggiateType,
+          drums,
+          drumLoopId,
+          loopIteration: loopIteration + 1,
+          setIndex,
+          sequenceGapMs,
+          session: currentSession,
+        })
+
+        replaceTimeout('loopRestart', setTimeout(() => {
+          if (!isSessionActive(currentSession)) {
+            return
+          }
+
+          queuedSequence.onComplete?.()
+
+          if (shouldLoop()) {
+            playSequenceAndLoop(currentSession, loopIteration + 2)
+            return
+          }
+
+          finishSequence(currentSession, sequenceGapMs, setIndex, onComplete)
+        }, queuedSequence.chords.length * sequenceGapMs))
+        return
+      }
+
       if (shouldLoop()) {
         playSequenceAndLoop(currentSession, loopIteration + 1)
         return
       }
 
-      replaceTimeout('loopEnd', setTimeout(() => {
-        if (!isSessionActive(currentSession)) {
-          return
-        }
-
-        setIndex(null)
-        onComplete?.()
-      }, sequenceGapMs))
+      finishSequence(currentSession, sequenceGapMs, setIndex, onComplete)
     }, totalDuration))
   }
 
   playSequenceAndLoop(session, 0)
+}
+
+function finishSequence(
+  currentSession: number,
+  sequenceGapMs: number,
+  setIndex: PlaySequence['setIndex'],
+  onComplete: PlaySequence['onComplete'],
+) {
+  replaceTimeout('loopEnd', setTimeout(() => {
+    if (!isSessionActive(currentSession)) {
+      return
+    }
+
+    setIndex(null)
+    onComplete?.()
+  }, sequenceGapMs))
 }
 
 type PlaySequenceOnce = Pick<PlaySequence, 'chords' | 'arpeggiate' | 'arpeggiateType' | 'drums' | 'drumLoopId' | 'setIndex'> & {

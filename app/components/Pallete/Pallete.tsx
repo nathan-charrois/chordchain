@@ -4,6 +4,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Button, Flex, Group, SimpleGrid, Stack, Text } from '@mantine/core'
 import { useWindowScroll } from '@mantine/hooks'
 
+import { useSequence } from '../Board/hooks/useSequence'
 import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
 import PalleteButton from '../PalleteButton/PalleteButton'
@@ -31,11 +32,14 @@ export default function Pallete() {
     activePuzzle,
     addCurrent,
     removeCurrent,
-    submitGuess,
   } = useGame()
+  const {
+    isSubmittingGuess,
+    submitGuess,
+  } = useSequence()
   const [, scrollTo] = useWindowScroll()
 
-  const disabled = status === 'won' || status === 'loss'
+  const disabled = status === 'won' || status === 'loss' || isSubmittingGuess
 
   const sections = useMemo<PaletteSection[]>(() => {
     const scale = buildScale(activePuzzle.key, activePuzzle.mode)
