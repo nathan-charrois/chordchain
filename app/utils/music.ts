@@ -560,6 +560,7 @@ const DEFAULT_SEQUENCE_GAP_MS = 1200
 const DEFAULT_TONE_VOLUME = 1.7
 const MAIN_CHORD_OCTAVE = 4
 const BASS_OCTAVE = MAIN_CHORD_OCTAVE - 1
+const ARPEGGIO_VELOCITY_PATTERN = [1, 0.72, 0.9, 0.78]
 
 function sortNotesByArpeggiateType(
   notes: string[],
@@ -614,11 +615,21 @@ export function voicedTonesFromNotes(notes: string[], arpeggiate: boolean, arpeg
 export function playChord(notes: string[], arpeggiate: boolean, arpeggiateType: ArpeggiateType, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
   const tones = voicedTonesFromNotes(notes, arpeggiate, arpeggiateType)
   const interval = getToneIntervalMs(sequenceGapMs, arpeggiate)
-  const volume = getChordToneVolume(tones.length)
+  const volume = getChordToneVolume(tones.length, arpeggiate)
 
   const toneTimeouts = tones.map((tone, index) => {
     return setTimeout(
-      () => playTone(tone.pitchClass, tone.octave, volume),
+      () => {
+        const velocity = getToneVelocity(index, tones.length, arpeggiate)
+        const toneVolume = volume * velocity + 5
+
+        if (arpeggiate) {
+          playArpeggiatedTone(tone.pitchClass, tone.octave, toneVolume, index)
+          return
+        }
+
+        playLushChordTone(tone.pitchClass, tone.octave, toneVolume)
+      },
       index * interval,
     )
   })
@@ -635,12 +646,40 @@ function toneFromRootInterval(rootPitchClass: number, octave: number, interval: 
   }
 }
 
-function getChordToneVolume(toneCount: number): number {
-  if (toneCount >= 5) {
-    return DEFAULT_TONE_VOLUME - 0.25
+function getChordToneVolume(toneCount: number, arpeggiate: boolean): number {
+  if (arpeggiate) {
+    return DEFAULT_TONE_VOLUME
   }
 
-  return DEFAULT_TONE_VOLUME
+  if (toneCount >= 5) {
+    return DEFAULT_TONE_VOLUME - 0.45
+  }
+
+  return DEFAULT_TONE_VOLUME - 0.25
+}
+
+function getToneVelocity(index: number, toneCount: number, arpeggiate: boolean): number {
+  if (arpeggiate) {
+    if (index === 0) {
+      return 0.82
+    }
+
+    return ARPEGGIO_VELOCITY_PATTERN[(index - 1) % ARPEGGIO_VELOCITY_PATTERN.length]
+  }
+
+  if (index === 0) {
+    return 1
+  }
+
+  if (index === 1) {
+    return 0.86
+  }
+
+  if (index === toneCount - 1) {
+    return 0.82
+  }
+
+  return 0.72
 }
 
 function getToneIntervalMs(sequenceGapMs: number, arpeggiate: boolean) {
@@ -657,6 +696,71 @@ function getArpeggioIntervalMs(sequenceGapMs: number) {
 
 function getBassOctaveMultiplier(octave: number): number {
   return octave <= BASS_OCTAVE ? 1.25 : 1
+}
+
+function playLushChordTone(pitchClass: number, octave: number, volume: number) {
+  const frequency = hzFromPitchClass(pitchClass, octave)
+  const sustainMultiplier = getBassOctaveMultiplier(octave)
+  const harmonicVolume = octave <= BASS_OCTAVE ? 0.14 : 0.24
+
+  zzfx({
+    volume: volume * 0.82,
+    randomness: 0,
+    frequency,
+    attack: 0.025,
+    decay: 0.08,
+    sustain: 0.62 * sustainMultiplier,
+    release: 0.48,
+    shape: 0,
+    sustainVolume: 0.88,
+  })
+
+  zzfx({
+    volume: volume * harmonicVolume,
+    randomness: 0,
+    frequency,
+    attack: 0.015,
+    decay: 0.12,
+    sustain: 0.48 * sustainMultiplier,
+    release: 0.58,
+    shape: 1,
+    shapeCurve: 0.8,
+    delay: 0.045,
+    sustainVolume: 0.6,
+  })
+}
+
+function playArpeggiatedTone(pitchClass: number, octave: number, volume: number, stepIndex: number) {
+  const frequency = hzFromPitchClass(pitchClass, octave)
+  const sustainMultiplier = getBassOctaveMultiplier(octave)
+  const brightnessVolume = octave <= BASS_OCTAVE ? 0.08 : 0.16
+
+  zzfx({
+    volume: volume * 1.1,
+    randomness: 0,
+    frequency,
+    attack: 0.004,
+    decay: 0.055,
+    sustain: 0.14 * sustainMultiplier,
+    release: 0.16,
+    shape: 1,
+    shapeCurve: 0.7,
+    delay: stepIndex % 2 === 0 ? 0.035 : 0.055,
+    sustainVolume: 0.52,
+  })
+
+  zzfx({
+    volume: volume * brightnessVolume,
+    randomness: 0,
+    frequency: frequency * 2,
+    attack: 0.001,
+    decay: 0.018,
+    sustain: 0.015,
+    release: 0.05,
+    shape: 1,
+    shapeCurve: 0.65,
+    sustainVolume: 0.2,
+  })
 }
 
 export function playTone(pitchClass: number, octave: number, volume = DEFAULT_TONE_VOLUME) {
