@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Basketball01Icon, Clock01Icon, Fire02Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Badge, Group, Indicator, Modal, Stack, Text, Timeline } from '@mantine/core'
+import { Badge, Group, Indicator, Modal, Stack, Text } from '@mantine/core'
 
 import Card from '../Card/Card'
 import { getSubmittedCellColor } from '../Game/logic/game'
@@ -38,7 +38,6 @@ export default function History() {
         const statusColor = isFailed ? 'red.7' : isCompleted ? 'green.7' : 'gray.5'
         const attemptsUsed = entry.attemptsUsed ?? entry.guesses?.length
         const statusDateTime = entry.completedAt ?? entry.failedAt
-        console.log(entry)
 
         return (
           <Card shadow="sm">

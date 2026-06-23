@@ -81,19 +81,3 @@ export function isGameOverStatus(status: GameStatus): boolean {
 export function isGuessInputLocked(status: GameStatus): boolean {
   return isGameOverStatus(status)
 }
-
-export function shouldRevealProgression(status: GameStatus): boolean {
-  return status === 'loss'
-}
-
-export function getEndStateMessage(status: GameStatus): string | null {
-  if (status === 'won') {
-    return 'You entered the correct chord chain for this puzzle. Wait for the next puzzle or choose a puzzle from a different date.'
-  }
-
-  if (status === 'loss') {
-    return 'You reached the maximum number of guesses without guessing the correct chain of chords. Try again tomorrow or choose a puzzle from a different date.'
-  }
-
-  return null
-}

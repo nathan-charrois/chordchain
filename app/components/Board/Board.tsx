@@ -1,15 +1,16 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Alert, Badge, Center, Flex, Group, SimpleGrid, Stack, Text } from '@mantine/core'
+import { Center, Flex, SimpleGrid, Stack, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor } from '../Game/logic/game'
-import { getEndStateMessage, isGameOverStatus, shouldRevealProgression } from '../Game/logic/session'
+import LossNotification from './components/LossNotification'
 import PlaybackControls from './components/PlaybackControls'
+import WinNotification from './components/WinNotification'
 import { useSequence } from './hooks/useSequence'
 import Card from '~/components/Card/Card'
 import { responsiveSizing } from '~/constant'
 import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
-import { buildChord, buildChords, buildScale, chordIdKey } from '~/utils/music'
+import { buildChord, buildChords, buildScale } from '~/utils/music'
 
 const cellHeight = {
   base: 78,
@@ -102,10 +103,6 @@ export default function Board() {
     }
   }, [isPlaying, restart, isArpeggiate, isDrumsEnabled])
 
-  const isLoss = status === 'loss'
-  const endStateMessage = getEndStateMessage(status)
-  const revealProgression = shouldRevealProgression(status)
-
   const scale = useMemo(
     () => buildScale(activePuzzle.key, activePuzzle.mode),
     [activePuzzle.key, activePuzzle.mode],
@@ -128,24 +125,17 @@ export default function Board() {
 
   return (
     <>
-      {isGameOverStatus(status) && endStateMessage && (
-        <Alert mb="lg" color={isLoss ? 'red' : 'green'} title={isLoss ? 'Game Loss' : 'Game Win'} role="status" bdrs="md">
-          <Stack gap="xs">
-            <Text>{endStateMessage}</Text>
-            {revealProgression && (
-              <Stack gap={4}>
-                <Text size="md">Answer:</Text>
-                <Group gap="xs" wrap="wrap">
-                  {chords.map((chord, index) => (
-                    <Badge key={`${chordIdKey(chord)}-${index}`} color="green.7" variant="filled" size="lg" miw={64} bdrs="md">
-                      {chord.name}
-                    </Badge>
-                  ))}
-                </Group>
-              </Stack>
-            )}
-          </Stack>
-        </Alert>
+      {status === 'won' && (
+        <WinNotification
+          key={activePuzzle.date}
+          attemptsUsed={guesses.length}
+        />
+      )}
+      {status === 'loss' && (
+        <LossNotification
+          key={activePuzzle.date}
+          answer={chords}
+        />
       )}
       <Card p={responsiveSizing}>
         <Flex direction="column" gap={responsiveSizing}>

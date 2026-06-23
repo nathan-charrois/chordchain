@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { Link01Icon, Undo03Icon } from '@hugeicons/core-free-icons'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Button, Flex, Group, SimpleGrid, Stack, Text } from '@mantine/core'
+import { useWindowScroll } from '@mantine/hooks'
 
 import { useGame } from '../Game/hooks/useGame'
 import { getGuessStatus } from '../Game/logic/game'
@@ -24,11 +25,15 @@ export default function Pallete() {
   const {
     status,
     guesses,
+    current,
+    maxLength,
+    maxGuesses,
     activePuzzle,
     addCurrent,
     removeCurrent,
     submitGuess,
   } = useGame()
+  const [, scrollTo] = useWindowScroll()
 
   const disabled = status === 'won' || status === 'loss'
 
@@ -64,8 +69,13 @@ export default function Pallete() {
   }, [removeCurrent])
 
   const handleClickEnter = useCallback(() => {
+    if (current.chords.length !== maxLength || guesses.length >= maxGuesses) {
+      return
+    }
+
     submitGuess()
-  }, [submitGuess])
+    scrollTo({ y: 0 })
+  }, [current.chords.length, guesses.length, maxGuesses, maxLength, scrollTo, submitGuess])
 
   return (
     <>
