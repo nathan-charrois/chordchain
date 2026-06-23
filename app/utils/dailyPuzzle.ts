@@ -339,11 +339,11 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
   '2026-06-22': {
     date: '2026-06-22',
     name: 'New Everyday',
-    key: 'G',
+    key: 'E',
     mode: 'ionian',
     difficulty: 'easy',
     arpeggiateType: 'triad_updown',
-    drumLoopId: 'loFiPocket',
+    drumLoopId: 'dubSpace',
     progression: [
       { degree: 1, type: 'triad' },
       { degree: 5, type: 'triad' },

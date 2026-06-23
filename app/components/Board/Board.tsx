@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { Center, Flex, SimpleGrid, Text } from '@mantine/core'
+import { Box, Center, Flex, SimpleGrid, Text } from '@mantine/core'
 
 import { useGame } from '../Game/hooks/useGame'
 import { buildGuessRows, getGuessCellColor } from '../Game/logic/game'
@@ -142,6 +142,22 @@ export default function Board() {
       )}
       <Card p={responsiveSizing}>
         <Flex direction="column" gap={responsiveSizing}>
+          <SimpleGrid
+            cols={maxLength}
+            spacing={responsiveSizing}
+            aria-hidden
+          >
+            {Array.from({ length: maxLength }, (_, cellIndex) => (
+              <Center py="xs" key={cellIndex}>
+                <Box
+                  w={11}
+                  h={11}
+                  bdrs="50%"
+                  bg={activeIndex === cellIndex ? 'brand.7' : 'gray.3'}
+                />
+              </Center>
+            ))}
+          </SimpleGrid>
           {guessRows.map(row => (
             <SimpleGrid
               key={row.index}

@@ -238,8 +238,8 @@ export function getGuessCellColor(
 
   if (row.kind === 'playing' && !isRevealPending) {
     return {
-      background: 'gray.3',
-      color: 'gray.7',
+      background: 'parchment.3',
+      color: 'parchment.8',
       border: undefined,
     }
   }
@@ -248,6 +248,14 @@ export function getGuessCellColor(
     return {
       background: getCellColorByStatus(row.status[cellIndex]),
       color: 'gray.0',
+      border: undefined,
+    }
+  }
+
+  if (row.kind === 'active' && row.chords[cellIndex]) {
+    return {
+      background: 'parchment.3',
+      color: 'parchment.9',
       border: undefined,
     }
   }
