@@ -10,6 +10,8 @@ import '@mantine/core/styles.css'
 import './app.css'
 import './animate.css'
 
+import { GoogleAnalytics } from '~/utils/googleAnalytics'
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -20,6 +22,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet" />
         <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png"></link>
+        <GoogleAnalytics />
         <Meta />
         <Links />
       </head>
