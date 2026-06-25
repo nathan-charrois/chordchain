@@ -142,22 +142,6 @@ export default function Board() {
       )}
       <Card p={responsiveSizing}>
         <Flex direction="column" gap={responsiveSizing}>
-          <SimpleGrid
-            cols={maxLength}
-            spacing={responsiveSizing}
-            aria-hidden
-          >
-            {Array.from({ length: maxLength }, (_, cellIndex) => (
-              <Center py="xs" key={cellIndex}>
-                <Box
-                  w={11}
-                  h={11}
-                  bdrs="50%"
-                  bg={activeIndex === cellIndex ? 'brand.7' : 'gray.3'}
-                />
-              </Center>
-            ))}
-          </SimpleGrid>
           {guessRows.map(row => (
             <SimpleGrid
               key={row.index}
@@ -189,6 +173,22 @@ export default function Board() {
               })}
             </SimpleGrid>
           ))}
+          <SimpleGrid
+            cols={maxLength}
+            spacing={responsiveSizing}
+            aria-hidden
+          >
+            {Array.from({ length: maxLength }, (_, cellIndex) => (
+              <Center key={cellIndex} py="xs">
+                <Box
+                  w={9}
+                  h={9}
+                  bdrs="50%"
+                  bg={activeIndex === cellIndex ? 'brand.7' : 'gray.3'}
+                />
+              </Center>
+            ))}
+          </SimpleGrid>
         </Flex>
       </Card>
       <Card mt={responsiveSizing} p={responsiveSizing}>

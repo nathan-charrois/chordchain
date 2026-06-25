@@ -28,7 +28,7 @@ export default function About() {
         closeOnEscape
         centered
       >
-        <Text>
+        <Text c="dimmed">
           Chord Chain is an ear training game. Use the onscreen keyboard and select chords from the chord pallette. Then press "Enter" for the chain to be evaluated.
         </Text>
       </Modal>
