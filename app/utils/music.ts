@@ -736,7 +736,7 @@ function playArpeggiatedTone(pitchClass: number, octave: number, volume: number,
   const brightnessVolume = octave <= BASS_OCTAVE ? 0.08 : 0.16
 
   zzfx({
-    volume: volume * 1.1,
+    volume: volume * 1.8,
     randomness: 0,
     frequency,
     attack: 0.004,
@@ -755,24 +755,10 @@ function playArpeggiatedTone(pitchClass: number, octave: number, volume: number,
     frequency: frequency * 2,
     attack: 0.001,
     decay: 0.018,
-    sustain: 0.015,
-    release: 0.05,
+    sustain: 0.010,
+    release: 0.010,
     shape: 1,
     shapeCurve: 0.65,
-    sustainVolume: 0.2,
-  })
-}
-
-export function playTone(pitchClass: number, octave: number, volume = DEFAULT_TONE_VOLUME) {
-  const frequency = hzFromPitchClass(pitchClass, octave)
-  const sustainMultiplier = getBassOctaveMultiplier(octave)
-
-  zzfx({
-    volume: volume,
-    randomness: 0,
-    frequency,
-    attack: 0.015,
-    sustain: 0.50 * sustainMultiplier,
-    release: 0.25,
+    sustainVolume: 0.54,
   })
 }
