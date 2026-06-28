@@ -2,13 +2,24 @@ import { useEffect } from 'react'
 
 const googleAnalyticsId = 'G-D90MFYS797'
 
-type GoogleAnalyticsCommand = | ['js', Date] | ['config', string]
-type GoogleAnalyticsTag = (...command: GoogleAnalyticsCommand) => void
+type GoogleAnalyticsConfig = {
+  send_page_view?: boolean
+}
+
+type GoogleAnalyticsEventParams = {
+  page_location?: string
+  page_path?: string
+  page_title?: string
+}
+
+type GoogleAnalyticsCommand = | ['js', Date]
+  | ['config', string, GoogleAnalyticsConfig?]
+  | ['event', 'page_view', GoogleAnalyticsEventParams]
 
 declare global {
   interface Window {
     dataLayer?: GoogleAnalyticsCommand[]
-    gtag?: GoogleAnalyticsTag
+    gtag?: (...command: GoogleAnalyticsCommand) => void
   }
 }
 
@@ -22,7 +33,12 @@ export function GoogleAnalytics() {
     }
 
     window.gtag('js', new Date())
-    window.gtag('config', googleAnalyticsId)
+    window.gtag('config', googleAnalyticsId, { send_page_view: false })
+    window.gtag('event', 'page_view', {
+      page_location: window.location.href,
+      page_path: `${window.location.pathname}${window.location.search}`,
+      page_title: document.title,
+    })
 
     if (document.getElementById('google-analytics')) {
       return
