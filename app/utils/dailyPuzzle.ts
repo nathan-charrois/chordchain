@@ -1,3 +1,4 @@
+import { isDevelopment } from './environment'
 import { GAME_MAX_CHARS } from '~/constant'
 import type { DrumLoopId } from '~/utils/drums'
 import type { ArpeggiateType, ChordId, ModeId, PuzzleDifficulty } from '~/utils/music'
@@ -491,7 +492,7 @@ export function getPuzzleScaleLabel(puzzle: DailyPuzzle): string {
 
 export function getPuzzleDatesDesc(maxDate?: string): string[] {
   return Object.keys(DAILY_PUZZLE_CATALOG)
-    .filter(date => (maxDate ? date <= maxDate : true))
+    .filter(date => (maxDate && !isDevelopment ? date <= maxDate : true))
     .sort((left, right) => right.localeCompare(left))
 }
 
