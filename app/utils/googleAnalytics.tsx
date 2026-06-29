@@ -16,11 +16,30 @@ type GoogleAnalyticsCommand = | ['js', Date]
   | ['config', string, GoogleAnalyticsConfig?]
   | ['event', 'page_view', GoogleAnalyticsEventParams]
 
+type QueuedGoogleAnalyticsCommand = {
+  [index: number]: GoogleAnalyticsCommand[number]
+  length: number
+  [Symbol.toStringTag]: 'Arguments'
+}
+
 declare global {
   interface Window {
-    dataLayer?: GoogleAnalyticsCommand[]
+    dataLayer?: QueuedGoogleAnalyticsCommand[]
     gtag?: (...command: GoogleAnalyticsCommand) => void
   }
+}
+
+function createQueuedCommand(command: GoogleAnalyticsCommand) {
+  const queuedCommand: QueuedGoogleAnalyticsCommand = {
+    length: command.length,
+    [Symbol.toStringTag]: 'Arguments',
+  }
+
+  command.forEach((value, index) => {
+    queuedCommand[index] = value
+  })
+
+  return queuedCommand
 }
 
 export function GoogleAnalytics() {
@@ -29,7 +48,7 @@ export function GoogleAnalytics() {
 
     window.dataLayer = dataLayer
     window.gtag = (...command) => {
-      dataLayer.push(command)
+      dataLayer.push(createQueuedCommand(command))
     }
 
     window.gtag('js', new Date())
