@@ -557,10 +557,28 @@ export type VoicedTone = {
 const DEFAULT_TONE_INTERVAL_MS = 10
 const DEFAULT_ARPEGGIATED_TONE_INTERVAL_MS = 200
 const DEFAULT_SEQUENCE_GAP_MS = 1200
-const DEFAULT_TONE_VOLUME = 1.7
 const MAIN_CHORD_OCTAVE = 4
 const BASS_OCTAVE = MAIN_CHORD_OCTAVE - 1
-const ARPEGGIO_VELOCITY_PATTERN = [1, 0.72, 0.9, 0.78]
+
+type TonePlaybackMode = 'lushChord' | 'arpeggio'
+
+const TONE_VOLUME = {
+  master: 2.2,
+  mode: {
+    lushChord: 0.5,
+    arpeggio: 1.8,
+  },
+  velocity: {
+    bass: 0.72,
+    chordTone: 0.82,
+    arpeggioPattern: [1, 0.72, 0.9, 0.78],
+  },
+} as const
+
+const ACCENT_MIX = {
+  bass: 0.18,
+  treble: 0.33,
+} as const
 
 function sortNotesByArpeggiateType(
   notes: string[],
@@ -615,20 +633,19 @@ export function voicedTonesFromNotes(notes: string[], arpeggiate: boolean, arpeg
 export function playChord(notes: string[], arpeggiate: boolean, arpeggiateType: ArpeggiateType, sequenceGapMs = DEFAULT_SEQUENCE_GAP_MS) {
   const tones = voicedTonesFromNotes(notes, arpeggiate, arpeggiateType)
   const interval = getToneIntervalMs(sequenceGapMs, arpeggiate)
-  const volume = getChordToneVolume(tones.length, arpeggiate)
+  const mode: TonePlaybackMode = arpeggiate ? 'arpeggio' : 'lushChord'
 
   const toneTimeouts = tones.map((tone, index) => {
     return setTimeout(
       () => {
-        const velocity = getToneVelocity(index, tones.length, arpeggiate)
-        const toneVolume = volume * velocity + 5
+        const volume = getToneVolume(index, mode)
 
         if (arpeggiate) {
-          playArpeggiatedTone(tone.pitchClass, tone.octave, toneVolume, index)
+          playArpeggiatedTone(tone.pitchClass, tone.octave, volume, index)
           return
         }
 
-        playLushChordTone(tone.pitchClass, tone.octave, toneVolume)
+        playLushChordTone(tone.pitchClass, tone.octave, volume)
       },
       index * interval,
     )
@@ -646,40 +663,22 @@ function toneFromRootInterval(rootPitchClass: number, octave: number, interval: 
   }
 }
 
-function getChordToneVolume(toneCount: number, arpeggiate: boolean): number {
-  if (arpeggiate) {
-    return DEFAULT_TONE_VOLUME
-  }
-
-  if (toneCount >= 5) {
-    return DEFAULT_TONE_VOLUME - 0.45
-  }
-
-  return DEFAULT_TONE_VOLUME - 0.25
+function getToneVolume(index: number, mode: TonePlaybackMode): number {
+  return TONE_VOLUME.master
+    * TONE_VOLUME.mode[mode]
+    * getToneVelocity(index, mode)
 }
 
-function getToneVelocity(index: number, toneCount: number, arpeggiate: boolean): number {
-  if (arpeggiate) {
-    if (index === 0) {
-      return 0.82
-    }
-
-    return ARPEGGIO_VELOCITY_PATTERN[(index - 1) % ARPEGGIO_VELOCITY_PATTERN.length]
-  }
-
+function getToneVelocity(index: number, mode: TonePlaybackMode): number {
   if (index === 0) {
-    return 1
+    return TONE_VOLUME.velocity.bass
   }
 
-  if (index === 1) {
-    return 0.86
+  if (mode === 'arpeggio') {
+    return TONE_VOLUME.velocity.arpeggioPattern[(index - 1) % TONE_VOLUME.velocity.arpeggioPattern.length]
   }
 
-  if (index === toneCount - 1) {
-    return 0.82
-  }
-
-  return 0.72
+  return TONE_VOLUME.velocity.chordTone
 }
 
 function getToneIntervalMs(sequenceGapMs: number, arpeggiate: boolean) {
@@ -698,13 +697,16 @@ function getBassOctaveMultiplier(octave: number): number {
   return octave <= BASS_OCTAVE ? 1.25 : 1
 }
 
+function getAccentVolume(volume: number, octave: number): number {
+  return volume * (octave <= BASS_OCTAVE ? ACCENT_MIX.bass : ACCENT_MIX.treble)
+}
+
 function playLushChordTone(pitchClass: number, octave: number, volume: number) {
   const frequency = hzFromPitchClass(pitchClass, octave)
   const sustainMultiplier = getBassOctaveMultiplier(octave)
-  const harmonicVolume = octave <= BASS_OCTAVE ? 0.14 : 0.24
 
   zzfx({
-    volume: volume * 0.82,
+    volume,
     randomness: 0,
     frequency,
     attack: 0.025,
@@ -716,7 +718,7 @@ function playLushChordTone(pitchClass: number, octave: number, volume: number) {
   })
 
   zzfx({
-    volume: volume * harmonicVolume,
+    volume: getAccentVolume(volume, octave),
     randomness: 0,
     frequency,
     attack: 0.015,
@@ -733,10 +735,9 @@ function playLushChordTone(pitchClass: number, octave: number, volume: number) {
 function playArpeggiatedTone(pitchClass: number, octave: number, volume: number, stepIndex: number) {
   const frequency = hzFromPitchClass(pitchClass, octave)
   const sustainMultiplier = getBassOctaveMultiplier(octave)
-  const brightnessVolume = octave <= BASS_OCTAVE ? 0.08 : 0.16
 
   zzfx({
-    volume: volume * 1.8,
+    volume,
     randomness: 0,
     frequency,
     attack: 0.004,
@@ -750,7 +751,7 @@ function playArpeggiatedTone(pitchClass: number, octave: number, volume: number,
   })
 
   zzfx({
-    volume: volume * brightnessVolume,
+    volume: getAccentVolume(volume, octave),
     randomness: 0,
     frequency: frequency * 2,
     attack: 0.001,
