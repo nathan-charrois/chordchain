@@ -22,8 +22,8 @@ export type DailyPuzzle = {
 }
 
 const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
-  '2026-07-13': {
-    date: '2026-07-13',
+  '2026-11-10': {
+    date: '2026-11-10',
     name: 'Slow Comet',
     key: 'F',
     mode: 'dorian',
@@ -37,8 +37,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 3, type: 'suspended' },
     ],
   },
-  '2026-07-12': {
-    date: '2026-07-12',
+  '2026-11-11': {
+    date: '2026-11-11',
     name: 'Boxed Upside',
     key: 'B',
     mode: 'locrian',
@@ -52,8 +52,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 5, type: 'seventh' },
     ],
   },
-  '2026-07-11': {
-    date: '2026-07-11',
+  '2026-11-12': {
+    date: '2026-11-12',
     name: 'Velvet Echo',
     key: 'E',
     mode: 'phrygian',
@@ -67,8 +67,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-10': {
-    date: '2026-07-10',
+  '2026-11-13': {
+    date: '2026-11-13',
     name: 'Warm Sunrise',
     key: 'C',
     mode: 'ionian',
@@ -82,8 +82,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-09': {
-    date: '2026-07-09',
+  '2026-11-14': {
+    date: '2026-11-14',
     name: 'Sky Lantern',
     key: 'F',
     mode: 'lydian',
@@ -97,8 +97,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-08': {
-    date: '2026-07-08',
+  '2026-11-15': {
+    date: '2026-11-15',
     name: 'Quiet Harbor',
     key: 'A',
     mode: 'aeolian',
@@ -112,8 +112,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-07': {
-    date: '2026-07-07',
+  '2026-11-16': {
+    date: '2026-11-16',
     name: 'Citrus Light',
     key: 'C',
     mode: 'ionian',
@@ -127,8 +127,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-06': {
-    date: '2026-07-06',
+  '2026-11-17': {
+    date: '2026-11-17',
     name: 'After Rain',
     key: 'D',
     mode: 'dorian',
@@ -142,8 +142,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-05': {
-    date: '2026-07-05',
+  '2026-11-18': {
+    date: '2026-11-18',
     name: 'Amber Hall',
     key: 'D',
     mode: 'aeolian',
@@ -157,8 +157,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 2, type: 'triad' },
     ],
   },
-  '2026-07-04': {
-    date: '2026-07-04',
+  '2026-11-19': {
+    date: '2026-11-19',
     name: 'Rolling Tide',
     key: 'G',
     mode: 'aeolian',
@@ -172,8 +172,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-03': {
-    date: '2026-07-03',
+  '2026-11-20': {
+    date: '2026-11-20',
     name: 'Moss Path',
     key: 'A',
     mode: 'aeolian',
@@ -187,8 +187,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-07-02': {
-    date: '2026-07-02',
+  '2026-11-21': {
+    date: '2026-11-21',
     name: 'Old Radio',
     key: 'G',
     mode: 'mixolydian',
@@ -202,8 +202,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 7, type: 'triad' },
     ],
   },
-  '2026-07-01': {
-    date: '2026-07-01',
+  '2026-11-22': {
+    date: '2026-11-22',
     name: 'Night Trains',
     key: 'D',
     mode: 'dorian',
@@ -217,8 +217,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-30': {
-    date: '2026-06-30',
+  '2026-11-23': {
+    date: '2026-11-23',
     name: 'Blue Terrace',
     key: 'F',
     mode: 'lydian',
@@ -232,8 +232,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'seventh' },
     ],
   },
-  '2026-06-29': {
-    date: '2026-06-29',
+  '2026-11-24': {
+    date: '2026-11-24',
     name: 'Late Checkout',
     key: 'G',
     mode: 'mixolydian',
@@ -247,8 +247,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'seventh' },
     ],
   },
-  '2026-06-28': {
-    date: '2026-06-28',
+  '2026-11-25': {
+    date: '2026-11-25',
     name: 'Faded Postcard',
     key: 'A',
     mode: 'aeolian',
@@ -262,8 +262,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'seventh' },
     ],
   },
-  '2026-06-27': {
-    date: '2026-06-27',
+  '2026-11-26': {
+    date: '2026-11-26',
     name: 'Silver Arcade',
     key: 'B',
     mode: 'ionian',
@@ -277,8 +277,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-26': {
-    date: '2026-06-26',
+  '2026-11-27': {
+    date: '2026-11-27',
     name: 'Signal Bloom',
     key: 'C',
     mode: 'ionian',
@@ -292,8 +292,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 5, type: 'triad' },
     ],
   },
-  '2026-06-25': {
-    date: '2026-06-25',
+  '2026-11-28': {
+    date: '2026-11-28',
     name: 'City Lullaby',
     key: 'D',
     mode: 'aeolian',
@@ -307,8 +307,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 1, type: 'triad' },
     ],
   },
-  '2026-06-24': {
-    date: '2026-06-24',
+  '2026-11-29': {
+    date: '2026-11-29',
     name: 'Low Horizon',
     key: 'E',
     mode: 'phrygian',
@@ -322,8 +322,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 2, type: 'triad' },
     ],
   },
-  '2026-06-23': {
-    date: '2026-06-23',
+  '2026-11-30': {
+    date: '2026-11-30',
     name: 'Clockwork Air',
     key: 'C',
     mode: 'dorian',
@@ -337,8 +337,8 @@ const DAILY_PUZZLE_CATALOG: Record<string, DailyPuzzle> = {
       { degree: 2, type: 'triad' },
     ],
   },
-  '2026-06-22': {
-    date: '2026-06-22',
+  '2026-12-01': {
+    date: '2026-12-01',
     name: 'New Everyday',
     key: 'E',
     mode: 'ionian',
