@@ -13,9 +13,9 @@ import { DEFAULT_TEMPO_BPM } from '~/utils/chain'
 import { buildChord, buildChords, buildScale } from '~/utils/music'
 
 const cellHeight = {
-  base: 78,
-  xs: 110,
-  md: 136,
+  base: 75,
+  xs: 108,
+  md: 134,
 }
 
 const cellFontSize = {
@@ -45,7 +45,7 @@ export default function Board() {
   } = useSequence()
 
   const [isArpeggiate, setIsArpeggiate] = useState(false)
-  const [isDrumsEnabled, setIsDrumsEnabled] = useState(false)
+  const [isDrumsEnabled, setIsDrumsEnabled] = useState(true)
   const [tempoBpm, setTempoBpm] = useState(DEFAULT_TEMPO_BPM)
 
   const handleTogglePlayback = useCallback(() => {
@@ -173,22 +173,7 @@ export default function Board() {
               })}
             </SimpleGrid>
           ))}
-          <SimpleGrid
-            cols={maxLength}
-            spacing={responsiveSizing}
-            aria-hidden
-          >
-            {Array.from({ length: maxLength }, (_, cellIndex) => (
-              <Center key={cellIndex} py="xs">
-                <Box
-                  w={9}
-                  h={9}
-                  bdrs="50%"
-                  bg={activeIndex === cellIndex ? 'brand.7' : 'gray.3'}
-                />
-              </Center>
-            ))}
-          </SimpleGrid>
+
         </Flex>
       </Card>
       <Card mt={responsiveSizing} p={responsiveSizing}>

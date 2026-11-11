@@ -20,7 +20,7 @@ export default function Header() {
         <Title order={1} fw={600} c="brand.8" fz="h2">
           ChordChain
         </Title>
-        <Title order={2} fw={600} c="brand.6" fz="h4">
+        <Title order={2} fw={600} c="brand.6" fz={isMobile ? "h5" : "h4"}>
           Guess chords by listening
         </Title>
       </Box>
